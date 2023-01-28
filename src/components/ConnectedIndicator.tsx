@@ -1,96 +1,49 @@
 // This component should be a green circle in the top right when connected to a relay
 // Red circle when not connected
-
-import { Relay, relayInit } from "nostr-tools";
-import { createSignal, onMount } from "solid-js";
-
-interface RelayContainer {
-  name: string;
-  url: string;
-  relay: Relay | null;
-  connected: boolean;
-}
+import { relayInit } from "nostr-tools";
+import { createEffect, onMount, useContext } from "solid-js";
+import { RelayContext } from "~/contexts/RelayStoreContext";
 
 const ConnectedIndicator = () => {
-  const [supportedRelays, setSupportedRelays] = createSignal<RelayContainer[]>(
-    [
-      {
-        name: "brb",
-        url: "wss://brb.io/",
-        relay: null,
-        connected: false,
-      },
-      {
-        name: "klendazu",
-        url: "wss://btc.klendazu.com/",
-        relay: null,
-        connected: false,
-      },
-      {
-        name: "deschooling",
-        url: "wss://deschooling.us/",
-        relay: null,
-        connected: false,
-      },
-    ],
-    { equals: false }
-  );
+  const relayContextStore = useContext(RelayContext);
+
+  createEffect(() => {}, relayContextStore);
 
   onMount(() => {
-    supportedRelays().forEach((relayContainer) => {
-      const initializedRelay = relayInit(relayContainer.url);
+    relayContextStore.relays &&
+      relayContextStore.relays().forEach((relayContainerOld) => {
+        const relayContainer = { ...relayContainerOld };
 
-      initializedRelay.on("connect", () => {
-        setSupportedRelays((prev) => {
-          return prev.map((relay) => {
-            if (relay.name === relayContainer.name) {
-              return {
-                ...relay,
-                connected: true,
-              };
-            }
-            return relay;
+        const initializedRelay = relayInit(relayContainer.url);
+
+        initializedRelay.on("connect", () => {
+          relayContainer.connected = true;
+          relayContextStore.setRelayStore({
+            name: relayContainer.name,
+            newRelayContainer: relayContainer,
           });
         });
-        relayContainer.connected = true;
-      });
-      initializedRelay.on("disconnect", () => {
-        setSupportedRelays((prev) => {
-          return prev.map((relay) => {
-            if (relay.name === relayContainer.name) {
-              return {
-                ...relay,
-                connected: false,
-              };
-            }
-            return relay;
+        initializedRelay.on("disconnect", () => {
+          relayContainer.connected = false;
+          relayContextStore.setRelayStore({
+            name: relayContainer.name,
+            newRelayContainer: relayContainer,
           });
         });
-      });
-      initializedRelay.on("error", () => {
-        console.error(`Error connecting to ${relayContainer.url} relay`);
-      });
-      initializedRelay.connect();
-
-      setSupportedRelays((prev) => {
-        return prev.map((relay) => {
-          if (relay.name === relayContainer.name) {
-            return {
-              ...relay,
-              relay: initializedRelay,
-            };
-          }
-          return relay;
+        initializedRelay.on("error", () => {
+          console.error(`Error connecting to ${relayContainer.url} relay`);
         });
+
+        initializedRelay.connect();
       });
-    });
   });
 
   return (
     <div class="w-fit h-fit">
       <div
         class={`w-4 h-4 rounded-full animate-pulse ${
-          supportedRelays().find((relay) => relay.connected)
+          relayContextStore.relays &&
+          relayContextStore.relays().find((relay) => relay.connected)
             ? "bg-green-500"
             : "bg-red-500"
         }`}
