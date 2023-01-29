@@ -15,6 +15,8 @@ specifiers:
   prettier: ^2.8.3
   prettier-plugin-tailwindcss: ^0.2.2
   solid-devtools: ^0.24.7
+  solid-headless: ^0.13.0
+  solid-icons: ^1.0.4
   solid-js: ^1.6.9
   solid-start: ^0.2.15
   solid-start-node: ^0.2.15
@@ -27,6 +29,8 @@ dependencies:
   '@solidjs/meta': 0.28.2_solid-js@1.6.9
   '@solidjs/router': 0.7.0_solid-js@1.6.9
   nostr-tools: 1.2.0
+  solid-headless: 0.13.0_solid-js@1.6.9
+  solid-icons: 1.0.4_solid-js@1.6.9
   solid-js: 1.6.9
   solid-start: 0.2.16_55umyvmfaswzxpylft3tvr3dvm
   undici: 5.16.0
@@ -4052,6 +4056,25 @@ packages:
       - supports-color
     dev: true
 
+  /solid-headless/0.13.0_solid-js@1.6.9:
+    resolution: {integrity: sha512-N118iPl7W5lyug4K+4c0cwM8YR2yEVJ/3H4wq6tVijATHfXfLnB1ACFI5GGHSXlwu70PUzaGSKwcVqLlloUMyA==}
+    engines: {node: '>=10'}
+    peerDependencies:
+      solid-js: ^1.2
+    dependencies:
+      solid-js: 1.6.9
+      solid-use: 0.5.0_solid-js@1.6.9
+    dev: false
+
+  /solid-icons/1.0.4_solid-js@1.6.9:
+    resolution: {integrity: sha512-gJTp4in3+OYCs9WvDkSLt4Los2unR3Uoder8wjh15GsfP20xiNOLfPTJllXmn+fI8+k3x7bRYtLGIgWd9fUQug==}
+    engines: {node: '>= 16'}
+    peerDependencies:
+      solid-js: '*'
+    dependencies:
+      solid-js: 1.6.9
+    dev: false
+
   /solid-js/1.6.9:
     resolution: {integrity: sha512-kV3fMmm+1C2J95c8eDOPKGfZHnuAkHUBLG4hX1Xu08bXeAIPqmxuz/QdH3B8SIdTp3EatBVIyA6RCes3hrGzpg==}
     dependencies:
@@ -4135,6 +4158,15 @@ packages:
       wait-on: 6.0.1_debug@4.3.4
     transitivePeerDependencies:
       - supports-color
+
+  /solid-use/0.5.0_solid-js@1.6.9:
+    resolution: {integrity: sha512-z1AaS99SL3gNP70K4+XIVKGXDRI56m3Q6Q4X63bfgw0kaN6cwT4SAyFZAmIRjHcvf5rOMRQfNgUV4YVDha+LcQ==}
+    engines: {node: '>=10'}
+    peerDependencies:
+      solid-js: ^1.2
+    dependencies:
+      solid-js: 1.6.9
+    dev: false
 
   /source-map-js/1.0.2:
     resolution: {integrity: sha512-R0XvVJ9WusLiqTCEiGCmICCMplcCkIwwR11mOSD9CR5u+IXYdiseeEuXCVAjS54zqwkLcPNnmU4OeJ6tUrWhDw==}

@@ -43,12 +43,12 @@ const ConnectedIndicator = () => {
       });
   });
 
-  onCleanup(() => {
-    relayContextStore.relays &&
-      relayContextStore.relays().forEach((relayContainer) => {
-        relayContainer.relay && relayContainer.relay.close();
-      });
-  });
+  // onCleanup(() => {
+  //   relayContextStore.relays &&
+  //     relayContextStore.relays().forEach((relayContainer) => {
+  //       relayContainer.relay && relayContainer.relay.close();
+  //     });
+  // });
 
   return (
     <div class="h-fit w-fit">
