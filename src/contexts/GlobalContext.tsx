@@ -1,5 +1,6 @@
 import { Relay } from "nostr-tools";
 import { Accessor, JSX, createContext, createSignal, onMount } from "solid-js";
+import { Topic } from "~/components/Topics/types";
 
 export interface RelayContainer {
   name: string;
@@ -25,6 +26,7 @@ export interface GlobalStoreContextProps {
 export type GlobalStoreProviderType = {
   connectedUser: Accessor<User | null> | null;
   relays: Accessor<RelayContainer[]> | null;
+  userTopics: Accessor<Topic[]> | null;
   setConnectedUser: (user: User) => void;
   setRelayStore: ({
     name,
@@ -33,14 +35,17 @@ export type GlobalStoreProviderType = {
     name: string;
     newRelayContainer: RelayContainer;
   }) => void;
+  setUserTopics: (topics: Topic[]) => void;
 };
 
 export const GlobalContext = createContext<GlobalStoreProviderType>(
   {
     connectedUser: null,
     relays: null,
+    userTopics: null,
     setConnectedUser: (user: User) => {},
     setRelayStore: ({ name, newRelayContainer }) => {},
+    setUserTopics: (topics: Topic[]) => {},
   },
   {},
 );
@@ -48,6 +53,7 @@ export const GlobalContext = createContext<GlobalStoreProviderType>(
 const RelayStoreContext = (props: GlobalStoreContextProps) => {
   const [hasNostrInWindow, setHasNostrInWindow] = createSignal(false);
   const [connectedUser, setConnectedUser] = createSignal<User | null>(null);
+  const [userTopics, setUserTopics] = createSignal<Topic[]>([]);
   const [relayStore, setRelayStore] = createSignal<RelayContainer[]>([
     {
       name: "damus",
@@ -108,6 +114,7 @@ const RelayStoreContext = (props: GlobalStoreContextProps) => {
   const globalStoreProvider = {
     connectedUser,
     relays: relayStore,
+    userTopics: userTopics,
     setConnectedUser: (user: User) => {
       setConnectedUser(user);
     },
@@ -126,6 +133,9 @@ const RelayStoreContext = (props: GlobalStoreContextProps) => {
           return relay;
         });
       });
+    },
+    setUserTopics: (topics: Topic[]) => {
+      setUserTopics(topics);
     },
   };
 

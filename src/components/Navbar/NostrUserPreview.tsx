@@ -61,7 +61,6 @@ export const getNostrUserMetadata = async ({
 
 const NostrUserPreview = () => {
   const globalStore = useContext(GlobalContext);
-  const [metadata, setMetadata] = createSignal<Event | null>(null);
 
   if (
     !globalStore.connectedUser ||
