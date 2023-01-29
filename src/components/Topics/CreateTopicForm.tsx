@@ -14,7 +14,7 @@ const CreateTopicForm = (props: CreateTopicFormProps) => {
         <div class="flex flex-col space-y-1">
           <div>Topic Question:</div>
           <input
-            class="border border-white rounded bg-slate-900 text-white"
+            class="border border-white rounded bg-slate-900 text-white px-2"
             type="text"
             onInput={(e) => setTopicQuestion(e.currentTarget.value)}
             value={topicQuestion()}
