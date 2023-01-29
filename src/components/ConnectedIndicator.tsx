@@ -12,6 +12,10 @@ const ConnectedIndicator = () => {
       relayContextStore.relays().forEach((relayContainerOld) => {
         const relayContainer = { ...relayContainerOld };
 
+        if (relayContainer.relay) {
+          return;
+        }
+
         const initializedRelay = relayInit(relayContainer.url);
 
         initializedRelay.on("connect", () => {
