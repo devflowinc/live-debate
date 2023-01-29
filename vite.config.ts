@@ -8,11 +8,14 @@ export default defineConfig({
       /* additional options */
       autoname: true, // e.g. enable autoname
       locator: {
-        targetIDE: 'vscode',
+        targetIDE: "vscode",
         componentLocation: true,
         jsxLocation: true,
       },
     }),
-    solid(),
+    solid({
+      ssr: false,
+      inspect: true,
+    }),
   ],
 });

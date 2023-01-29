@@ -1,9 +1,10 @@
-import Navbar from "~/components/Navbar";
+import Navbar from "../components/Navbar/Navbar";
+import ApplicationLayout from "~/components/layouts/ApplicationLayout";
 
 export default function Home() {
   return (
-    <div class="w-screen h-screen bg-black">
-      <Navbar />
-    </div>
+    <ApplicationLayout>
+      Hello World
+    </ApplicationLayout>
   );
 }

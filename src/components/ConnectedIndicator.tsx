@@ -2,12 +2,10 @@
 // Red circle when not connected
 import { relayInit } from "nostr-tools";
 import { createEffect, onMount, useContext } from "solid-js";
-import { RelayContext } from "~/contexts/RelayStoreContext";
+import { GlobalContext } from "../contexts/GlobalContext";
 
 const ConnectedIndicator = () => {
-  const relayContextStore = useContext(RelayContext);
-
-  createEffect(() => {}, relayContextStore);
+  const relayContextStore = useContext(GlobalContext);
 
   onMount(() => {
     relayContextStore.relays &&
