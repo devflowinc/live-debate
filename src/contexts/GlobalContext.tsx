@@ -61,24 +61,24 @@ const RelayStoreContext = (props: GlobalStoreContextProps) => {
       relay: null,
       connected: false,
     },
-    {
-      name: "wlvs",
-      url: "wss://nostr-relay.wlvs.space/",
-      relay: null,
-      connected: false,
-    },
+    // {
+    //   name: "wlvs",
+    //   url: "wss://nostr-relay.wlvs.space/",
+    //   relay: null,
+    //   connected: false,
+    // },
     {
       name: "wellorder",
       url: "wss://nostr-pub.wellorder.net/",
       relay: null,
       connected: false,
     },
-    {
-      name: "walletofsatoshi",
-      url: "wss://nostr.walletofsatoshi.com/",
-      relay: null,
-      connected: false,
-    },
+    // {
+    //   name: "walletofsatoshi",
+    //   url: "wss://nostr.walletofsatoshi.com/",
+    //   relay: null,
+    //   connected: false,
+    // },
     {
       name: "bitcoiner.social",
       url: "wss://nostr.bitcoiner.social/",
@@ -97,12 +97,12 @@ const RelayStoreContext = (props: GlobalStoreContextProps) => {
       relay: null,
       connected: false,
     },
-    {
-      name: "nostr.info",
-      url: "wss://nostr.info/",
-      relay: null,
-      connected: false,
-    },
+    // {
+    //   name: "nostr.info",
+    //   url: "wss://nostr.info/",
+    //   relay: null,
+    //   connected: false,
+    // },
     {
       name: "semisol",
       url: "wss://nostr-pub.semisol.dev/",

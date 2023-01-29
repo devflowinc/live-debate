@@ -1,6 +1,7 @@
 import { useContext } from "solid-js";
 import { GlobalContext, RelayContainer } from "~/contexts/GlobalContext";
 import { Event } from "nostr-tools";
+import { A } from "solid-start";
 
 export const isEventArguflowTopicByTags = (tags: string[][]): boolean => {
   let foundArguflow = false;
@@ -101,11 +102,13 @@ const TopicsList = () => {
   }
 
   return (
-    <div class="flex w-full flex-col items-center justify-center px-2">
+    <div class="flex w-full flex-col items-center justify-center space-y-2 px-2">
       {globalContext.userTopics().map((topic) => {
         return (
-          <div class="my-2 w-full rounded-lg bg-gray-800 p-4">
-            <div class="text-lg font-bold text-white">{topic.title}</div>
+          <div class="w-full rounded-lg bg-gray-800">
+            <A href={`/topics/${topic.eventId}`} aria-label="topic detail page">
+              <div class="p-4 text-lg font-bold text-white">{topic.title}</div>
+            </A>
           </div>
         );
       })}
