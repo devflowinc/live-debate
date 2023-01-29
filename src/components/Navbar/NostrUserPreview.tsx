@@ -11,14 +11,19 @@ export const UserPreview = (props: UserPreviewProps) => {
   if (!props.user) return null;
 
   return (
-    <div class="flex space-x-1 items-center">
+    <div class="flex items-center space-x-1">
       <div class="flex flex-col justify-between">
         <div class="font-semibold">{props.user.name}</div>
-        <div class="font-light">{`${props.user.publicKey.slice(0, 
-          3
+        <div class="font-light">{`${props.user.publicKey.slice(
+          0,
+          3,
         )}...${props.user.publicKey.slice(-3)}`}</div>
       </div>
-      <img alt="profile-picture" class="rounded-full w-12 h-12" src={props.user.avatar} />
+      <img
+        alt="profile-picture"
+        class="h-12 w-12 rounded-full"
+        src={props.user.avatar}
+      />
     </div>
   );
 };
@@ -44,7 +49,7 @@ export const getNostrUserMetadata = async ({
         ],
         {
           skipVerification: true,
-        }
+        },
       );
 
       metadataSub.on("event", (event: Event) => {
@@ -80,7 +85,7 @@ const NostrUserPreview = () => {
         connectedRelayContainers: connectedRelayContainers,
         onMetadataReceived: (metadataEvent: Event) => {
           const nostrUserMetadata = JSON.parse(
-            metadataEvent.content
+            metadataEvent.content,
           ) as NostrUserMetadata;
           globalStore.connectedUser &&
             globalStore.connectedUser() &&

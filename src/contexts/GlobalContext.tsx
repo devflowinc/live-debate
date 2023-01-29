@@ -42,7 +42,7 @@ export const GlobalContext = createContext<GlobalStoreProviderType>(
     setConnectedUser: (user: User) => {},
     setRelayStore: ({ name, newRelayContainer }) => {},
   },
-  {}
+  {},
 );
 
 const RelayStoreContext = (props: GlobalStoreContextProps) => {
@@ -66,7 +66,7 @@ const RelayStoreContext = (props: GlobalStoreContextProps) => {
       url: "wss://nostr-pub.wellorder.net/",
       relay: null,
       connected: false,
-    }, 
+    },
     {
       name: "walletofsatoshi",
       url: "wss://nostr.walletofsatoshi.com/",
@@ -141,8 +141,8 @@ const RelayStoreContext = (props: GlobalStoreContextProps) => {
     <GlobalContext.Provider value={globalStoreProvider}>
       {props.children}
       {!hasNostrInWindow() && (
-        <div class="w-screen h-screen bg-gray-600/20 backdrop-blur-sm fixed top-0 left-0 flex justify-center items-center">
-          <div class="px-8 py-4 bg-black rounded-lg text-red-500 max-w-[70%]">
+        <div class="fixed top-0 left-0 flex h-screen w-screen items-center justify-center bg-gray-600/20 backdrop-blur-sm">
+          <div class="max-w-[70%] rounded-lg bg-black px-8 py-4 text-red-500">
             You need to install{` `}
             <a
               href="https://github.com/fiatjaf/nos2x"

@@ -13,7 +13,7 @@ const ConnectIdButton = () => {
   const globalStore = useContext(GlobalContext);
 
   return (
-    <div class="w-fit h-fit rounded-full border border-yellow-500">
+    <div class="h-fit w-fit rounded-full border border-yellow-500">
       <button
         class="px-4 py-2 text-yellow-500"
         onClick={() =>

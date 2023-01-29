@@ -35,7 +35,7 @@ export const subscribeToArguflowTopicsForPublickKey = ({
         ],
         {
           skipVerification: true,
-        }
+        },
       );
 
       metadataSub.on("event", (event: Event) => {
@@ -80,11 +80,11 @@ const TopicsList = () => {
   }
 
   return (
-    <div class="w-full px-2 flex flex-col items-center justify-center">
+    <div class="flex w-full flex-col items-center justify-center px-2">
       {userTopics().map((topic) => {
         return (
-          <div class="w-full bg-gray-800 rounded-lg p-4 my-2">
-            <div class="text-white text-lg font-bold">{topic.title}</div>
+          <div class="my-2 w-full rounded-lg bg-gray-800 p-4">
+            <div class="text-lg font-bold text-white">{topic.title}</div>
           </div>
         );
       })}

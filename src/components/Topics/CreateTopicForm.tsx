@@ -9,26 +9,26 @@ const CreateTopicForm = (props: CreateTopicFormProps) => {
   const [topicQuestion, setTopicQuestion] = createSignal<string>("");
 
   return (
-    <div class="w-full px-2 text-white border border-white rounded-lg py-2">
+    <div class="w-full rounded-lg border border-white px-2 py-2 text-white">
       <div class="flex flex-col space-y-4">
         <div class="flex flex-col space-y-1">
           <div>Topic Question:</div>
           <input
-            class="border border-white rounded bg-slate-900 text-white px-2"
+            class="rounded border border-white bg-slate-900 px-2 text-white"
             type="text"
             onInput={(e) => setTopicQuestion(e.currentTarget.value)}
             value={topicQuestion()}
           />
         </div>
-        <div class="flex w-full justify-end space-x-2 mt-2">
+        <div class="mt-2 flex w-full justify-end space-x-2">
           <button
-            class="bg-transparent border border-red-500 rounded-full text-red-500 w-fit px-2"
+            class="w-fit rounded-full border border-red-500 bg-transparent px-2 text-red-500"
             onClick={props.onCancel}
           >
             Cancel
           </button>
           <button
-            class="bg-transparent border border-green-500 rounded-full text-green-500 w-fit px-2"
+            class="w-fit rounded-full border border-green-500 bg-transparent px-2 text-green-500"
             onClick={() => props.onCreateTopic(topicQuestion())}
           >
             Create Topic

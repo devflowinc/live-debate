@@ -10,14 +10,14 @@ const ApplicationLayout = (props: ApplicationLayoutProps) => {
   const globalContext = useContext(GlobalContext);
 
   return (
-    <div class="w-screen h-screen bg-black">
+    <div class="h-screen w-screen bg-black">
       <Navbar />
       {globalContext.connectedUser &&
       globalContext.connectedUser()?.publicKey ? (
         props.children
       ) : (
-        <div class="text-white flex w-full justify-center mt-6 px-4">
-          <div class="max-w-[75%] w-fit text-center">
+        <div class="mt-6 flex w-full justify-center px-4 text-white">
+          <div class="w-fit max-w-[75%] text-center">
             Please connect your Nostr ID to use the app
           </div>
         </div>

@@ -39,9 +39,9 @@ const ConnectedIndicator = () => {
   });
 
   return (
-    <div class="w-fit h-fit">
+    <div class="h-fit w-fit">
       <div
-        class={`w-4 h-4 rounded-full animate-pulse ${
+        class={`h-4 w-4 animate-pulse rounded-full ${
           relayContextStore.relays &&
           relayContextStore.relays().find((relay) => relay.connected)
             ? "bg-green-500"
