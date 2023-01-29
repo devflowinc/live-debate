@@ -1,10 +1,14 @@
-import Navbar from "../components/Navbar/Navbar";
+import { useContext } from "solid-js";
 import ApplicationLayout from "~/components/layouts/ApplicationLayout";
+import TopicsDisplay from "~/components/Topics/TopicsDisplay";
+import { GlobalContext } from "~/contexts/GlobalContext";
 
 export default function Home() {
   return (
     <ApplicationLayout>
-      Hello World
+      <div class="px-8 mt-4 flex w-full justify-center">
+        <TopicsDisplay />
+      </div>
     </ApplicationLayout>
   );
 }
