@@ -3,7 +3,6 @@ import ConnectedIndicator from "../ConnectedIndicator";
 import ConnectIdButton from "./ConnectIdButton";
 import { GlobalContext } from "~/contexts/GlobalContext";
 import NostrUserPreview from "./NostrUserPreview";
-import { effect } from "solid-js/web";
 
 const Navbar = () => {
   const globalStore = useContext(GlobalContext);
@@ -12,7 +11,7 @@ const Navbar = () => {
     <div class="w-full bg-transparent border-b border-gray-800 flex justify-between items-center px-16 py-8">
       <div class="text-white text-2xl">Arguflow</div>
       <div class="flex items-center space-x-4">
-        {globalStore.connectedUser ? <NostrUserPreview /> : <ConnectIdButton />}
+        {globalStore.connectedUser && globalStore.connectedUser()?.publicKey ? <NostrUserPreview /> : <ConnectIdButton />}
         <ConnectedIndicator />
       </div>
     </div>

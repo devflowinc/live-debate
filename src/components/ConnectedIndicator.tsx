@@ -1,7 +1,7 @@
 // This component should be a green circle in the top right when connected to a relay
 // Red circle when not connected
 import { relayInit } from "nostr-tools";
-import { createEffect, onMount, useContext } from "solid-js";
+import { onMount, useContext } from "solid-js";
 import { GlobalContext } from "../contexts/GlobalContext";
 
 const ConnectedIndicator = () => {
@@ -16,6 +16,7 @@ const ConnectedIndicator = () => {
 
         initializedRelay.on("connect", () => {
           relayContainer.connected = true;
+          relayContainer.relay = initializedRelay;
           relayContextStore.setRelayStore({
             name: relayContainer.name,
             newRelayContainer: relayContainer,
@@ -23,6 +24,7 @@ const ConnectedIndicator = () => {
         });
         initializedRelay.on("disconnect", () => {
           relayContainer.connected = false;
+          relayContainer.relay = null;
           relayContextStore.setRelayStore({
             name: relayContainer.name,
             newRelayContainer: relayContainer,

@@ -5,7 +5,6 @@ export const getNostrPublicKey = async () => {
   if (typeof window !== "undefined" && (window as any).nostr) {
     const nostr = (window as any).nostr;
     const nostrPublicKey = await nostr.getPublicKey();
-    console.log("nostrPublicKey", nostrPublicKey);
     return nostrPublicKey;
   }
 };

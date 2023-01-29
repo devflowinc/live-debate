@@ -1,8 +1,7 @@
 import { Relay } from "nostr-tools";
 import { Accessor, JSX, createContext, createSignal, onMount } from "solid-js";
-import { Portal } from "solid-js/web";
 
-interface RelayContainer {
+export interface RelayContainer {
   name: string;
   url: string;
   relay: Relay | null;
@@ -51,20 +50,56 @@ const RelayStoreContext = (props: GlobalStoreContextProps) => {
   const [connectedUser, setConnectedUser] = createSignal<User | null>(null);
   const [relayStore, setRelayStore] = createSignal<RelayContainer[]>([
     {
-      name: "brb",
-      url: "wss://brb.io/",
+      name: "damus",
+      url: "wss://relay.damus.io/",
       relay: null,
       connected: false,
     },
     {
-      name: "klendazu",
-      url: "wss://btc.klendazu.com/",
+      name: "wlvs",
+      url: "wss://nostr-relay.wlvs.space/",
       relay: null,
       connected: false,
     },
     {
-      name: "deschooling",
-      url: "wss://deschooling.us/",
+      name: "wellorder",
+      url: "wss://nostr-pub.wellorder.net/",
+      relay: null,
+      connected: false,
+    }, 
+    {
+      name: "walletofsatoshi",
+      url: "wss://nostr.walletofsatoshi.com/",
+      relay: null,
+      connected: false,
+    },
+    {
+      name: "bitcoiner.social",
+      url: "wss://nostr.bitcoiner.social/",
+      relay: null,
+      connected: false,
+    },
+    {
+      name: "zebedee",
+      url: "wss://nostr.zebedee.cloud/",
+      relay: null,
+      connected: false,
+    },
+    {
+      name: "onsats",
+      url: "wss://nostr.onsats.org/",
+      relay: null,
+      connected: false,
+    },
+    {
+      name: "nostr.info",
+      url: "wss://nostr.info/",
+      relay: null,
+      connected: false,
+    },
+    {
+      name: "semisol",
+      url: "wss://nostr-pub.semisol.dev/",
       relay: null,
       connected: false,
     },
@@ -105,7 +140,7 @@ const RelayStoreContext = (props: GlobalStoreContextProps) => {
   return (
     <GlobalContext.Provider value={globalStoreProvider}>
       {props.children}
-      {!hasNostrInWindow && (
+      {!hasNostrInWindow() && (
         <div class="w-screen h-screen bg-gray-600/20 backdrop-blur-sm fixed top-0 left-0 flex justify-center items-center">
           <div class="px-8 py-4 bg-black rounded-lg text-red-500 max-w-[70%]">
             You need to install{` `}
