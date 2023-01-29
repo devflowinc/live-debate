@@ -9,13 +9,11 @@ export interface ApplicationLayoutProps {
 const ApplicationLayout = (props: ApplicationLayoutProps) => {
   const globalContext = useContext(GlobalContext);
 
-  const userPublicKey =
-    globalContext.connectedUser && globalContext.connectedUser()?.publicKey;
-
   return (
     <div class="w-screen h-screen bg-black">
       <Navbar />
-      {userPublicKey ? (
+      {globalContext.connectedUser &&
+      globalContext.connectedUser()?.publicKey ? (
         props.children
       ) : (
         <div class="text-white flex w-full justify-center mt-6 px-4">
