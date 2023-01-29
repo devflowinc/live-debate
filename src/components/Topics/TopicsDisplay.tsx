@@ -6,7 +6,8 @@ import { Event, getEventHash } from "nostr-tools";
 
 export const getUTCSecondsSinceEpoch = (): number => {
   const now = new Date();
-  const utcMilllisecondsSinceEpoch = now.getTime() + now.getTimezoneOffset() * 60 * 1000;
+  const utcMilllisecondsSinceEpoch =
+    now.getTime() + now.getTimezoneOffset() * 60 * 1000;
   return Math.round(utcMilllisecondsSinceEpoch / 1000);
 };
 
@@ -19,7 +20,6 @@ export const emitEventToConnectedRelays = ({
 }) => {
   connectedRelayContainers.forEach((relayContainer) => {
     if (relayContainer.relay) {
-      console.log("Publishing event to: ", relayContainer.name)
       relayContainer.relay.publish(event);
     }
   });
@@ -33,23 +33,33 @@ const TopicsDisplay = () => {
     setShowCreateTopicForm(false);
   };
   const onCreateTopic = (topic: string) => {
-    const eventPublicKey = globalContext && globalContext.connectedUser && globalContext.connectedUser()?.publicKey;
+    const eventPublicKey =
+      globalContext &&
+      globalContext.connectedUser &&
+      globalContext.connectedUser()?.publicKey;
     if (!eventPublicKey) return;
     const createdAt = getUTCSecondsSinceEpoch();
     const event: Event = {
-      id: '',
-      sig: '',
+      id: "",
+      sig: "",
       kind: 1,
       pubkey: eventPublicKey,
-      tags: [['arguflow'], ['arguflow-topic-question']],
+      tags: [["arguflow"], ["arguflow-topic-question"]],
       created_at: createdAt,
-      content: JSON.stringify({ topicQuestion: topic }),
+      content: JSON.stringify({
+        topicQuestion: topic,
+      }),
     };
     event.id = getEventHash(event);
     (window as any).nostr.signEvent(event).then((signedEvent: Event) => {
       if (globalContext && globalContext.relays) {
-        const connectedRelayContainers = globalContext.relays().filter((relay) => relay.connected);
-        emitEventToConnectedRelays({ event: signedEvent, connectedRelayContainers: connectedRelayContainers });
+        const connectedRelayContainers = globalContext
+          .relays()
+          .filter((relay) => relay.connected);
+        emitEventToConnectedRelays({
+          event: signedEvent,
+          connectedRelayContainers: connectedRelayContainers,
+        });
       }
       setShowCreateTopicForm(false);
     });

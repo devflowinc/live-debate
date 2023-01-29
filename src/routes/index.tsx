@@ -1,7 +1,6 @@
 import { useContext } from "solid-js";
 import ApplicationLayout from "~/components/layouts/ApplicationLayout";
 import TopicsDisplay from "~/components/Topics/TopicsDisplay";
-import { GlobalContext } from "~/contexts/GlobalContext";
 
 export default function Home() {
   return (
