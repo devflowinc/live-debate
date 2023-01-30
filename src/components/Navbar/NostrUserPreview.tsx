@@ -1,4 +1,4 @@
-import { createSignal, useContext } from "solid-js";
+import { useContext } from "solid-js";
 import { Event } from "nostr-tools";
 import { GlobalContext, RelayContainer, User } from "~/contexts/GlobalContext";
 import { NostrUserMetadata } from "~/nostr-types";

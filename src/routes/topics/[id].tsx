@@ -1,4 +1,4 @@
-import { createSignal, useContext } from "solid-js";
+import { createEffect, createMemo, createSignal, useContext } from "solid-js";
 import { useParams } from "solid-start";
 import { Topic, Value } from "~/components/Topics/types";
 import ApplicationLayout from "~/components/layouts/ApplicationLayout";
@@ -6,18 +6,22 @@ import { GlobalContext, RelayContainer } from "~/contexts/GlobalContext";
 import { Event } from "nostr-tools";
 import { isEventArguflowTopicByTags } from "~/components/Topics/TopicsList";
 import { SplitButton } from "~/components/Topics/ValueSplitButton";
+import { memo } from "solid-js/web";
 
 export const subscribeToArguflowTopicByEventId = ({
   eventId,
   connectedRelayContainers,
   onTopicReceived,
+  onSubscriptionCreated,
 }: {
   eventId: string;
   connectedRelayContainers: RelayContainer[];
   onTopicReceived: (topic: Event) => void;
+  onSubscriptionCreated?: (relayName: string) => void;
 }) => {
   connectedRelayContainers.forEach((relayContainer) => {
     if (relayContainer.relay) {
+      onSubscriptionCreated && onSubscriptionCreated(relayContainer.name);
       const relay = relayContainer.relay;
       const topicSub = relay.sub(
         [
@@ -42,9 +46,12 @@ export const subscribeToArguflowTopicByEventId = ({
 const TopicDetail = () => {
   const [currentTopic, setCurrentTopic] = createSignal<Topic | null>(null);
   const [selectedTopic, setSelectedTopic] = createSignal<number>(0);
+  const [subscribedToTopicOnRelay, setSubscribedToTopicOnRelay] = createSignal<
+    string[]
+  >([]);
   const [topicValues, setTopicValues] = createSignal<Value[]>([
     {
-      name: "Competitve Fairness",
+      name: "Competitive Fairness",
       description:
         "The extent to which the system is fair to all participants.",
     },
@@ -63,26 +70,41 @@ const TopicDetail = () => {
 
   const params = useParams<{ id: string }>();
 
-  if (globalContext && globalContext.relays) {
-    const connectedRelayContainers = globalContext
-      .relays()
-      .filter((relay) => relay.connected);
+  createEffect(() => {
+    if (
+      globalContext &&
+      globalContext.relays &&
+      globalContext.relays().find((relay) => relay.connected)
+    ) {
+      const connectedRelayContainers = globalContext
+        .relays()
+        .filter((relay) => relay.connected);
+      const unusedConnectedRelayContainers = connectedRelayContainers.filter(
+        (relay) =>
+          !subscribedToTopicOnRelay().find(
+            (relayName) => relayName === relay.name,
+          ),
+      );
 
-    subscribeToArguflowTopicByEventId({
-      eventId: params.id,
-      connectedRelayContainers: connectedRelayContainers,
-      onTopicReceived: (topic) => {
-        const content = JSON.parse(topic.content);
-        const topicQuestion = content.topicQuestion;
-        if (topicQuestion && typeof topicQuestion === "string") {
-          setCurrentTopic({
-            eventId: params.id,
-            title: topicQuestion,
-          });
-        }
-      },
-    });
-  }
+      subscribeToArguflowTopicByEventId({
+        eventId: params.id,
+        connectedRelayContainers: unusedConnectedRelayContainers,
+        onSubscriptionCreated: (relayName) => {
+          setSubscribedToTopicOnRelay((current) => [...current, relayName]);
+        },
+        onTopicReceived: (topic) => {
+          const content = JSON.parse(topic.content);
+          const topicQuestion = content.topicQuestion;
+          if (topicQuestion && typeof topicQuestion === "string") {
+            setCurrentTopic({
+              eventId: params.id,
+              title: topicQuestion,
+            });
+          }
+        },
+      });
+    }
+  }, [globalContext.relays]);
 
   return (
     <ApplicationLayout>
