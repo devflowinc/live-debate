@@ -5,10 +5,8 @@ import { GlobalContext, RelayContainer } from "~/contexts/GlobalContext";
 import { Event, getEventHash } from "nostr-tools";
 
 export const getUTCSecondsSinceEpoch = (): number => {
-  const now = new Date();
-  const utcMilllisecondsSinceEpoch =
-    now.getTime() + now.getTimezoneOffset() * 60 * 1000;
-  return Math.round(utcMilllisecondsSinceEpoch / 1000);
+  const now = Date.now();
+  return Math.floor(now / 1000);
 };
 
 export const emitEventToConnectedRelays = ({
