@@ -31,10 +31,7 @@ const TopicsDisplay = () => {
     setShowCreateTopicForm(false);
   };
   const onCreateTopic = (topic: string) => {
-    const eventPublicKey =
-      globalContext &&
-      globalContext.connectedUser &&
-      globalContext.connectedUser()?.publicKey;
+    const eventPublicKey = globalContext.connectedUser?.()?.publicKey;
     if (!eventPublicKey) return;
     const createdAt = getUTCSecondsSinceEpoch();
     const event: Event = {
@@ -49,8 +46,9 @@ const TopicsDisplay = () => {
       }),
     };
     event.id = getEventHash(event);
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-explicit-any
     (window as any).nostr.signEvent(event).then((signedEvent: Event) => {
-      if (globalContext && globalContext.relays) {
+      if (globalContext.relays) {
         const connectedRelayContainers = globalContext
           .relays()
           .filter((relay) => relay.connected);

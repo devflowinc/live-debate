@@ -1,3 +1,8 @@
+/* eslint-disable @typescript-eslint/no-unsafe-return */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import { useContext } from "solid-js";
 import { GlobalContext } from "~/contexts/GlobalContext";
 
@@ -16,13 +21,13 @@ const ConnectIdButton = () => {
     <div class="h-fit w-fit rounded-full border border-yellow-500">
       <button
         class="px-4 py-2 text-yellow-500"
-        onClick={() =>
-          getNostrPublicKey().then((nostrPublicKey) => {
+        onClick={() => {
+          void getNostrPublicKey().then((nostrPublicKey) => {
             globalStore.setConnectedUser({
               publicKey: nostrPublicKey,
             });
-          })
-        }
+          });
+        }}
       >
         Connect ID
       </button>

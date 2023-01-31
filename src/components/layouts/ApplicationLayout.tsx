@@ -12,8 +12,7 @@ const ApplicationLayout = (props: ApplicationLayoutProps) => {
   return (
     <div class="h-screen w-screen bg-black">
       <Navbar />
-      {globalContext.connectedUser &&
-      globalContext.connectedUser()?.publicKey ? (
+      {globalContext.connectedUser?.()?.publicKey ? (
         props.children
       ) : (
         <div class="mt-6 flex w-full justify-center px-4 text-white">

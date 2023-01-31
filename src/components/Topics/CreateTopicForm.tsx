@@ -23,7 +23,7 @@ const CreateTopicForm = (props: CreateTopicFormProps) => {
         <div class="mt-2 flex w-full justify-end space-x-2">
           <button
             class="w-fit rounded-full border border-red-500 bg-transparent px-2 text-red-500"
-            onClick={props.onCancel}
+            onClick={() => props.onCancel()}
           >
             Cancel
           </button>

@@ -15,8 +15,6 @@ import "./root.css";
 import RelayStoreContext from "./contexts/GlobalContext";
 
 export default function Root() {
-  const location = useLocation();
-
   return (
     <Html lang="en">
       <Head>

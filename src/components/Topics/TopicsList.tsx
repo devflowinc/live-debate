@@ -1,4 +1,4 @@
-import { useContext } from "solid-js";
+import { useContext, For, Show } from "solid-js";
 import { GlobalContext, RelayContainer } from "~/contexts/GlobalContext";
 import { Event } from "nostr-tools";
 import { A } from "solid-start";
@@ -11,6 +11,7 @@ export const isEventArguflowTopicByTags = (tags: string[][]): boolean => {
     if (tag[0] === "arguflow-topic-question") foundArguflowTopicQuestion = true;
   });
 
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
   return foundArguflow && foundArguflowTopicQuestion;
 };
 
@@ -50,17 +51,8 @@ const TopicsList = () => {
   const globalContext = useContext(GlobalContext);
 
   if (
-    !globalContext.connectedUser ||
-    !globalContext.connectedUser() ||
-    !globalContext.connectedUser()?.publicKey ||
-    !globalContext.userTopics ||
-    !globalContext.userTopics()
-  )
-    return null;
-
-  if (
-    globalContext &&
     globalContext.relays &&
+    globalContext.connectedUser &&
     globalContext.connectedUser()?.publicKey
   ) {
     const connectedRelayContainers = globalContext
@@ -73,21 +65,18 @@ const TopicsList = () => {
         publicKey: userPublicKey,
         connectedRelayContainers: connectedRelayContainers,
         onTopicReceived: (topicEvent: Event) => {
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
           const content = JSON.parse(topicEvent.content);
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
           const topicQuestion = content.topicQuestion;
           const eventId = topicEvent.id;
 
-          const currentUserTopics =
-            globalContext.userTopics && globalContext.userTopics();
-          if (
-            currentUserTopics &&
-            currentUserTopics.find((topic) => topic.eventId === eventId)
-          )
+          const currentUserTopics = globalContext.userTopics?.();
+          if (currentUserTopics?.find((topic) => topic.eventId === eventId))
             return;
 
           if (topicQuestion && typeof topicQuestion === "string" && eventId) {
-            globalContext.userTopics &&
-              globalContext.userTopics() &&
+            globalContext.userTopics?.() &&
               globalContext.setUserTopics([
                 ...globalContext.userTopics(),
                 {
@@ -103,16 +92,23 @@ const TopicsList = () => {
 
   return (
     <div class="flex w-full flex-col items-center justify-center space-y-2 px-2">
-      {globalContext.userTopics().map((topic) => {
-        return (
-          <div class="w-full rounded-lg bg-gray-800">
-            <A href={`/topics/${topic.eventId}`} aria-label="topic detail page">
-              <div class="p-4 text-lg font-bold text-white">{topic.title}</div>
-            </A>
-          </div>
-        );
-      })}
-      {globalContext.userTopics().length === 0 && (
+      <For each={globalContext.userTopics?.()}>
+        {(topic) => {
+          return (
+            <div class="w-full rounded-lg bg-gray-800">
+              <A
+                href={`/topics/${topic.eventId}`}
+                aria-label="topic detail page"
+              >
+                <div class="p-4 text-lg font-bold text-white">
+                  {topic.title}
+                </div>
+              </A>
+            </div>
+          );
+        }}
+      </For>
+      {!globalContext.userTopics?.().length && (
         <div class="w-full text-center text-lg font-bold text-white">
           You have no topics yet
         </div>

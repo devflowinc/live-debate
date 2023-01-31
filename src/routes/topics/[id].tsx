@@ -71,11 +71,7 @@ const TopicDetail = () => {
   const params = useParams<{ id: string }>();
 
   createEffect(() => {
-    if (
-      globalContext &&
-      globalContext.relays &&
-      globalContext.relays().find((relay) => relay.connected)
-    ) {
+    if (globalContext.relays?.().find((relay) => relay.connected)) {
       const connectedRelayContainers = globalContext
         .relays()
         .filter((relay) => relay.connected);
@@ -93,7 +89,9 @@ const TopicDetail = () => {
           setSubscribedToTopicOnRelay((current) => [...current, relayName]);
         },
         onTopicReceived: (topic) => {
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
           const content = JSON.parse(topic.content);
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
           const topicQuestion = content.topicQuestion;
           if (topicQuestion && typeof topicQuestion === "string") {
             setCurrentTopic({
@@ -104,7 +102,7 @@ const TopicDetail = () => {
         },
       });
     }
-  }, [globalContext.relays]);
+  });
 
   return (
     <ApplicationLayout>

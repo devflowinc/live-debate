@@ -1,5 +1,5 @@
 import { AiOutlineDown, AiOutlineUp } from "solid-icons/ai";
-import { Accessor, createSignal } from "solid-js";
+import { Accessor, For, createSignal } from "solid-js";
 import { Value } from "./types";
 
 export interface SplitButtonProps {
@@ -27,26 +27,28 @@ export const SplitButton = (props: SplitButtonProps) => {
       {isOpen() && (
         <div class="absolute left-0 z-10 mt-1 w-full origin-top-left rounded-lg bg-gray-800 py-2">
           <div class="flex flex-col space-y-1">
-            {props.topicValues().map((value, index) => (
-              <div
-                classList={{
-                  "text-purple-500 rounded px-2 hover:cursor-pointer hover:bg-gray-700":
-                    true,
-                  "bg-gray-700 text-purple-500":
-                    props.topicValues()[props.selectedTopic()].name ===
-                    value.name,
-                  "text-purple-400":
-                    props.topicValues()[props.selectedTopic()].name !==
-                    value.name,
-                }}
-                onClick={() => {
-                  props.setSelectedTopic(index);
-                  setIsOpen(false);
-                }}
-              >
-                {value.name}
-              </div>
-            ))}
+            <For each={props.topicValues()}>
+              {(value, index) => (
+                <div
+                  classList={{
+                    "text-purple-500 rounded px-2 hover:cursor-pointer hover:bg-gray-700":
+                      true,
+                    "bg-gray-700 text-purple-500":
+                      props.topicValues()[props.selectedTopic()].name ===
+                      value.name,
+                    "text-purple-400":
+                      props.topicValues()[props.selectedTopic()].name !==
+                      value.name,
+                  }}
+                  onClick={() => {
+                    props.setSelectedTopic(index());
+                    setIsOpen(false);
+                  }}
+                >
+                  {value.name}
+                </div>
+              )}
+            </For>
           </div>
         </div>
       )}

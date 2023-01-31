@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-empty-function */
 import { Relay } from "nostr-tools";
 import { Accessor, JSX, createContext, createSignal, onMount } from "solid-js";
 import { Topic } from "~/components/Topics/types";
@@ -23,7 +24,7 @@ export interface GlobalStoreContextProps {
   children: JSX.Element;
 }
 
-export type GlobalStoreProviderType = {
+export interface GlobalStoreProviderType {
   connectedUser: Accessor<User | null> | null;
   relays: Accessor<RelayContainer[]> | null;
   userTopics: Accessor<Topic[]> | null;
@@ -36,15 +37,18 @@ export type GlobalStoreProviderType = {
     newRelayContainer: RelayContainer;
   }) => void;
   setUserTopics: (topics: Topic[]) => void;
-};
+}
 
 export const GlobalContext = createContext<GlobalStoreProviderType>(
   {
     connectedUser: null,
     relays: null,
     userTopics: null,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     setConnectedUser: (user: User) => {},
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     setRelayStore: ({ name, newRelayContainer }) => {},
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     setUserTopics: (topics: Topic[]) => {},
   },
   {},
@@ -141,6 +145,7 @@ const RelayStoreContext = (props: GlobalStoreContextProps) => {
 
   onMount(() => {
     setTimeout(() => {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any
       if (typeof window !== "undefined" && (window as any).nostr) {
         setHasNostrInWindow(true);
       }
