@@ -1,6 +1,5 @@
 // @refresh reload
 import {
-  useLocation,
   Body,
   ErrorBoundary,
   FileRoutes,

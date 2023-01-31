@@ -1,4 +1,4 @@
-import { createEffect, createMemo, createSignal, useContext } from "solid-js";
+import { createEffect, createSignal, useContext } from "solid-js";
 import { useParams } from "solid-start";
 import { Topic, Value } from "~/components/Topics/types";
 import ApplicationLayout from "~/components/layouts/ApplicationLayout";
@@ -6,7 +6,6 @@ import { GlobalContext, RelayContainer } from "~/contexts/GlobalContext";
 import { Event } from "nostr-tools";
 import { isEventArguflowTopicByTags } from "~/components/Topics/TopicsList";
 import { SplitButton } from "~/components/Topics/ValueSplitButton";
-import { memo } from "solid-js/web";
 
 export const subscribeToArguflowTopicByEventId = ({
   eventId,
@@ -21,7 +20,7 @@ export const subscribeToArguflowTopicByEventId = ({
 }) => {
   connectedRelayContainers.forEach((relayContainer) => {
     if (relayContainer.relay) {
-      onSubscriptionCreated && onSubscriptionCreated(relayContainer.name);
+      onSubscriptionCreated?.(relayContainer.name);
       const relay = relayContainer.relay;
       const topicSub = relay.sub(
         [
@@ -49,7 +48,7 @@ const TopicDetail = () => {
   const [subscribedToTopicOnRelay, setSubscribedToTopicOnRelay] = createSignal<
     string[]
   >([]);
-  const [topicValues, setTopicValues] = createSignal<Value[]>([
+  const [topicValues] = createSignal<Value[]>([
     {
       name: "Competitive Fairness",
       description:

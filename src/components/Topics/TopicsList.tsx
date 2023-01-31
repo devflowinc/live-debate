@@ -1,4 +1,4 @@
-import { useContext, For, Show } from "solid-js";
+import { useContext, For } from "solid-js";
 import { GlobalContext, RelayContainer } from "~/contexts/GlobalContext";
 import { Event } from "nostr-tools";
 import { A } from "solid-start";
