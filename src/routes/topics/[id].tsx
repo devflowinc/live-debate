@@ -1,28 +1,45 @@
 import { createEffect, createSignal, useContext } from "solid-js";
 import { useParams } from "solid-start";
-import { Topic, Value } from "~/components/Topics/types";
+import { Topic, TopicValue } from "~/components/Topics/types";
 import ApplicationLayout from "~/components/layouts/ApplicationLayout";
 import { GlobalContext, RelayContainer } from "~/contexts/GlobalContext";
-import { Event } from "nostr-tools";
+import { Event, getEventHash } from "nostr-tools";
 import { isEventArguflowTopicByTags } from "~/components/Topics/TopicsList";
-import { SplitButton } from "~/components/Topics/ValueSplitButton";
+import ValueSplitButton from "~/components/Topics/ValueSplitButton";
+import { getUTCSecondsSinceEpoch } from "~/components/Topics/TopicsDisplay";
+import { emitEventToConnectedRelays } from "~/nostr-types";
+import CreateValueForm from "~/components/Topics/CreateValueForm";
+
+export const isEventArguflowValueByTags = (tags: string[][]): boolean => {
+  let foundArguflow = false;
+  let foundArguflowTopicValue = false;
+  tags.forEach((tag) => {
+    if (tag[0] === "arguflow") foundArguflow = true;
+    if (tag[0] === "arguflow-topic-value") foundArguflowTopicValue = true;
+  });
+
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+  return foundArguflow && foundArguflowTopicValue;
+};
 
 export const subscribeToArguflowTopicByEventId = ({
   eventId,
   connectedRelayContainers,
   onTopicReceived,
+  onValueReceived,
   onSubscriptionCreated,
 }: {
   eventId: string;
   connectedRelayContainers: RelayContainer[];
   onTopicReceived: (topic: Event) => void;
+  onValueReceived: (value: Event) => void;
   onSubscriptionCreated?: (relayName: string) => void;
 }) => {
   connectedRelayContainers.forEach((relayContainer) => {
     if (relayContainer.relay) {
       onSubscriptionCreated?.(relayContainer.name);
       const relay = relayContainer.relay;
-      const topicSub = relay.sub(
+      const topicEventSub = relay.sub(
         [
           {
             ids: [eventId],
@@ -34,9 +51,26 @@ export const subscribeToArguflowTopicByEventId = ({
         },
       );
 
-      topicSub.on("event", (event: Event) => {
+      topicEventSub.on("event", (event: Event) => {
         const tags = event.tags;
         isEventArguflowTopicByTags(tags) && onTopicReceived(event);
+      });
+
+      const topicRepliesEventSub = relay.sub(
+        [
+          {
+            kinds: [1],
+            ["#e"]: [eventId],
+          },
+        ],
+        {
+          skipVerification: true,
+        },
+      );
+
+      topicRepliesEventSub.on("event", (event: Event) => {
+        const tags = event.tags;
+        isEventArguflowValueByTags(tags) && onValueReceived(event);
       });
     }
   });
@@ -48,22 +82,9 @@ const TopicDetail = () => {
   const [subscribedToTopicOnRelay, setSubscribedToTopicOnRelay] = createSignal<
     string[]
   >([]);
-  const [topicValues] = createSignal<Value[]>([
-    {
-      name: "Competitive Fairness",
-      description:
-        "The extent to which the system is fair to all participants.",
-    },
-    {
-      name: "Corruption Resistance",
-      description: "The extent to which the system is resistant to corruption.",
-    },
-    {
-      name: "Public Health",
-      description:
-        "The extent to which the system is beneficial to public health.",
-    },
-  ]);
+  const [topicValues, setTopicValues] = createSignal<TopicValue[]>([]);
+  const [showCreateValueForm, setShowCreateValueForm] =
+    createSignal<boolean>(false);
 
   const globalContext = useContext(GlobalContext);
 
@@ -93,32 +114,107 @@ const TopicDetail = () => {
           // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
           const topicQuestion = content.topicQuestion;
           if (topicQuestion && typeof topicQuestion === "string") {
+            if (currentTopic()?.eventId === params.id) return;
+
             setCurrentTopic({
               eventId: params.id,
               title: topicQuestion,
             });
           }
         },
+        onValueReceived: (value) => {
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+          const content = JSON.parse(value.content);
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+          const valueName = content.name;
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+          const valueDescription = content.description;
+          if (
+            valueName &&
+            valueDescription &&
+            typeof valueName === "string" &&
+            typeof valueDescription === "string"
+          ) {
+            if (
+              topicValues().find((topicValue) => topicValue.name === valueName)
+            )
+              return;
+
+            setTopicValues((current) => [
+              ...current,
+              {
+                name: valueName,
+                description: valueDescription,
+              },
+            ]);
+          }
+        },
       });
     }
   });
 
+  const onCreateValue = ({ name, description }: TopicValue) => {
+    const eventPublicKey = globalContext.connectedUser?.()?.publicKey;
+    const topicEventId = currentTopic()?.eventId;
+    if (!eventPublicKey || !topicEventId) return;
+    const createdAt = getUTCSecondsSinceEpoch();
+    const event: Event = {
+      id: "",
+      sig: "",
+      kind: 1,
+      pubkey: eventPublicKey,
+      tags: [
+        ["arguflow"],
+        ["arguflow-topic-value"],
+        ["e", topicEventId, "nostr.arguflow.gg", "root"],
+      ],
+      created_at: createdAt,
+      content: JSON.stringify({
+        name: name,
+        description: description,
+        topicEventId: topicEventId,
+      }),
+    };
+    event.id = getEventHash(event);
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-explicit-any
+    (window as any).nostr.signEvent(event).then((signedEvent: Event) => {
+      if (globalContext.relays) {
+        const connectedRelayContainers = globalContext
+          .relays()
+          .filter((relay) => relay.connected);
+        emitEventToConnectedRelays({
+          event: signedEvent,
+          connectedRelayContainers: connectedRelayContainers,
+        });
+      }
+      setShowCreateValueForm(false);
+    });
+  };
+
   return (
     <ApplicationLayout>
       <div class="mt-4 flex w-full justify-center">
-        <div class="flex w-full max-w-[75%] flex-col items-center justify-center space-y-6 rounded-lg border border-slate-600 px-8 py-2">
+        <div class="flex w-full max-w-[75%] flex-col items-center justify-center space-y-6 rounded-lg border border-slate-600 px-8 py-4">
           <div class="flex w-full items-center space-x-8">
-            <div class="w-fit">
-              <SplitButton
+            <div class="max-w-[50%]">
+              <ValueSplitButton
                 selectedTopic={selectedTopic}
                 setSelectedTopic={setSelectedTopic}
                 topicValues={topicValues}
+                showCreateValueForm={showCreateValueForm}
+                setShowCreateValueForm={setShowCreateValueForm}
               />
             </div>
-            <div class="w-fit text-center text-2xl text-white">
+            <div class="max-w-[50%] text-center text-2xl text-white">
               {currentTopic() ? currentTopic()?.title : "Loading..."}
             </div>
           </div>
+          {showCreateValueForm() && (
+            <CreateValueForm
+              onCreateValue={onCreateValue}
+              onCancel={() => setShowCreateValueForm(false)}
+            />
+          )}
         </div>
       </div>
     </ApplicationLayout>

@@ -15,6 +15,19 @@ export const isEventArguflowTopicByTags = (tags: string[][]): boolean => {
   return foundArguflow && foundArguflowTopicQuestion;
 };
 
+export const isEventArguflowValueByTags = (tags: string[][]): boolean => {
+  let foundArguflow = false;
+  let foundArguflowTopicValue = false;
+
+  tags.forEach((tag) => {
+    if (tag[0] === "arguflow") foundArguflow = true;
+    if (tag[0] === "arguflow-topic-value") foundArguflowTopicValue = true;
+  });
+
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+  return foundArguflow && foundArguflowTopicValue;
+};
+
 export const subscribeToArguflowTopicsForPublickKey = ({
   publicKey,
   connectedRelayContainers,
