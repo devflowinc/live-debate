@@ -14,7 +14,7 @@ const Navbar = () => {
         Arguflow
       </A>
       <div class="flex items-center space-x-4">
-        {globalStore.connectedUser && globalStore.connectedUser()?.publicKey ? (
+        {globalStore.connectedUser?.()?.publicKey ? (
           <NostrUserPreview />
         ) : (
           <ConnectIdButton />
