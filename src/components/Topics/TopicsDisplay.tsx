@@ -1,26 +1,13 @@
 import { createSignal, useContext } from "solid-js";
 import CreateTopicForm from "./CreateTopicForm";
 import TopicsList from "./TopicsList";
-import { GlobalContext, RelayContainer } from "~/contexts/GlobalContext";
+import { GlobalContext } from "~/contexts/GlobalContext";
 import { Event, getEventHash } from "nostr-tools";
+import { emitEventToConnectedRelays } from "~/nostr-types";
 
 export const getUTCSecondsSinceEpoch = (): number => {
   const now = Date.now();
   return Math.floor(now / 1000);
-};
-
-export const emitEventToConnectedRelays = ({
-  event,
-  connectedRelayContainers,
-}: {
-  event: Event;
-  connectedRelayContainers: RelayContainer[];
-}) => {
-  connectedRelayContainers.forEach((relayContainer) => {
-    if (relayContainer.relay) {
-      relayContainer.relay.publish(event);
-    }
-  });
 };
 
 const TopicsDisplay = () => {

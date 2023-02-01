@@ -3,7 +3,11 @@ export interface Topic {
   title: string;
 }
 
-export interface Value {
+export interface TopicValue {
   name: string;
   description: string;
+}
+
+export interface ValueWithTopicEventId extends TopicValue {
+  topicEventId: string;
 }
