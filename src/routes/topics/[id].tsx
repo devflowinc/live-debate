@@ -1,4 +1,4 @@
-import { createEffect, createSignal, useContext } from "solid-js";
+import { createEffect, createSignal, useContext, For, Show } from "solid-js";
 import { useParams } from "solid-start";
 import { Topic, TopicValue } from "~/components/Topics/types";
 import ApplicationLayout from "~/components/layouts/ApplicationLayout";
@@ -9,6 +9,8 @@ import ValueSplitButton from "~/components/Topics/ValueSplitButton";
 import { getUTCSecondsSinceEpoch } from "~/components/Topics/TopicsDisplay";
 import { emitEventToConnectedRelays } from "~/nostr-types";
 import CreateValueForm from "~/components/Topics/CreateValueForm";
+import { Toaster, useToaster } from "solid-headless";
+import { CustomToast, ToastContent } from "~/components/Atoms/CustomToast";
 
 export const isEventArguflowValueByTags = (tags: string[][]): boolean => {
   let foundArguflow = false;
@@ -87,6 +89,14 @@ const TopicDetail = () => {
     createSignal<boolean>(false);
 
   const globalContext = useContext(GlobalContext);
+  const notifs = useToaster(globalContext.toasterStore);
+
+  const createToast = ({ message, type }: ToastContent) => {
+    globalContext.toasterStore.create({
+      message,
+      type,
+    });
+  };
 
   const params = useParams<{ id: string }>();
 
@@ -131,7 +141,6 @@ const TopicDetail = () => {
           const valueDescription = content.description;
           if (
             valueName &&
-            valueDescription &&
             typeof valueName === "string" &&
             typeof valueDescription === "string"
           ) {
@@ -156,8 +165,19 @@ const TopicDetail = () => {
   const onCreateValue = ({ name, description }: TopicValue) => {
     const eventPublicKey = globalContext.connectedUser?.()?.publicKey;
     const topicEventId = currentTopic()?.eventId;
+
     if (!eventPublicKey || !topicEventId) return;
+
+    if (!name) {
+      createToast({
+        message: "Name is required to create a value",
+        type: "error",
+      });
+      return;
+    }
+
     const createdAt = getUTCSecondsSinceEpoch();
+
     const event: Event = {
       id: "",
       sig: "",
@@ -176,6 +196,7 @@ const TopicDetail = () => {
       }),
     };
     event.id = getEventHash(event);
+
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-explicit-any
     (window as any).nostr.signEvent(event).then((signedEvent: Event) => {
       if (globalContext.relays) {
@@ -188,6 +209,10 @@ const TopicDetail = () => {
         });
       }
       setShowCreateValueForm(false);
+      createToast({
+        message: name + " value created successfully",
+        type: "success",
+      });
     });
   };
 
@@ -196,7 +221,7 @@ const TopicDetail = () => {
       <div class="mt-4 flex w-full justify-center">
         <div class="flex w-full max-w-[75%] flex-col items-center justify-center space-y-6 rounded-lg border border-slate-600 px-8 py-4">
           <div class="flex w-full items-center space-x-8">
-            <div class="max-w-[50%]">
+            <div class="min-w-[30%] max-w-[50%]">
               <ValueSplitButton
                 selectedTopic={selectedTopic}
                 setSelectedTopic={setSelectedTopic}
@@ -217,6 +242,23 @@ const TopicDetail = () => {
           )}
         </div>
       </div>
+      <Toaster class="fixed-0 absolute left-0 bottom-0 m-4">
+        <Show when={notifs().length > 0}>
+          <For each={notifs().slice(0).reverse()}>
+            {(item) => {
+              return (
+                <CustomToast
+                  id={item.id}
+                  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+                  message={item.data.message}
+                  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+                  type={item.data.type}
+                />
+              );
+            }}
+          </For>
+        </Show>
+      </Toaster>
     </ApplicationLayout>
   );
 };
