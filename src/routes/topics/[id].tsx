@@ -11,6 +11,7 @@ import { emitEventToConnectedRelays } from "~/nostr-types";
 import CreateValueForm from "~/components/Topics/CreateValueForm";
 import { Toaster, useToaster } from "solid-headless";
 import { CustomToast, ToastContent } from "~/components/Atoms/CustomToast";
+import { AFRowLayoutDesktop } from "~/components/layouts/AFRowLayoutDesktop";
 
 export const isEventArguflowValueByTags = (tags: string[][]): boolean => {
   let foundArguflow = false;
@@ -218,29 +219,32 @@ const TopicDetail = () => {
 
   return (
     <ApplicationLayout>
-      <div class="mt-4 flex w-full justify-center">
-        <div class="flex w-full max-w-[75%] flex-col items-center justify-center space-y-6 rounded-lg border border-slate-600 px-8 py-4">
-          <div class="flex w-full items-center space-x-8">
-            <div class="min-w-[30%] max-w-[50%]">
-              <ValueSplitButton
-                selectedTopic={selectedTopic}
-                setSelectedTopic={setSelectedTopic}
-                topicValues={topicValues}
-                showCreateValueForm={showCreateValueForm}
-                setShowCreateValueForm={setShowCreateValueForm}
+      <div class="flex flex-col space-y-4">
+        <div class="mt-4 flex w-full justify-center">
+          <div class="flex w-full max-w-[75%] flex-col items-center justify-center space-y-6 rounded-lg border border-slate-600 px-8 py-4">
+            <div class="flex w-full items-center space-x-8">
+              <div class="min-w-[30%] max-w-[50%]">
+                <ValueSplitButton
+                  selectedTopic={selectedTopic}
+                  setSelectedTopic={setSelectedTopic}
+                  topicValues={topicValues}
+                  showCreateValueForm={showCreateValueForm}
+                  setShowCreateValueForm={setShowCreateValueForm}
+                />
+              </div>
+              <div class="max-w-[50%] text-center text-2xl text-white">
+                {currentTopic() ? currentTopic()?.title : "Loading..."}
+              </div>
+            </div>
+            {showCreateValueForm() && (
+              <CreateValueForm
+                onCreateValue={onCreateValue}
+                onCancel={() => setShowCreateValueForm(false)}
               />
-            </div>
-            <div class="max-w-[50%] text-center text-2xl text-white">
-              {currentTopic() ? currentTopic()?.title : "Loading..."}
-            </div>
+            )}
           </div>
-          {showCreateValueForm() && (
-            <CreateValueForm
-              onCreateValue={onCreateValue}
-              onCancel={() => setShowCreateValueForm(false)}
-            />
-          )}
         </div>
+        <AFRowLayoutDesktop topicId="fdsa" viewMode="aff"/>
       </div>
       <Toaster class="fixed-0 absolute left-0 bottom-0 m-4">
         <Show when={notifs().length > 0}>
