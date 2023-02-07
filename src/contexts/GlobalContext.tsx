@@ -1,6 +1,8 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
 import { Relay } from "nostr-tools";
+import { ToasterStore } from "solid-headless";
 import { Accessor, JSX, createContext, createSignal, onMount } from "solid-js";
+import { ToastContent } from "~/components/Atoms/CustomToast";
 import { Topic } from "~/components/Topics/types";
 
 export interface RelayContainer {
@@ -37,6 +39,7 @@ export interface GlobalStoreProviderType {
     newRelayContainer: RelayContainer;
   }) => void;
   setUserTopics: (topics: Topic[]) => void;
+  toasterStore: ToasterStore<ToastContent>;
 }
 
 export const GlobalContext = createContext<GlobalStoreProviderType>(
@@ -50,6 +53,7 @@ export const GlobalContext = createContext<GlobalStoreProviderType>(
     setRelayStore: ({ name, newRelayContainer }) => {},
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     setUserTopics: (topics: Topic[]) => {},
+    toasterStore: new ToasterStore<ToastContent>(),
   },
   {},
 );
@@ -117,6 +121,7 @@ const RelayStoreContext = (props: GlobalStoreContextProps) => {
     setUserTopics: (topics: Topic[]) => {
       setUserTopics(topics);
     },
+    toasterStore: new ToasterStore<ToastContent>(),
   };
 
   onMount(() => {

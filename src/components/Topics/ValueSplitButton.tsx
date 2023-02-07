@@ -1,6 +1,18 @@
 import { AiOutlineDown, AiOutlinePlus, AiOutlineUp } from "solid-icons/ai";
-import { Accessor, For, createSignal, Show } from "solid-js";
+import {
+  Menu,
+  MenuItem,
+  Popover,
+  PopoverButton,
+  PopoverPanel,
+} from "solid-headless";
+import { Accessor, For, JSX, Show } from "solid-js";
 import { TopicValue } from "./types";
+
+export interface DescriptionProps {
+  value: TopicValue;
+  children: JSX.Element;
+}
 
 export interface ValueSplitButtonProps {
   selectedTopic: Accessor<number>;
@@ -11,67 +23,92 @@ export interface ValueSplitButtonProps {
 }
 
 const ValueSplitButton = (props: ValueSplitButtonProps) => {
-  const [isOpen, setIsOpen] = createSignal(false);
-
   return (
-    <div class="relative h-fit rounded border border-purple-500 bg-transparent text-xl">
-      <table class="h-fit table-auto items-center text-purple-500">
-        <thead>
-          <tr>
-            <th class="w-fit border-r border-purple-500 px-2 font-normal">
-              {props.topicValues().length > props.selectedTopic()
-                ? props.topicValues()[props.selectedTopic()].name
-                : "No values exist"}
-            </th>
-            <th
-              class="h-full border-r border-purple-500 px-2 hover:cursor-pointer"
-              onClick={() =>
-                props.topicValues().length > 1 && setIsOpen(!isOpen())
-              }
-            >
-              {isOpen() || props.topicValues().length <= 1 ? (
-                <AiOutlineUp />
-              ) : (
-                <AiOutlineDown />
-              )}
-            </th>
-            <th
-              class="border-purple-500 px-2 hover:cursor-pointer"
-              onClick={() => props.setShowCreateValueForm(true)}
-            >
-              <AiOutlinePlus />
-            </th>
-          </tr>
-        </thead>
-      </table>
-      <Show when={isOpen() && props.topicValues().length > 1}>
-        <div class="absolute left-0 z-10 mt-1 w-full origin-top-left rounded-lg bg-gray-800 py-2">
-          <div class="flex flex-col space-y-1">
-            <For each={props.topicValues()}>
-              {(value, index) => (
-                <div
-                  classList={{
-                    "text-purple-500 rounded px-2 hover:cursor-pointer hover:bg-gray-700":
-                      true,
-                    "bg-gray-700 text-purple-500":
-                      props.topicValues()[props.selectedTopic()].name ===
-                      value.name,
-                    "text-purple-400":
-                      props.topicValues()[props.selectedTopic()].name !==
-                      value.name,
-                  }}
-                  onClick={() => {
-                    props.setSelectedTopic(index());
-                    setIsOpen(false);
-                  }}
-                >
-                  {value.name}
+    <div>
+      <div class="relative h-fit w-full rounded border border-purple-500 bg-transparent text-xl">
+        <Popover defaultOpen={false} class="relative w-full">
+          {({ isOpen }) => (
+            <div class="relative w-full">
+              <Show
+                when={
+                  props.topicValues().length > props.selectedTopic() &&
+                  props.topicValues()[props.selectedTopic()].description
+                }
+              >
+                <div class="text-regular w-full border-b border-purple-500 px-2 py-1 text-center text-base text-purple-300/90">
+                  {props.topicValues()[props.selectedTopic()].description}
                 </div>
-              )}
-            </For>
-          </div>
-        </div>
-      </Show>
+              </Show>
+              <div class="w-full">
+                <table class="h-fit w-full table-auto items-center text-purple-500">
+                  <thead>
+                    <tr>
+                      <th class="w-full border-r border-purple-500 px-2 font-normal">
+                        {props.topicValues().length > props.selectedTopic()
+                          ? props.topicValues()[props.selectedTopic()].name
+                          : "No values exist"}
+                      </th>
+                      <th class="h-full w-fit border-r border-purple-500 px-2 hover:cursor-pointer">
+                        {props.topicValues().length <= 1 ? (
+                          <AiOutlineDown />
+                        ) : (
+                          <PopoverButton class="flex w-fit items-center ">
+                            {isOpen() || props.topicValues().length <= 1 ? (
+                              <AiOutlineUp />
+                            ) : (
+                              <AiOutlineDown />
+                            )}
+                          </PopoverButton>
+                        )}
+                      </th>
+                      <th
+                        class="w-fit border-purple-500 px-2 hover:cursor-pointer"
+                        onClick={() => props.setShowCreateValueForm(true)}
+                      >
+                        <AiOutlinePlus />
+                      </th>
+                    </tr>
+                  </thead>
+                </table>
+              </div>
+              <Show when={isOpen()}>
+                <PopoverPanel class="absolute w-full" unmount={false}>
+                  <Menu class="left-0 mt-1 flex w-full origin-top-left flex-col space-y-1 rounded-lg bg-gray-800 p-1 py-2 shadow-lg ring-1 ring-black ring-opacity-5">
+                    <MenuItem as="button" aria-label="hidden" />
+                    <For each={props.topicValues()}>
+                      {(value, index) => {
+                        const updateSelectedTopic = () =>
+                          props.setSelectedTopic(index());
+
+                        return (
+                          <PopoverButton>
+                            <MenuItem
+                              as="div"
+                              classList={{
+                                "text-purple-500 rounded px-2 hover:cursor-pointer hover:bg-gray-700 w-full":
+                                  true,
+                                "bg-gray-700 text-purple-500":
+                                  props.topicValues()[props.selectedTopic()]
+                                    .name === value.name,
+                                "text-purple-400":
+                                  props.topicValues()[props.selectedTopic()]
+                                    .name !== value.name,
+                              }}
+                              onClick={updateSelectedTopic}
+                            >
+                              {value.name}
+                            </MenuItem>
+                          </PopoverButton>
+                        );
+                      }}
+                    </For>
+                  </Menu>
+                </PopoverPanel>
+              </Show>
+            </div>
+          )}
+        </Popover>
+      </div>
     </div>
   );
 };
