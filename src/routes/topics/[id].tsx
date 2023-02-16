@@ -39,43 +39,81 @@ export const subscribeToArguflowTopicByEventId = ({
   onSubscriptionCreated?: (relayName: string) => void;
 }) => {
   connectedRelayContainers.forEach((relayContainer) => {
-    if (relayContainer.relay) {
-      onSubscriptionCreated?.(relayContainer.name);
-      const relay = relayContainer.relay;
-      const topicEventSub = relay.sub(
-        [
-          {
-            ids: [eventId],
-            kinds: [1],
-          },
-        ],
-        {
-          skipVerification: true,
-        },
-      );
-
-      topicEventSub.on("event", (event: Event) => {
-        const tags = event.tags;
-        isEventArguflowTopicByTags(tags) && onTopicReceived(event);
-      });
-
-      const topicRepliesEventSub = relay.sub(
-        [
-          {
-            kinds: [1],
-            ["#e"]: [eventId],
-          },
-        ],
-        {
-          skipVerification: true,
-        },
-      );
-
-      topicRepliesEventSub.on("event", (event: Event) => {
-        const tags = event.tags;
-        isEventArguflowValueByTags(tags) && onValueReceived(event);
-      });
+    if (!relayContainer.relay) {
+      return;
     }
+    onSubscriptionCreated?.(relayContainer.name);
+    const relay = relayContainer.relay;
+    const topicEventSub = relay.sub(
+      [
+        {
+          ids: [eventId],
+          kinds: [40],
+        },
+      ],
+      {
+        skipVerification: true,
+      },
+    );
+
+    topicEventSub.on("event", (event: Event) => {
+      const tags = event.tags;
+      isEventArguflowTopicByTags(tags) && onTopicReceived(event);
+    });
+
+    const topicRepliesEventSub = relay.sub(
+      [
+        {
+          kinds: [42],
+          ["#e"]: [eventId],
+        },
+      ],
+      {
+        skipVerification: true,
+      },
+    );
+
+    topicRepliesEventSub.on("event", (event: Event) => {
+      const tags = event.tags;
+      isEventArguflowValueByTags(tags) && onValueReceived(event);
+    });
+  });
+};
+
+export const subscribeToArguflowFeedByEventAndValue = ({
+  eventId,
+  connectedRelayContainers,
+  valuePubKey,
+  onStatementReceived,
+}: {
+  eventId: string;
+  valuePubKey: string;
+  connectedRelayContainers: RelayContainer[];
+  onStatementReceived: (event: Event) => void;
+}) => {
+  connectedRelayContainers.forEach((relayContainer) => {
+    if (!relayContainer.relay) {
+      return;
+    }
+    const relay = relayContainer.relay;
+    const topicEventSub = relay.sub(
+      [
+        {
+          ids: [eventId],
+          kinds: [42],
+          ["#e"]: [eventId],
+          ["#p"]: [valuePubKey],
+        },
+      ],
+      {
+        skipVerification: true,
+      },
+    );
+
+    topicEventSub.on("event", (event: Event) => {
+      const tags = event.tags;
+      isEventArguflowTopicByTags(tags) && onStatementReceived(event);
+    });
   });
 };
 
@@ -102,65 +140,93 @@ const TopicDetail = () => {
   const params = useParams<{ id: string }>();
 
   createEffect(() => {
-    if (globalContext.relays?.().find((relay) => relay.connected)) {
-      const connectedRelayContainers = globalContext
-        .relays()
-        .filter((relay) => relay.connected);
-      const unusedConnectedRelayContainers = connectedRelayContainers.filter(
-        (relay) =>
-          !subscribedToTopicOnRelay().find(
-            (relayName) => relayName === relay.name,
-          ),
-      );
-
-      subscribeToArguflowTopicByEventId({
-        eventId: params.id,
-        connectedRelayContainers: unusedConnectedRelayContainers,
-        onSubscriptionCreated: (relayName) => {
-          setSubscribedToTopicOnRelay((current) => [...current, relayName]);
-        },
-        onTopicReceived: (topic) => {
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-          const content = JSON.parse(topic.content);
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
-          const topicQuestion = content.topicQuestion;
-          if (topicQuestion && typeof topicQuestion === "string") {
-            if (currentTopic()?.eventId === params.id) return;
-
-            setCurrentTopic({
-              eventId: params.id,
-              title: topicQuestion,
-            });
-          }
-        },
-        onValueReceived: (value) => {
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-          const content = JSON.parse(value.content);
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
-          const valueName = content.name;
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
-          const valueDescription = content.description;
-          if (
-            valueName &&
-            typeof valueName === "string" &&
-            typeof valueDescription === "string"
-          ) {
-            if (
-              topicValues().find((topicValue) => topicValue.name === valueName)
-            )
-              return;
-
-            setTopicValues((current) => [
-              ...current,
-              {
-                name: valueName,
-                description: valueDescription,
-              },
-            ]);
-          }
-        },
-      });
+    if (!globalContext.relays?.().find((relay) => relay.connected)) {
+      return;
     }
+
+    const connectedRelayContainers = globalContext
+      .relays()
+      .filter((relay) => relay.connected);
+    const unusedConnectedRelayContainers = connectedRelayContainers.filter(
+      (relay) =>
+        !subscribedToTopicOnRelay().find(
+          (relayName) => relayName === relay.name,
+        ),
+    );
+
+    subscribeToArguflowTopicByEventId({
+      eventId: params.id,
+      connectedRelayContainers: unusedConnectedRelayContainers,
+      onSubscriptionCreated: (relayName) => {
+        setSubscribedToTopicOnRelay((current) => [...current, relayName]);
+      },
+      onTopicReceived: (topic) => {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        const content = JSON.parse(topic.content);
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+        const topicQuestion = content.name;
+        if (!topicQuestion || typeof topicQuestion !== "string") return;
+        if (currentTopic()?.eventId === params.id) return;
+
+        setCurrentTopic({
+          eventId: params.id,
+          title: topicQuestion,
+          pubkey: topic.pubkey,
+        });
+      },
+      onValueReceived: (value) => {
+        // TODO maybe use zod for this?
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        const content = JSON.parse(value.content);
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+        const valueName = content.name;
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+        const valueDescription = content.description;
+        if (
+          !valueName ||
+          typeof valueName !== "string" ||
+          typeof valueDescription !== "string"
+        )
+          return;
+
+        if (topicValues().find((topicValue) => topicValue.name === valueName))
+          return;
+
+        setTopicValues((current) => [
+          ...current,
+          {
+            name: valueName,
+            description: valueDescription,
+          },
+        ]);
+      },
+    });
+  });
+
+  createEffect(() => {
+    if (!globalContext.relays?.().find((relay) => relay.connected)) {
+      return;
+    }
+
+    const connectedRelayContainers = globalContext
+      .relays()
+      .filter((relay) => relay.connected);
+    const unusedConnectedRelayContainers = connectedRelayContainers.filter(
+      (relay) =>
+        !subscribedToTopicOnRelay().find(
+          (relayName) => relayName === relay.name,
+        ),
+    );
+
+    if (!currentTopic()) return;
+    subscribeToArguflowFeedByEventAndValue({
+      connectedRelayContainers: unusedConnectedRelayContainers,
+      eventId: params.id,
+      valuePubKey: currentTopic()?.pubkey,
+      onStatementReceived: (value) => {
+        console.log(value);
+      },
+    });
   });
 
   const onCreateValue = ({ name, description }: TopicValue) => {
@@ -182,7 +248,7 @@ const TopicDetail = () => {
     const event: Event = {
       id: "",
       sig: "",
-      kind: 1,
+      kind: 42,
       pubkey: eventPublicKey,
       tags: [
         ["arguflow"],
@@ -244,7 +310,7 @@ const TopicDetail = () => {
             )}
           </div>
         </div>
-        <AFRowLayoutDesktop topicId="fdsa" viewMode="aff"/>
+        <AFRowLayoutDesktop topicId="fdsa" viewMode="aff" />
       </div>
       <Toaster class="fixed-0 absolute left-0 bottom-0 m-4">
         <Show when={notifs().length > 0}>

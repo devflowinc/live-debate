@@ -6,59 +6,52 @@ interface AFRowLayoutDesktopProps {
 }
 
 export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
-
   const [expandedColumns, setExpandedColumns] = createSignal<number[]>([0, 1]);
 
   const getClassNamesList = (index: number) => {
-    const primaryColor = props.viewMode === "aff" ? "border-emerald-500" : "border-rose-500";
-    const secondaryColor = props.viewMode !== "aff" ? "border-emerald-500" : "border-rose-500";
+    const primaryColor =
+      props.viewMode === "aff" ? "border-emerald-500" : "border-rose-500";
+    const secondaryColor =
+      props.viewMode !== "aff" ? "border-emerald-500" : "border-rose-500";
 
-    const color = index == 2 ? secondaryColor : primaryColor;
+    const color = index == 1 ? secondaryColor : primaryColor;
     const defaults = `border-4 h-[60vh] rounded-xl ${color}`;
 
     return {
-      [defaults] : true,
+      [defaults]: true,
       "w-[46%]": expandedColumns().includes(index),
       "w-[2%]": !expandedColumns().includes(index),
     };
-  }
+  };
 
   const toggleColumn = (index: number) => {
     const expandedColumnsCopy = [...expandedColumns()];
     if (!expandedColumnsCopy.includes(index)) {
       setExpandedColumns((prevExpandedCols) => [
         ...prevExpandedCols.slice(1),
-        index
-      ])
+        index,
+      ]);
     }
-  }
+  };
 
   return (
-    <div class="flex space-x-2 w-full px-10">
+    <div class="flex w-full space-x-2 px-10">
       <div
         onMouseEnter={() => toggleColumn(0)}
-        classList={
-          getClassNamesList(0)
-        }>
-      </div>
+        classList={getClassNamesList(0)}
+      />
       <div
         onMouseEnter={() => toggleColumn(1)}
-        classList={
-        getClassNamesList(1)
-      }>
-      </div>
+        classList={getClassNamesList(1)}
+      />
       <div
         onMouseEnter={() => toggleColumn(2)}
-        classList={
-        getClassNamesList(2)
-      }>
-      </div>
+        classList={getClassNamesList(2)}
+      />
       <div
         onMouseEnter={() => toggleColumn(3)}
-        classList={
-        getClassNamesList(3)
-      }>
-      </div>
+        classList={getClassNamesList(3)}
+      />
     </div>
   );
 };

@@ -18,7 +18,6 @@ export const isEventArguflowTopicByTags = (tags: string[][]): boolean => {
 export const isEventArguflowValueByTags = (tags: string[][]): boolean => {
   let foundArguflow = false;
   let foundArguflowTopicValue = false;
-
   tags.forEach((tag) => {
     if (tag[0] === "arguflow") foundArguflow = true;
     if (tag[0] === "arguflow-topic-value") foundArguflowTopicValue = true;
@@ -44,7 +43,7 @@ export const subscribeToArguflowTopicsForPublickKey = ({
         [
           {
             authors: [publicKey],
-            kinds: [1],
+            kinds: [40],
           },
         ],
         {
@@ -81,7 +80,7 @@ const TopicsList = () => {
           // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
           const content = JSON.parse(topicEvent.content);
           // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
-          const topicQuestion = content.topicQuestion;
+          const topicQuestion = content.name;
           const eventId = topicEvent.id;
 
           const currentUserTopics = globalContext.userTopics?.();
@@ -95,6 +94,7 @@ const TopicsList = () => {
                 {
                   eventId: eventId,
                   title: topicQuestion,
+                  pubkey: userPublicKey,
                 },
               ]);
           }

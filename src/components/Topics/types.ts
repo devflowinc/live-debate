@@ -1,6 +1,7 @@
 export interface Topic {
   eventId: string;
   title: string;
+  pubkey: string;
 }
 
 export interface TopicValue {

@@ -24,12 +24,14 @@ const TopicsDisplay = () => {
     const event: Event = {
       id: "",
       sig: "",
-      kind: 1,
+      kind: 40,
       pubkey: eventPublicKey,
       tags: [["arguflow"], ["arguflow-topic-question"]],
       created_at: createdAt,
       content: JSON.stringify({
-        topicQuestion: topic,
+        name: topic,
+        about: "This is the description",
+        picture: "",
       }),
     };
     event.id = getEventHash(event);
