@@ -43,7 +43,10 @@ topicEventId is a number
 }
 ```
 
-### Create Opening Statement
+### Create Statement
+
+Anything in an argument channel that is not a Topic-Value
+They will all reference the current topicValue
 
 ```javascript
 {
@@ -53,6 +56,7 @@ topicEventId is a number
     pubkey: "eventPublicKey",
     tags: [
         ["arguflow"],
+        ["arguflow-statement"],
         ["e", `${topicEventId}`, "nostr.arguflow.gg", "reply"],
         ["p", ...previousPubKeys], // Reference what it is replying too
     ],
@@ -65,23 +69,6 @@ topicEventId is a number
 }
 ```
 
-### Create Statement reply
-
-```javascript
-{
-    id: "",
-    sig: "",
-    kind: 1,
-    pubkey: "eventPublicKey",
-    tags: [
-        ["arguflow"],
-        ["e", `${topicEventId}`, "nostr.arguflow.gg", "reply"],
-        ["p", ...previousPubKeys], // Reference what it is replying too
-    ],
-    created_at: "createdAt",
-    content: JSON.stringify({
-        argument: "",
-        topicEventId: `${topicEventId}`,
-    }),
-}
-```
+### Feed
+A statement is a single message (atomic)
+A feed is a string of the same message.
