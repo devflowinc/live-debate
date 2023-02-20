@@ -218,11 +218,13 @@ const TopicDetail = () => {
         ),
     );
 
-    if (!currentTopic()) return;
+    const topic = currentTopic();
+    if (!topic) return;
+
     subscribeToArguflowFeedByEventAndValue({
       connectedRelayContainers: unusedConnectedRelayContainers,
       eventId: params.id,
-      valuePubKey: currentTopic()?.pubkey,
+      valuePubKey: topic.pubkey,
       onStatementReceived: (value) => {
         console.log(value);
       },
