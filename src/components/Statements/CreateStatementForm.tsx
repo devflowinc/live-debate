@@ -19,7 +19,6 @@ export const CreateStatementForm = (props: CreateStatementFormProps) => {
       statement: statement(),
       type: props.type,
     });
-    props.setShowStatementForm(false);
   };
 
   const onCancel = () => {

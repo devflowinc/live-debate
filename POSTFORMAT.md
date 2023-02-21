@@ -2,7 +2,6 @@
 
 Note that the content section is stringified as JSON
 
-
 ### Create Topic (TOPICS) [PUBLIC CHANEL]
 
 ```javascript
@@ -57,7 +56,7 @@ They will all reference the current topicValue
     tags: [
         ["arguflow"],
         ["arguflow-statement"],
-        ["e", `${topicEventId}`, "nostr.arguflow.gg", "reply"],
+        ["e", `${previousEvent}`, "nostr.arguflow.gg", "reply"],
         ["p", ...previousPubKeys], // Reference what it is replying too
     ],
     created_at: "createdAt",
@@ -65,10 +64,16 @@ They will all reference the current topicValue
         argument: "",
         topicEventId: `${topicEventId}`,
         type: "aff" | "neg";
+        previousEvent: `${prevEvent}`, // corrsponds to what we reply to first
     }),
 }
 ```
 
+The statements will essentially create a linked list with the values being the head
+of the linked list. Since we can only fully traceback the arguments in reverse.
+In graph terms, we have 1 in going edge and N outgoing.
+
 ### Feed
+
 A statement is a single message (atomic)
 A feed is a string of the same message.
