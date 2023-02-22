@@ -56,7 +56,10 @@ They will all reference the current topicValue
     tags: [
         ["arguflow"],
         ["arguflow-statement"],
-        ["e", `${previousEvent}`, "nostr.arguflow.gg", "reply"],
+        ...{previousEvents.map((prev) => {
+        ["e", `${prev.id}`, "nostr.arguflow.gg", "reply"],
+        }}
+
         ["p", ...previousPubKeys], // Reference what it is replying too
     ],
     created_at: "createdAt",

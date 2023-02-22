@@ -1,9 +1,12 @@
 import { createSignal } from "solid-js";
 import { Statement } from "./types";
 import InputRowsForm from "~/components/Atoms/InputRowsForm";
+import { Topic } from "../Topics/types";
+import { Event } from "nostr-tools";
 
 interface CreateStatementFormProps {
-  topicId: string;
+  topic: Topic;
+  previousEvent: Event;
   type: "aff" | "neg";
   setShowStatementForm: (show: boolean) => void;
   onCreateStatment: (statement: Statement) => void;
@@ -11,11 +14,11 @@ interface CreateStatementFormProps {
 
 export const CreateStatementForm = (props: CreateStatementFormProps) => {
   const [statement, setStatement] = createSignal("");
-
+  console.log("CreateStatementForm", props);
   const onCreateStatement = () => {
     props.onCreateStatment({
-      topicId: props.topicId,
-      previousEvent: "",
+      topic: props.topic,
+      previousEvent: props.previousEvent,
       statement: statement(),
       type: props.type,
     });

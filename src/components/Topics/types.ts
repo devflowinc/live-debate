@@ -1,14 +1,16 @@
+import { Event } from "nostr-tools";
+
 export interface Topic {
-  eventId: string;
   title: string;
-  pubkey: string;
+  event: Event;
 }
 
 export interface TopicValue {
   name: string;
   description: string;
+  event: Event;
 }
 
 export interface ValueWithTopicEventId extends TopicValue {
-  topicEventId: string;
+  event: Event;
 }

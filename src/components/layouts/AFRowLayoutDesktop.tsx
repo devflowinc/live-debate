@@ -1,11 +1,12 @@
 import { Event, getEventHash } from "nostr-tools";
 import { AiOutlinePlus } from "solid-icons/ai";
-import { createSignal, For, useContext } from "solid-js";
+import { Accessor, createSignal, For, useContext } from "solid-js";
 import { GlobalContext } from "~/contexts/GlobalContext";
 import { emitEventToConnectedRelays } from "~/nostr-types";
 import { CreateStatementForm } from "~/components/Statements/CreateStatementForm";
 import { Statement } from "~/components/Statements/types";
 import { getUTCSecondsSinceEpoch } from "../Topics/TopicsDisplay";
+import { Topic, TopicValue } from "../Topics/types";
 
 interface StatementViewProps {
   statement: Statement;
@@ -16,18 +17,52 @@ export const StatementView = (props: StatementViewProps) => {
   return (
     <div
       classList={{
-        "border-2 border-purple-500 rounded-md py-3 px-4 text-white": true,
+        "rounded-md py-3 px-4 text-white": true,
         "w-full px-0 py-0 text-center": !props.visible,
-        "min-w-lg": props.visible,
+        "border-2 border-purple-500 min-w-lg": props.visible,
       }}
     >
       {props.visible && props.statement.statement}
+      {!props.visible && (
+        <div class="flex flex-col -space-y-3">
+          <div>{">.<"}</div>
+          <div>{"/\\\\"}</div>
+          <div>{"\\\\/"}</div>
+          <div>{">|<"}</div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export const AddButton = (props: {
+  setShowStatementForm: (show: boolean) => void;
+  visible: boolean;
+}) => {
+  return (
+    <div>
+      {props.visible && (
+        <div
+          onClick={() => props.setShowStatementForm(true)}
+          class="flex cursor-pointer items-center space-x-2 border-4 border-purple-500 px-4 py-3 text-white"
+        >
+          <AiOutlinePlus />
+          <div>Add Statement</div>
+        </div>
+      )}
+      {!props.visible && (
+        <div class="mb-2 flex w-full items-center rounded-full border-2 border-purple-500 p-1 text-center text-white">
+          <AiOutlinePlus />
+        </div>
+      )}
     </div>
   );
 };
 
 interface AFRowLayoutDesktopProps {
-  topicId: string;
+  topic: Topic;
+  topicValues: Accessor<TopicValue[]>;
+  selectedTopic: Accessor<number>;
   viewMode: "aff" | "neg";
 }
 
@@ -38,14 +73,26 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
 
   const [openingStatements, setOpeningStatements] = createSignal<Statement[]>([
     {
-      topicId: props.topicId,
-      previousEvent: "",
+      topic: props.topic,
+      previousEvent: {
+        kind: 0,
+        tags: [],
+        pubkey: "",
+        content: "",
+        created_at: 0,
+      },
       statement: "Opening Statement 1",
       type: "aff",
     },
     {
-      topicId: props.topicId,
-      previousEvent: "",
+      topic: props.topic,
+      previousEvent: {
+        kind: 0,
+        tags: [],
+        pubkey: "",
+        content: "",
+        created_at: 0,
+      },
       statement: "Opening Statement 2",
       type: "aff",
     },
@@ -58,12 +105,12 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
       props.viewMode !== "aff" ? "border-emerald-500" : "border-rose-500";
 
     const color = index == 1 ? secondaryColor : primaryColor;
-    const defaults = `border-4 h-[60vh] rounded-xl ${color}`;
+    const defaults = `border-4 h-[60vh] rounded-xl ${color} flex flex-col`;
 
     return {
       [defaults]: true,
-      "w-[46%] flex flex-col space-y-5 p-5": expandedColumns().includes(index),
-      "w-[2%]": !expandedColumns().includes(index),
+      "w-[46%] space-y-5 p-5": expandedColumns().includes(index),
+      "w-[2%] items-center": !expandedColumns().includes(index),
     };
   };
 
@@ -79,19 +126,19 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
 
   const onCreateStatment = ({
     statement,
-    topicId,
+    topic,
     previousEvent,
     type,
   }: Statement) => {
     // TODO add toatsts
     // TODO Sanitize inputs
     const eventPublicKey = globalContext.connectedUser?.()?.publicKey;
+    if (!eventPublicKey) return;
 
-    const topicEventId = props.topicId;
-
-    if (!eventPublicKey || !topicEventId) return;
-
+    const id = getEventHash(topic.event);
     const createdAt = getUTCSecondsSinceEpoch();
+
+    const previousEvents: Event[] = [];
 
     const previousPubKeys = [""];
 
@@ -102,14 +149,19 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
       pubkey: eventPublicKey,
       tags: [
         ["arguflow"],
-        ["arguflow-topic-value"],
-        ["e", `${previousEvent}`, "nostr.arguflow.gg", "reply"],
+        ["arguflow-statement"],
+        ...previousEvents.map(getEventHash).map((previousEvent) => [
+          "e",
+          // `${previousEventId}`,
+          "nostr.arguflow.gg",
+          "reply",
+        ]),
         ["p", ...previousPubKeys], // Reference what it is replying too
       ],
       created_at: createdAt,
       content: JSON.stringify({
         statement,
-        topicId: `${topicId}`,
+        topicId: id,
         previousEvent,
         type,
       }),
@@ -133,23 +185,6 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
 
   return (
     <div>
-      <div class="flex max-w-[40%] items-center justify-center">
-        <div
-          onClick={() => setShowStatementForm(true)}
-          class="flex cursor-pointer items-center space-x-2 border border-purple-500 px-4 py-3 text-white"
-        >
-          <AiOutlinePlus />
-          <div>Add Opening Statement</div>
-        </div>
-      </div>
-      {showStatementForm() && (
-        <CreateStatementForm
-          topicId={props.topicId}
-          type={props.viewMode}
-          setShowStatementForm={setShowStatementForm}
-          onCreateStatment={onCreateStatment}
-        />
-      )}
       <div class="flex w-full space-x-2 px-10">
         <div
           onMouseEnter={() => toggleColumn(0)}
@@ -163,6 +198,22 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
               />
             )}
           </For>
+          <div class="flex-grow" />
+          {!showStatementForm() && (
+            <AddButton
+              setShowStatementForm={setShowStatementForm}
+              visible={expandedColumns().includes(0)}
+            />
+          )}
+          {showStatementForm() && expandedColumns().includes(0) && (
+            <CreateStatementForm
+              previousEvent={openingStatements()[0].previousEvent}
+              topic={props.topic}
+              type={props.viewMode}
+              setShowStatementForm={setShowStatementForm}
+              onCreateStatment={onCreateStatment}
+            />
+          )}
         </div>
         <div
           onMouseEnter={() => toggleColumn(1)}

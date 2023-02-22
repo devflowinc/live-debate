@@ -1,6 +1,9 @@
+import { Topic } from "../Topics/types";
+import { Event } from "nostr-tools";
+
 export interface Statement {
   statement: string;
-  topicId: string;
-  previousEvent: string;
+  topic: Topic;
+  previousEvent: Event;
   type: "aff" | "neg";
 }

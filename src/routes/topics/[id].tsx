@@ -83,11 +83,11 @@ export const subscribeToArguflowTopicByEventId = ({
 export const subscribeToArguflowFeedByEventAndValue = ({
   eventId,
   connectedRelayContainers,
-  valuePubKey,
+  topic,
   onStatementReceived,
 }: {
   eventId: string;
-  valuePubKey: string;
+  topic: Topic;
   connectedRelayContainers: RelayContainer[];
   onStatementReceived: (event: Event) => void;
 }) => {
@@ -99,10 +99,9 @@ export const subscribeToArguflowFeedByEventAndValue = ({
     const topicEventSub = relay.sub(
       [
         {
-          ids: [eventId],
           kinds: [42],
           ["#e"]: [eventId],
-          ["#p"]: [valuePubKey],
+          // ["#p"]: [valuePubKey],
         },
       ],
       {
@@ -166,10 +165,10 @@ const TopicDetail = () => {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
         const topicQuestion = content.name;
         if (!topicQuestion || typeof topicQuestion !== "string") return;
-        if (currentTopic()?.eventId === params.id) return;
+        if (currentTopic()?.event.id === params.id) return;
 
         setCurrentTopic({
-          eventId: params.id,
+          event: topic,
           title: topicQuestion,
           pubkey: topic.pubkey,
         });
@@ -197,6 +196,7 @@ const TopicDetail = () => {
           {
             name: valueName,
             description: valueDescription,
+            event: value,
           },
         ]);
       },
@@ -224,16 +224,16 @@ const TopicDetail = () => {
     subscribeToArguflowFeedByEventAndValue({
       connectedRelayContainers: unusedConnectedRelayContainers,
       eventId: params.id,
-      valuePubKey: topic.pubkey,
+      topic: topic,
       onStatementReceived: (value) => {
-        console.log(value);
+        console.log("gotValue", value);
       },
     });
   });
 
   const onCreateValue = ({ name, description }: TopicValue) => {
     const eventPublicKey = globalContext.connectedUser?.()?.publicKey;
-    const topicEventId = currentTopic()?.eventId;
+    const topicEventId = currentTopic()?.event.id;
 
     if (!eventPublicKey || !topicEventId) return;
 
@@ -255,7 +255,7 @@ const TopicDetail = () => {
       tags: [
         ["arguflow"],
         ["arguflow-topic-value"],
-        ["e", topicEventId, "nostr.arguflow.gg", "root"],
+        ["#e", topicEventId, "nostr.arguflow.gg", "root"],
       ],
       created_at: createdAt,
       content: JSON.stringify({
@@ -312,7 +312,15 @@ const TopicDetail = () => {
             )}
           </div>
         </div>
-        <AFRowLayoutDesktop topicId="fdsa" viewMode="aff" />
+        <Show when={currentTopic() != null}>
+          <AFRowLayoutDesktop
+            topicValues={topicValues}
+            selectedTopic={selectedTopic}
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            topic={currentTopic()!}
+            viewMode="aff"
+          />
+        </Show>
       </div>
       <Toaster class="fixed-0 absolute left-0 bottom-0 m-4">
         <Show when={notifs().length > 0}>
