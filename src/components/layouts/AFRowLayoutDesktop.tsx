@@ -23,18 +23,18 @@ export const subscribeToArguflowFeedByEventAndValue = ({
   connectedRelayContainers,
   topic,
   onStatementReceived,
+  onSubscriptionCreated,
 }: {
   topic: Topic;
   connectedRelayContainers: RelayContainer[];
   onStatementReceived: (event: Event) => void;
+  onSubscriptionCreated?: (relayName: string) => void;
 }) => {
-  console.log("funct called", connectedRelayContainers);
   connectedRelayContainers.forEach((relayContainer) => {
-    console.log("checking");
     if (!relayContainer.relay) {
       return;
     }
-    console.log("making sub");
+    onSubscriptionCreated?.(relayContainer.name);
     const relay = relayContainer.relay;
     const topicEventSub = relay.sub(
       [
@@ -81,16 +81,20 @@ export const StatementView = (props: StatementViewProps) => {
 export const AddButton = (props: {
   setShowStatementForm: (show: boolean) => void;
   visible: boolean;
+  valueName: string;
 }) => {
   return (
-    <div>
+    <div class="flex w-full justify-center">
       {props.visible && (
         <div
           onClick={() => props.setShowStatementForm(true)}
-          class="flex cursor-pointer items-center space-x-2 border-4 border-purple-500 px-4 py-3 text-white"
+          class="flex max-w-xs cursor-pointer items-center space-x-2 border-2 border-purple-500 px-4 py-3 text-white"
         >
           <AiOutlinePlus />
           <div>Add Statement</div>
+          <div class="flex-1"></div>
+          <span class="font-bold">{props.valueName}</span>
+          <span> value</span>
         </div>
       )}
       {!props.visible && (
@@ -111,23 +115,24 @@ interface AFRowLayoutDesktopProps {
 export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
   const [expandedColumns, setExpandedColumns] = createSignal<number[]>([0, 1]);
   const [showStatementForm, setShowStatementForm] = createSignal(false);
+  const [subscribedToValueOnRelay, setSubscribedToValueOnRelay] = createSignal<
+    string[]
+  >([]);
   const globalContext = useContext(GlobalContext);
 
-  const [openingStatements, setOpeningStatements] = createSignal<Statement[]>([
-    {
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      topic: props.topic()!,
-      previousEvent: {
-        kind: 0,
-        tags: [],
-        pubkey: "",
-        content: "",
-        created_at: 0,
-      },
-      statement: "Opening Statement 1",
-      type: "aff",
-    },
-  ]);
+  const [openingStatements, setOpeningStatements] = createSignal<Statement[]>(
+    [],
+  );
+
+  createEffect<Topic | null>((prevTopic: Topic | null) => {
+    const topic = props.topic();
+    if (topic?.event.id != prevTopic?.event.id) {
+      setSubscribedToValueOnRelay([]);
+      // TODO cancel all event listeners here
+      setOpeningStatements([]);
+    }
+    return topic;
+  }, null);
 
   createEffect(() => {
     if (!globalContext.relays?.().find((relay) => relay.connected)) {
@@ -138,12 +143,23 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
       .relays()
       .filter((relay) => relay.connected);
 
+    const unusedConnectedRelayContainers = connectedRelayContainers.filter(
+      (relay) =>
+        !subscribedToValueOnRelay().find(
+          (relayName) => relayName === relay.name,
+        ),
+    );
+
     const topic = props.topic();
     if (!topic) return;
-    console.log("Create effect");
     subscribeToArguflowFeedByEventAndValue({
-      connectedRelayContainers: connectedRelayContainers,
+      connectedRelayContainers: unusedConnectedRelayContainers,
       topic: topic,
+      onSubscriptionCreated: (name) => {
+        setSubscribedToValueOnRelay((prev) => {
+          return [...prev, name];
+        });
+      },
       onStatementReceived: (value) => {
         // CREATE STATEMENT
         // TODO maybe use zod for this?
@@ -303,6 +319,9 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
           <div class="flex-grow" />
           {!showStatementForm() && props.currentTopicValue() && (
             <AddButton
+              // Must exist since topicValue exists
+              // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+              valueName={props.currentTopicValue()!.name}
               setShowStatementForm={setShowStatementForm}
               visible={expandedColumns().includes(0)}
             />
