@@ -1,7 +1,13 @@
 import { Event, getEventHash } from "nostr-tools";
 import { AiOutlinePlus } from "solid-icons/ai";
-import { Accessor, createSignal, For, useContext } from "solid-js";
-import { GlobalContext } from "~/contexts/GlobalContext";
+import {
+  Accessor,
+  createEffect,
+  createSignal,
+  For,
+  useContext,
+} from "solid-js";
+import { GlobalContext, RelayContainer } from "~/contexts/GlobalContext";
 import { emitEventToConnectedRelays } from "~/nostr-types";
 import { CreateStatementForm } from "~/components/Statements/CreateStatementForm";
 import { Statement } from "~/components/Statements/types";
@@ -12,6 +18,43 @@ interface StatementViewProps {
   statement: Statement;
   visible: boolean;
 }
+
+export const subscribeToArguflowFeedByEventAndValue = ({
+  connectedRelayContainers,
+  topic,
+  onStatementReceived,
+  onSubscriptionCreated,
+}: {
+  topic: Topic;
+  connectedRelayContainers: RelayContainer[];
+  onStatementReceived: (event: Event) => void;
+  onSubscriptionCreated?: (relayName: string) => void;
+}) => {
+  connectedRelayContainers.forEach((relayContainer) => {
+    if (!relayContainer.relay) {
+      return;
+    }
+    onSubscriptionCreated?.(relayContainer.name);
+    const relay = relayContainer.relay;
+    const topicEventSub = relay.sub(
+      [
+        {
+          kinds: [42],
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          ["#e"]: [topic.event.id!],
+          // ["#p"]: [valuePubKey],
+        },
+      ],
+      {
+        skipVerification: true,
+      },
+    );
+
+    topicEventSub.on("event", (event: Event) => {
+      onStatementReceived(event);
+    });
+  });
+};
 
 export const StatementView = (props: StatementViewProps) => {
   return (
@@ -39,16 +82,20 @@ export const StatementView = (props: StatementViewProps) => {
 export const AddButton = (props: {
   setShowStatementForm: (show: boolean) => void;
   visible: boolean;
+  valueName: string;
 }) => {
   return (
-    <div>
+    <div class="flex w-full justify-center">
       {props.visible && (
         <div
           onClick={() => props.setShowStatementForm(true)}
-          class="flex cursor-pointer items-center space-x-2 border-4 border-purple-500 px-4 py-3 text-white"
+          class="flex max-w-xs cursor-pointer items-center space-x-2 border-2 border-purple-500 px-4 py-3 text-white"
         >
           <AiOutlinePlus />
           <div>Add Statement</div>
+          <div class="flex-1"></div>
+          <span class="font-bold">{props.valueName}</span>
+          <span> value</span>
         </div>
       )}
       {!props.visible && (
@@ -61,43 +108,92 @@ export const AddButton = (props: {
 };
 
 interface AFRowLayoutDesktopProps {
-  topic: Topic;
-  topicValues: Accessor<TopicValue[]>;
-  selectedTopic: Accessor<number>;
+  topic: Accessor<Topic | null>;
+  currentTopicValue: Accessor<TopicValue | undefined>;
   viewMode: "aff" | "neg";
 }
 
 export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
   const [expandedColumns, setExpandedColumns] = createSignal<number[]>([0, 1]);
   const [showStatementForm, setShowStatementForm] = createSignal(false);
+  const [subscribedToValueOnRelay, setSubscribedToValueOnRelay] = createSignal<
+    string[]
+  >([]);
   const globalContext = useContext(GlobalContext);
 
-  const [openingStatements, setOpeningStatements] = createSignal<Statement[]>([
-    {
-      topic: props.topic,
-      previousEvent: {
-        kind: 0,
-        tags: [],
-        pubkey: "",
-        content: "",
-        created_at: 0,
+  const [openingStatements, setOpeningStatements] = createSignal<Statement[]>(
+    [],
+  );
+
+  createEffect<Topic | null>((prevTopic: Topic | null) => {
+    const topic = props.topic();
+    if (topic?.event.id != prevTopic?.event.id) {
+      setSubscribedToValueOnRelay([]);
+      // TODO cancel all event listeners here
+      setOpeningStatements([]);
+    }
+    return topic;
+  }, null);
+
+  createEffect(() => {
+    if (!globalContext.relays?.().find((relay) => relay.connected)) {
+      return;
+    }
+
+    const connectedRelayContainers = globalContext
+      .relays()
+      .filter((relay) => relay.connected);
+
+    const unusedConnectedRelayContainers = connectedRelayContainers.filter(
+      (relay) =>
+        !subscribedToValueOnRelay().find(
+          (relayName) => relayName === relay.name,
+        ),
+    );
+
+    const topic = props.topic();
+    if (!topic) return;
+    subscribeToArguflowFeedByEventAndValue({
+      connectedRelayContainers: unusedConnectedRelayContainers,
+      topic: topic,
+      onSubscriptionCreated: (name) => {
+        setSubscribedToValueOnRelay((prev) => {
+          return [...prev, name];
+        });
       },
-      statement: "Opening Statement 1",
-      type: "aff",
-    },
-    {
-      topic: props.topic,
-      previousEvent: {
-        kind: 0,
-        tags: [],
-        pubkey: "",
-        content: "",
-        created_at: 0,
+      onStatementReceived: (value) => {
+        // CREATE STATEMENT
+        // TODO maybe use zod for this?
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        const content = JSON.parse(value.content);
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+        const statement = content.statement;
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+        const type = content.type;
+
+        const currentTopic = props.topic();
+        if (
+          !currentTopic ||
+          typeof statement !== "string" ||
+          typeof type !== "string" ||
+          (type != "aff" && type != "neg")
+        )
+          return;
+
+        setOpeningStatements((prev) => {
+          return [
+            ...prev,
+            {
+              topic: currentTopic,
+              statement: statement,
+              previousEvent: value,
+              type: type,
+            },
+          ];
+        });
       },
-      statement: "Opening Statement 2",
-      type: "aff",
-    },
-  ]);
+    });
+  });
 
   const getClassNamesList = (index: number) => {
     const primaryColor =
@@ -115,6 +211,14 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
     };
   };
 
+  const getType = (index: number) => {
+    let view = props.viewMode;
+    if (index == 1) {
+      view = view == "aff" ? "neg" : "aff";
+    }
+    return view;
+  };
+
   const toggleColumn = (index: number) => {
     const expandedColumnsCopy = [...expandedColumns()];
     if (!expandedColumnsCopy.includes(index)) {
@@ -127,21 +231,33 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
 
   const onCreateStatment = ({
     statement,
-    topic,
-    previousEvent,
     type,
-  }: Statement) => {
+  }: {
+    statement: string;
+    type: "aff" | "neg";
+  }) => {
     // TODO add toatsts
-    // TODO Sanitize inputs
+
     const eventPublicKey = globalContext.connectedUser?.()?.publicKey;
     if (!eventPublicKey) return;
+    const topic = props.topic();
+    if (!topic) return;
 
     const id = getEventHash(topic.event);
     const createdAt = getUTCSecondsSinceEpoch();
 
     const previousEvents: Event[] = [];
 
-    const previousPubKeys = [""];
+    const topicValue = props.currentTopicValue();
+    const currentTopic = props.topic();
+
+    if (topicValue?.event) {
+      previousEvents.push(topicValue.event);
+    }
+
+    if (currentTopic?.event) {
+      previousEvents.push(currentTopic.event);
+    }
 
     const event: Event = {
       id: "",
@@ -151,19 +267,21 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
       tags: [
         ["arguflow"],
         ["arguflow-statement"],
-        ...previousEvents.map(getEventHash).map((previousEvent) => [
-          "e",
-          // `${previousEventId}`,
-          "nostr.arguflow.gg",
-          "reply",
-        ]),
-        ["p", ...previousPubKeys], // Reference what it is replying too
+        ...previousEvents
+          .map(getEventHash)
+          .map((previousEventId) => [
+            "e",
+            `${previousEventId}`,
+            "nostr.arguflow.gg",
+            "reply",
+          ]),
+        ["p", ...previousEvents.map((event) => event.pubkey)], // Reference what it is replying too
       ],
       created_at: createdAt,
       content: JSON.stringify({
         statement,
         topicId: id,
-        previousEvent,
+        previousEvent: previousEvents[previousEvents.length - 1].id,
         type,
       }),
     };
@@ -200,34 +318,40 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
             )}
           </For>
           <div class="flex-grow" />
-          {!showStatementForm() && (
+          {!showStatementForm() && props.currentTopicValue() && (
             <AddButton
+              // Must exist since topicValue exists
+              // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+              valueName={props.currentTopicValue()!.name}
               setShowStatementForm={setShowStatementForm}
               visible={expandedColumns().includes(0)}
             />
           )}
-          {showStatementForm() && expandedColumns().includes(0) && (
-            <CreateStatementForm
-              previousEvent={openingStatements()[0].previousEvent}
-              topic={props.topic}
-              type={props.viewMode}
-              setShowStatementForm={setShowStatementForm}
-              onCreateStatment={onCreateStatment}
-            />
-          )}
+          {showStatementForm() &&
+            expandedColumns().includes(0) &&
+            props.currentTopicValue()?.event && (
+              <CreateStatementForm
+                // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                previousEvent={props.currentTopicValue()!.event!}
+                topic={props.topic}
+                type={getType(0)}
+                setShowStatementForm={setShowStatementForm}
+                onCreateStatment={onCreateStatment}
+              />
+            )}
         </div>
         <div
           onMouseEnter={() => toggleColumn(1)}
           classList={getClassNamesList(1)}
-        ></div>
+        />
         <div
           onMouseEnter={() => toggleColumn(2)}
           classList={getClassNamesList(2)}
-        ></div>
+        />
         <div
           onMouseEnter={() => toggleColumn(3)}
           classList={getClassNamesList(3)}
-        ></div>
+        />
       </div>
     </div>
   );

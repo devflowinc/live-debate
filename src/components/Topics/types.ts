@@ -8,7 +8,7 @@ export interface Topic {
 export interface TopicValue {
   name: string;
   description: string;
-  event: Event;
+  event?: Event;
 }
 
 export interface ValueWithTopicEventId extends TopicValue {
