@@ -28,10 +28,13 @@ export const subscribeToArguflowFeedByEventAndValue = ({
   connectedRelayContainers: RelayContainer[];
   onStatementReceived: (event: Event) => void;
 }) => {
+  console.log("funct called", connectedRelayContainers);
   connectedRelayContainers.forEach((relayContainer) => {
+    console.log("checking");
     if (!relayContainer.relay) {
       return;
     }
+    console.log("making sub");
     const relay = relayContainer.relay;
     const topicEventSub = relay.sub(
       [
@@ -102,7 +105,6 @@ export const AddButton = (props: {
 interface AFRowLayoutDesktopProps {
   topic: Accessor<Topic | null>;
   currentTopicValue: Accessor<TopicValue | undefined>;
-  subscribedToTopicOnRelay: Accessor<string[]>;
   viewMode: "aff" | "neg";
 }
 
@@ -135,18 +137,12 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
     const connectedRelayContainers = globalContext
       .relays()
       .filter((relay) => relay.connected);
-    const unusedConnectedRelayContainers = connectedRelayContainers.filter(
-      (relay) =>
-        !props
-          .subscribedToTopicOnRelay()
-          .find((relayName) => relayName === relay.name),
-    );
 
     const topic = props.topic();
     if (!topic) return;
-
+    console.log("Create effect");
     subscribeToArguflowFeedByEventAndValue({
-      connectedRelayContainers: unusedConnectedRelayContainers,
+      connectedRelayContainers: connectedRelayContainers,
       topic: topic,
       onStatementReceived: (value) => {
         // CREATE STATEMENT
@@ -224,7 +220,7 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
     type: "aff" | "neg";
   }) => {
     // TODO add toatsts
-    // TODO Sanitize inputs
+
     const eventPublicKey = globalContext.connectedUser?.()?.publicKey;
     if (!eventPublicKey) return;
     const topic = props.topic();
@@ -234,19 +230,16 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
     const createdAt = getUTCSecondsSinceEpoch();
 
     const previousEvents: Event[] = [];
-    const previousPubKeys = [];
 
     const topicValue = props.currentTopicValue();
     const currentTopic = props.topic();
 
     if (topicValue?.event) {
       previousEvents.push(topicValue.event);
-      previousPubKeys.push(topicValue.event.pubkey);
     }
 
     if (currentTopic?.event) {
       previousEvents.push(currentTopic.event);
-      previousPubKeys.push(currentTopic.event.pubkey);
     }
 
     const event: Event = {
@@ -265,7 +258,7 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
             "nostr.arguflow.gg",
             "reply",
           ]),
-        ["p", ...previousPubKeys], // Reference what it is replying too
+        ["p", ...previousEvents.map((event) => event.pubkey)], // Reference what it is replying too
       ],
       created_at: createdAt,
       content: JSON.stringify({

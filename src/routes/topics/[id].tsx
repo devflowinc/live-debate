@@ -19,7 +19,6 @@ import CreateValueForm from "~/components/Topics/CreateValueForm";
 import { Toaster, useToaster } from "solid-headless";
 import { CustomToast, ToastContent } from "~/components/Atoms/CustomToast";
 import { AFRowLayoutDesktop } from "~/components/layouts/AFRowLayoutDesktop";
-import { Statement } from "~/components/Statements/types";
 
 export const isEventArguflowValueByTags = (tags: string[][]): boolean => {
   let foundArguflow = false;
@@ -144,7 +143,13 @@ const TopicDetail = () => {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
         const topicQuestion = content.name;
         if (!topicQuestion || typeof topicQuestion !== "string") return;
-        if (currentTopic()?.event.id === params.id) return;
+
+        if (
+          currentTopic() ||
+          currentTopic()?.event ||
+          currentTopic()?.event.id === params.id
+        )
+          return;
 
         setCurrentTopic({
           event: topic,
@@ -184,7 +189,7 @@ const TopicDetail = () => {
 
   const onCreateValue = ({ name, description }: TopicValue) => {
     const eventPublicKey = globalContext.connectedUser?.()?.publicKey;
-    const topicEventId = currentTopic()?.event.id;
+    const topicEventId = params.id;
 
     if (!eventPublicKey || !topicEventId) return;
 
@@ -197,7 +202,7 @@ const TopicDetail = () => {
     }
 
     const createdAt = getUTCSecondsSinceEpoch();
-
+    console.log("Creating value here");
     const event: Event = {
       id: "",
       sig: "",
@@ -206,7 +211,7 @@ const TopicDetail = () => {
       tags: [
         ["arguflow"],
         ["arguflow-topic-value"],
-        ["#e", topicEventId, "nostr.arguflow.gg", "root"],
+        ["e", topicEventId, "nostr.arguflow.gg", "root"],
       ],
       created_at: createdAt,
       content: JSON.stringify({
@@ -266,7 +271,6 @@ const TopicDetail = () => {
         <Show when={currentTopic() != null}>
           <AFRowLayoutDesktop
             currentTopicValue={currentTopicValue}
-            subscribedToTopicOnRelay={subscribedToTopicOnRelay}
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
             topic={currentTopic}
             viewMode="aff"
