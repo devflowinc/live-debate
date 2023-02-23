@@ -111,9 +111,21 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
   const [showStatementForm, setShowStatementForm] = createSignal(false);
   const globalContext = useContext(GlobalContext);
 
-  const [openingStatements, setOpeningStatements] = createSignal<Statement[]>(
-    [],
-  );
+  const [openingStatements, setOpeningStatements] = createSignal<Statement[]>([
+    {
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      topic: props.topic()!,
+      previousEvent: {
+        kind: 0,
+        tags: [],
+        pubkey: "",
+        content: "",
+        created_at: 0,
+      },
+      statement: "Opening Statement 1",
+      type: "aff",
+    },
+  ]);
 
   createEffect(() => {
     if (!globalContext.relays?.().find((relay) => relay.connected)) {
@@ -138,18 +150,31 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
       topic: topic,
       onStatementReceived: (value) => {
         // CREATE STATEMENT
-        console.log("gotValue", value);
+        // TODO maybe use zod for this?
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        const content = JSON.parse(value.content);
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+        const statement = content.statement;
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+        const type = content.type;
+
         const currentTopic = props.topic();
-        if (!currentTopic) return;
+        if (
+          !currentTopic ||
+          typeof statement !== "string" ||
+          typeof type !== "string" ||
+          (type != "aff" && type != "neg")
+        )
+          return;
 
         setOpeningStatements((prev) => {
           return [
             ...prev,
             {
               topic: currentTopic,
-              statement: "",
+              statement: statement,
               previousEvent: value,
-              type: "aff",
+              type: type,
             },
           ];
         });
@@ -171,6 +196,14 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
       "w-[46%] space-y-5 p-5": expandedColumns().includes(index),
       "w-[2%] items-center": !expandedColumns().includes(index),
     };
+  };
+
+  const getType = (index: number) => {
+    let view = props.viewMode;
+    if (index == 1) {
+      view = view == "aff" ? "neg" : "aff";
+    }
+    return view;
   };
 
   const toggleColumn = (index: number) => {
@@ -201,8 +234,20 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
     const createdAt = getUTCSecondsSinceEpoch();
 
     const previousEvents: Event[] = [];
+    const previousPubKeys = [];
 
-    const previousPubKeys = [""];
+    const topicValue = props.currentTopicValue();
+    const currentTopic = props.topic();
+
+    if (topicValue?.event) {
+      previousEvents.push(topicValue.event);
+      previousPubKeys.push(topicValue.event.pubkey);
+    }
+
+    if (currentTopic?.event) {
+      previousEvents.push(currentTopic.event);
+      previousPubKeys.push(currentTopic.event.pubkey);
+    }
 
     const event: Event = {
       id: "",
@@ -263,7 +308,7 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
             )}
           </For>
           <div class="flex-grow" />
-          {!showStatementForm() && (
+          {!showStatementForm() && props.currentTopicValue() && (
             <AddButton
               setShowStatementForm={setShowStatementForm}
               visible={expandedColumns().includes(0)}
@@ -276,7 +321,7 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
                 // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
                 previousEvent={props.currentTopicValue()!.event!}
                 topic={props.topic}
-                type={props.viewMode}
+                type={getType(0)}
                 setShowStatementForm={setShowStatementForm}
                 onCreateStatment={onCreateStatment}
               />

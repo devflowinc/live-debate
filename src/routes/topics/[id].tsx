@@ -97,9 +97,6 @@ const TopicDetail = () => {
   const [topicValues, setTopicValues] = createSignal<TopicValue[]>([]);
   const [showCreateValueForm, setShowCreateValueForm] =
     createSignal<boolean>(false);
-  const [openingStatements, setOpeningStatements] = createSignal<Statement[]>(
-    [],
-  );
 
   const currentTopicValue = createMemo(() => {
     if (topicValues().length == 0) {
