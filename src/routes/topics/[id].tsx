@@ -1,4 +1,11 @@
-import { createEffect, createSignal, useContext, For, Show } from "solid-js";
+import {
+  createEffect,
+  createSignal,
+  useContext,
+  For,
+  Show,
+  createMemo,
+} from "solid-js";
 import { useParams } from "solid-start";
 import { Topic, TopicValue } from "~/components/Topics/types";
 import ApplicationLayout from "~/components/layouts/ApplicationLayout";
@@ -12,6 +19,7 @@ import CreateValueForm from "~/components/Topics/CreateValueForm";
 import { Toaster, useToaster } from "solid-headless";
 import { CustomToast, ToastContent } from "~/components/Atoms/CustomToast";
 import { AFRowLayoutDesktop } from "~/components/layouts/AFRowLayoutDesktop";
+import { Statement } from "~/components/Statements/types";
 
 export const isEventArguflowValueByTags = (tags: string[][]): boolean => {
   let foundArguflow = false;
@@ -80,42 +88,6 @@ export const subscribeToArguflowTopicByEventId = ({
   });
 };
 
-export const subscribeToArguflowFeedByEventAndValue = ({
-  eventId,
-  connectedRelayContainers,
-  topic,
-  onStatementReceived,
-}: {
-  eventId: string;
-  topic: Topic;
-  connectedRelayContainers: RelayContainer[];
-  onStatementReceived: (event: Event) => void;
-}) => {
-  connectedRelayContainers.forEach((relayContainer) => {
-    if (!relayContainer.relay) {
-      return;
-    }
-    const relay = relayContainer.relay;
-    const topicEventSub = relay.sub(
-      [
-        {
-          kinds: [42],
-          ["#e"]: [eventId],
-          // ["#p"]: [valuePubKey],
-        },
-      ],
-      {
-        skipVerification: true,
-      },
-    );
-
-    topicEventSub.on("event", (event: Event) => {
-      const tags = event.tags;
-      isEventArguflowTopicByTags(tags) && onStatementReceived(event);
-    });
-  });
-};
-
 const TopicDetail = () => {
   const [currentTopic, setCurrentTopic] = createSignal<Topic | null>(null);
   const [selectedTopic, setSelectedTopic] = createSignal<number>(0);
@@ -125,6 +97,16 @@ const TopicDetail = () => {
   const [topicValues, setTopicValues] = createSignal<TopicValue[]>([]);
   const [showCreateValueForm, setShowCreateValueForm] =
     createSignal<boolean>(false);
+  const [openingStatements, setOpeningStatements] = createSignal<Statement[]>(
+    [],
+  );
+
+  const currentTopicValue = createMemo(() => {
+    if (topicValues().length == 0) {
+      return undefined;
+    }
+    return topicValues()[selectedTopic()];
+  });
 
   const globalContext = useContext(GlobalContext);
   const notifs = useToaster(globalContext.toasterStore);
@@ -199,34 +181,6 @@ const TopicDetail = () => {
             event: value,
           },
         ]);
-      },
-    });
-  });
-
-  createEffect(() => {
-    if (!globalContext.relays?.().find((relay) => relay.connected)) {
-      return;
-    }
-
-    const connectedRelayContainers = globalContext
-      .relays()
-      .filter((relay) => relay.connected);
-    const unusedConnectedRelayContainers = connectedRelayContainers.filter(
-      (relay) =>
-        !subscribedToTopicOnRelay().find(
-          (relayName) => relayName === relay.name,
-        ),
-    );
-
-    const topic = currentTopic();
-    if (!topic) return;
-
-    subscribeToArguflowFeedByEventAndValue({
-      connectedRelayContainers: unusedConnectedRelayContainers,
-      eventId: params.id,
-      topic: topic,
-      onStatementReceived: (value) => {
-        console.log("gotValue", value);
       },
     });
   });
@@ -314,10 +268,10 @@ const TopicDetail = () => {
         </div>
         <Show when={currentTopic() != null}>
           <AFRowLayoutDesktop
-            topicValues={topicValues}
-            selectedTopic={selectedTopic}
+            currentTopicValue={currentTopicValue}
+            subscribedToTopicOnRelay={subscribedToTopicOnRelay}
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            topic={currentTopic()!}
+            topic={currentTopic}
             viewMode="aff"
           />
         </Show>
