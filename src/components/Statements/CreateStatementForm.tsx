@@ -19,7 +19,6 @@ interface CreateStatementFormProps {
 
 export const CreateStatementForm = (props: CreateStatementFormProps) => {
   const [statement, setStatement] = createSignal("");
-  console.log("CreateStatementForm", props);
   const onCreateStatement = () => {
     props.onCreateStatment({
       statement: statement(),
