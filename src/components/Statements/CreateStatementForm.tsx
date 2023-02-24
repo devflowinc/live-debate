@@ -34,12 +34,12 @@ export const CreateStatementForm = (props: CreateStatementFormProps) => {
     <InputRowsForm
       inputGroups={[
         {
-          label: "Topic Question",
+          label: "Add Statement",
           inputValue: statement,
           setInputValue: setStatement,
         },
       ]}
-      createButtonText="Create Topic"
+      createButtonText="Create Statement"
       onCreate={onCreateStatement}
       onCancel={onCancel}
     />

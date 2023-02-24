@@ -62,10 +62,11 @@ export const StatementView = (props: StatementViewProps) => {
       classList={{
         "rounded-md py-3 px-4 text-white": true,
         "w-full px-0 py-0 text-center": !props.visible,
-        "border-2 border-purple-500 min-w-lg": props.visible,
+        "flex-grow border-2 border-purple-500 min-w-lg": props.visible,
       }}
     >
-      {props.visible && props.statement.statement}
+      {props.visible && (<div class="flex-grow min-h border-2 border-indigo-500/75"> 
+        {props.statement.statement}</div>)}
       {!props.visible && (
         <div class="flex flex-col -space-y-3">
           <div>{">.<"}</div>
