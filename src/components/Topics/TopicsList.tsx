@@ -91,11 +91,11 @@ const TopicsList = () => {
           if (topicQuestion && typeof topicQuestion === "string") {
             globalContext.userTopics?.() &&
               globalContext.setUserTopics([
-                ...globalContext.userTopics(),
                 {
                   event: topicEvent,
                   title: topicQuestion,
                 },
+                ...globalContext.userTopics(),
               ]);
           }
         },

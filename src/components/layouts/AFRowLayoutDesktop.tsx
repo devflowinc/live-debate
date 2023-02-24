@@ -88,11 +88,11 @@ export const AddButton = (props: {
       {props.visible && (
         <div
           onClick={() => props.setShowStatementForm(true)}
-          class="flex max-w-xs cursor-pointer items-center space-x-2 border-2 border-purple-500 px-4 py-3 text-white"
+          class="flex w-fit cursor-pointer items-center space-x-2 border-2 border-purple-500 px-4 py-3 text-white"
         >
           <AiOutlinePlus />
           <div>Add Statement</div>
-          <div class="flex-1"></div>
+          <div class="flex-1" />
           <span class="font-bold">{props.valueName}</span>
           <span> value</span>
         </div>
