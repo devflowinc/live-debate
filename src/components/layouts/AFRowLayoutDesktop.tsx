@@ -13,6 +13,7 @@ import { CreateStatementForm } from "~/components/Statements/CreateStatementForm
 import { Statement } from "~/components/Statements/types";
 import { getUTCSecondsSinceEpoch } from "../Topics/TopicsDisplay";
 import { Topic, TopicValue } from "../Topics/types";
+import { useToaster } from "solid-headless";
 
 interface StatementViewProps {
   statement: Statement;
@@ -41,8 +42,7 @@ export const subscribeToArguflowFeedByEventAndValue = ({
         {
           kinds: [42],
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-          ["#e"]: [topic.event.id!],
-          // ["#p"]: [valuePubKey],
+          ["#e"]: [topic.event.id!, value],
         },
       ],
       {
@@ -235,8 +235,6 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
     statement: string;
     type: "aff" | "neg";
   }) => {
-    // TODO add toatsts
-
     const eventPublicKey = globalContext.connectedUser?.()?.publicKey;
     if (!eventPublicKey) return;
     const topic = props.topic();
@@ -298,6 +296,12 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
         });
       }
       setShowStatementForm(false);
+      globalContext.createToast({
+        message: `Statement successfully created for ${
+          topicValue?.name ? topicValue.name : "NO NAME?????"
+        }`,
+        type: "success",
+      });
     });
   };
 

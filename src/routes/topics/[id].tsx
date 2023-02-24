@@ -17,7 +17,7 @@ import { getUTCSecondsSinceEpoch } from "~/components/Topics/TopicsDisplay";
 import { emitEventToConnectedRelays } from "~/nostr-types";
 import CreateValueForm from "~/components/Topics/CreateValueForm";
 import { Toaster, useToaster } from "solid-headless";
-import { CustomToast, ToastContent } from "~/components/Atoms/CustomToast";
+import { CustomToast } from "~/components/Atoms/CustomToast";
 import { AFRowLayoutDesktop } from "~/components/layouts/AFRowLayoutDesktop";
 
 export const isEventArguflowValueByTags = (tags: string[][]): boolean => {
@@ -107,13 +107,6 @@ const TopicDetail = () => {
   const globalContext = useContext(GlobalContext);
   const notifs = useToaster(globalContext.toasterStore);
 
-  const createToast = ({ message, type }: ToastContent) => {
-    globalContext.toasterStore.create({
-      message,
-      type,
-    });
-  };
-
   const params = useParams<{ id: string }>();
 
   createEffect(() => {
@@ -194,7 +187,7 @@ const TopicDetail = () => {
     if (!eventPublicKey || !topicEventId) return;
 
     if (!name) {
-      createToast({
+      globalContext.createToast({
         message: "Name is required to create a value",
         type: "error",
       });
@@ -234,7 +227,7 @@ const TopicDetail = () => {
         });
       }
       setShowCreateValueForm(false);
-      createToast({
+      globalContext.createToast({
         message: name + " value created successfully",
         type: "success",
       });
