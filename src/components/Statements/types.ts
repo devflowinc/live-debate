@@ -4,6 +4,7 @@ import { Event } from "nostr-tools";
 export interface Statement {
   statement: string;
   topic: Topic;
-  previousEvent: Event;
+  event: Event;
+  previousEventId: string;
   type: "aff" | "neg";
 }

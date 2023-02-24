@@ -3,6 +3,7 @@ import { AiOutlinePlus } from "solid-icons/ai";
 import {
   Accessor,
   createEffect,
+  createMemo,
   createSignal,
   For,
   useContext,
@@ -13,7 +14,6 @@ import { CreateStatementForm } from "~/components/Statements/CreateStatementForm
 import { Statement } from "~/components/Statements/types";
 import { getUTCSecondsSinceEpoch } from "../Topics/TopicsDisplay";
 import { Topic, TopicValue } from "../Topics/types";
-import { useToaster } from "solid-headless";
 
 interface StatementViewProps {
   statement: Statement;
@@ -128,15 +128,12 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
     [],
   );
 
-  createEffect<Topic | null>((prevTopic: Topic | null) => {
-    const topic = props.topic();
-    if (topic?.event.id != prevTopic?.event.id) {
-      setSubscribedToValueOnRelay([]);
-      // TODO cancel all event listeners here
-      setOpeningStatements([]);
-    }
-    return topic;
-  }, null);
+  const openingStatementsToShow = createMemo(() =>
+    openingStatements().filter((statement) => {
+      console.log("stst", statement, props.currentTopicValue()?.event?.id);
+      return statement.previousEventId === props.currentTopicValue()?.event?.id;
+    }),
+  );
 
   createEffect(() => {
     if (!globalContext.relays?.().find((relay) => relay.connected)) {
@@ -173,9 +170,13 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
         const statement = content.statement;
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
         const type = content.type;
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+        const previousEvent = content.previousEvent;
 
         const currentTopic = props.topic();
         if (
+          !previousEvent ||
+          typeof previousEvent !== "string" ||
           !currentTopic ||
           typeof statement !== "string" ||
           typeof type !== "string" ||
@@ -189,7 +190,8 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
             {
               topic: currentTopic,
               statement: statement,
-              previousEvent: value,
+              event: value,
+              previousEventId: previousEvent,
               type: type,
             },
           ];
@@ -252,12 +254,12 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
     const topicValue = props.currentTopicValue();
     const currentTopic = props.topic();
 
-    if (topicValue?.event) {
-      previousEvents.push(topicValue.event);
-    }
-
     if (currentTopic?.event) {
       previousEvents.push(currentTopic.event);
+    }
+
+    if (topicValue?.event) {
+      previousEvents.push(topicValue.event);
     }
 
     const event: Event = {
@@ -316,7 +318,7 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
           onMouseEnter={() => toggleColumn(0)}
           classList={getClassNamesList(0)}
         >
-          <For each={openingStatements()}>
+          <For each={openingStatementsToShow()}>
             {(statement) => (
               <StatementView
                 statement={statement}
