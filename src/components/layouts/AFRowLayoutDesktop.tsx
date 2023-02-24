@@ -42,7 +42,7 @@ export const subscribeToArguflowFeedByEventAndValue = ({
         {
           kinds: [42],
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-          ["#e"]: [topic.event.id!, value],
+          ["#e"]: [topic.event.id!],
         },
       ],
       {
@@ -65,8 +65,11 @@ export const StatementView = (props: StatementViewProps) => {
         "flex-grow border-2 border-purple-500 min-w-lg": props.visible,
       }}
     >
-      {props.visible && (<div class="flex-grow min-h border-2 border-indigo-500/75"> 
-        {props.statement.statement}</div>)}
+      {props.visible && (
+        <div class="min-h flex-grow border-2 border-indigo-500/75">
+          {props.statement.statement}
+        </div>
+      )}
       {!props.visible && (
         <div class="flex flex-col -space-y-3">
           <div>{">.<"}</div>
