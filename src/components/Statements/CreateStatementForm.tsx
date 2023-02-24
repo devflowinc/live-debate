@@ -2,26 +2,34 @@ import { Accessor, createSignal } from "solid-js";
 import InputRowsForm from "~/components/Atoms/InputRowsForm";
 import { Topic } from "../Topics/types";
 import { Event } from "nostr-tools";
+import { CWI } from "./types";
 
 interface CreateStatementFormProps {
   topic: Accessor<Topic | null>;
   previousEvent: Event;
   type: "aff" | "neg";
   setShowStatementForm: (show: boolean) => void;
-  onCreateStatment: ({
-    statement,
+  onCreateStatmentCWI: ({
+    statementCWI,
     type,
   }: {
-    statement: string;
+    statementCWI: CWI;
     type: "aff" | "neg";
   }) => void;
 }
 
 export const CreateStatementForm = (props: CreateStatementFormProps) => {
-  const [statement, setStatement] = createSignal("");
+  const [getStatementClaim, setStatementClaim] = createSignal("");
+  const [getStatementWarrant, setStatementWarrant] = createSignal("");
+  const [getStatementImpact, setStatementImpact] = createSignal("");
+
   const onCreateStatement = () => {
-    props.onCreateStatment({
-      statement: statement(),
+    props.onCreateStatmentCWI({
+      statementCWI: {
+        claim: getStatementClaim(),
+        warrant: getStatementWarrant(),
+        impact: getStatementImpact(),
+      },
       type: props.type,
     });
   };
@@ -34,9 +42,19 @@ export const CreateStatementForm = (props: CreateStatementFormProps) => {
     <InputRowsForm
       inputGroups={[
         {
-          label: "Add Statement",
-          inputValue: statement,
-          setInputValue: setStatement,
+          label: "Claim",
+          inputValue: getStatementClaim,
+          setInputValue: setStatementClaim,
+        },
+        {
+          label: "Warrant",
+          inputValue: getStatementWarrant,
+          setInputValue: setStatementWarrant,
+        },
+        {
+          label: "Impact",
+          inputValue: getStatementImpact,
+          setInputValue: setStatementImpact,
         },
       ]}
       createButtonText="Create Statement"
