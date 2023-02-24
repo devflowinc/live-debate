@@ -4,6 +4,7 @@ import TopicsList from "./TopicsList";
 import { GlobalContext } from "~/contexts/GlobalContext";
 import { Event, getEventHash } from "nostr-tools";
 import { emitEventToConnectedRelays } from "~/nostr-types";
+import { AiOutlinePlus } from "solid-icons/ai";
 
 export const getUTCSecondsSinceEpoch = (): number => {
   const now = Date.now();
@@ -56,12 +57,12 @@ const TopicsDisplay = () => {
         <div class="w-fit text-2xl font-bold text-white">Your Topics</div>
         {!showCreateTopicForm() && (
           <button
-            class="w-fit rounded-full border border-green-500 bg-transparent px-2 text-green-500"
+            class="rounded-full border border-green-500 bg-transparent p-2 text-green-500"
             onClick={() => {
               setShowCreateTopicForm(true);
             }}
           >
-            +
+            <AiOutlinePlus />
           </button>
         )}
       </div>
