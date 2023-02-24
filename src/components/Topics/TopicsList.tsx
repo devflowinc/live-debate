@@ -18,7 +18,6 @@ export const isEventArguflowTopicByTags = (tags: string[][]): boolean => {
 export const isEventArguflowValueByTags = (tags: string[][]): boolean => {
   let foundArguflow = false;
   let foundArguflowTopicValue = false;
-
   tags.forEach((tag) => {
     if (tag[0] === "arguflow") foundArguflow = true;
     if (tag[0] === "arguflow-topic-value") foundArguflowTopicValue = true;
@@ -44,7 +43,7 @@ export const subscribeToArguflowTopicsForPublickKey = ({
         [
           {
             authors: [publicKey],
-            kinds: [1],
+            kinds: [40],
           },
         ],
         {
@@ -81,21 +80,22 @@ const TopicsList = () => {
           // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
           const content = JSON.parse(topicEvent.content);
           // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
-          const topicQuestion = content.topicQuestion;
-          const eventId = topicEvent.id;
+          const topicQuestion = content.name;
 
           const currentUserTopics = globalContext.userTopics?.();
-          if (currentUserTopics?.find((topic) => topic.eventId === eventId))
+          if (
+            currentUserTopics?.find((topic) => topic.event.id === topicEvent.id)
+          )
             return;
 
-          if (topicQuestion && typeof topicQuestion === "string" && eventId) {
+          if (topicQuestion && typeof topicQuestion === "string") {
             globalContext.userTopics?.() &&
               globalContext.setUserTopics([
-                ...globalContext.userTopics(),
                 {
-                  eventId: eventId,
+                  event: topicEvent,
                   title: topicQuestion,
                 },
+                ...globalContext.userTopics(),
               ]);
           }
         },
@@ -110,7 +110,8 @@ const TopicsList = () => {
           return (
             <div class="w-full rounded-lg bg-gray-800">
               <A
-                href={`/topics/${topic.eventId}`}
+                // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+                href={`/topics/${topic.event.id}`}
                 aria-label="topic detail page"
               >
                 <div class="p-4 text-lg font-bold text-white">

@@ -40,6 +40,7 @@ export interface GlobalStoreProviderType {
   }) => void;
   setUserTopics: (topics: Topic[]) => void;
   toasterStore: ToasterStore<ToastContent>;
+  createToast: ({ message, type }: ToastContent) => void;
 }
 
 export const GlobalContext = createContext<GlobalStoreProviderType>(
@@ -54,6 +55,7 @@ export const GlobalContext = createContext<GlobalStoreProviderType>(
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     setUserTopics: (topics: Topic[]) => {},
     toasterStore: new ToasterStore<ToastContent>(),
+    createToast: ({ message, type }: ToastContent) => {},
   },
   {},
 );
@@ -95,6 +97,7 @@ const RelayStoreContext = (props: GlobalStoreContextProps) => {
     },
   ]);
 
+  const toasterStore = new ToasterStore<ToastContent>();
   const globalStoreProvider = {
     connectedUser,
     relays: relayStore,
@@ -121,7 +124,13 @@ const RelayStoreContext = (props: GlobalStoreContextProps) => {
     setUserTopics: (topics: Topic[]) => {
       setUserTopics(topics);
     },
-    toasterStore: new ToasterStore<ToastContent>(),
+    toasterStore: toasterStore,
+    createToast: ({ message, type }: ToastContent) => {
+      toasterStore.create({
+        message,
+        type,
+      });
+    },
   };
 
   onMount(() => {

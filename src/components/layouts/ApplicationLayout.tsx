@@ -10,7 +10,7 @@ const ApplicationLayout = (props: ApplicationLayoutProps) => {
   const globalContext = useContext(GlobalContext);
 
   return (
-    <div class="h-screen w-screen bg-black">
+    <div class="min-h-screen w-screen bg-black py-8">
       <Navbar />
       {globalContext.connectedUser?.()?.publicKey ? (
         props.children
