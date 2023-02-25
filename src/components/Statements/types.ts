@@ -23,6 +23,7 @@ export interface CWI {
 export interface Statement {
   statementCWI: CWI;
   topic: Topic;
-  previousEvent: Event;
+  event: Event;
+  previousEventId: string;
   type: "aff" | "neg";
 }

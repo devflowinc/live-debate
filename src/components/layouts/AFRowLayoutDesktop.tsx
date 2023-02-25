@@ -3,6 +3,7 @@ import { AiOutlinePlus } from "solid-icons/ai";
 import {
   Accessor,
   createEffect,
+  createMemo,
   createSignal,
   For,
   useContext,
@@ -127,15 +128,12 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
     [],
   );
 
-  createEffect<Topic | null>((prevTopic: Topic | null) => {
-    const topic = props.topic();
-    if (topic?.event.id != prevTopic?.event.id) {
-      setSubscribedToValueOnRelay([]);
-      // TODO cancel all event listeners here
-      setOpeningStatements([]);
-    }
-    return topic;
-  }, null);
+  const openingStatementsToShow = createMemo(() =>
+    openingStatements().filter((statement) => {
+      console.log("stst", statement, props.currentTopicValue()?.event?.id);
+      return statement.previousEventId === props.currentTopicValue()?.event?.id;
+    }),
+  );
 
   createEffect(() => {
     if (!globalContext.relays?.().find((relay) => relay.connected)) {
@@ -163,15 +161,19 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
           return [...prev, name];
         });
       },
-      onStatementReceived: (value) => {
-        const content: unknown = JSON.parse(value.content);
+      onStatementReceived: (event) => {
+
+        const content: unknown = JSON.parse(event.content);
         if (typeof content !== "object" || content === null) return;
         const statementCWI: unknown =
           "statementCWI" in content && content.statementCWI;
         const type = "type" in content && content.type;
+        const previousEvent = "previousEvent" in content && content.previousEvent;
 
         const currentTopic = props.topic();
         if (
+          !previousEvent ||
+          typeof previousEvent !== "string" ||
           !currentTopic ||
           typeof type !== "string" ||
           (type != "aff" && type != "neg") ||
@@ -179,14 +181,17 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
         ) {
           return;
         }
-
         setOpeningStatements((prev) => {
+          if (prev.find((statement) => statement.event.id === event.id)) {
+            return prev;
+          }
           return [
             ...prev,
             {
               topic: currentTopic,
+              event: event,
+              previousEventId: previousEvent,
               statementCWI: statementCWI,
-              previousEvent: value,
               type: type,
             },
           ];
@@ -249,12 +254,12 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
     const topicValue = props.currentTopicValue();
     const currentTopic = props.topic();
 
-    if (topicValue?.event) {
-      previousEvents.push(topicValue.event);
-    }
-
     if (currentTopic?.event) {
       previousEvents.push(currentTopic.event);
+    }
+
+    if (topicValue?.event) {
+      previousEvents.push(topicValue.event);
     }
 
     const event: Event = {
@@ -316,7 +321,7 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
           {expandedColumns().includes(0) && (
             <div class="flex h-full flex-col justify-between">
               <div class="flex flex-col space-y-2">
-                <For each={openingStatements()}>
+                <For each={openingStatementsToShow()}>
                   {(statementCWI) => (
                     <StatementCWIView statement={statementCWI} />
                   )}
