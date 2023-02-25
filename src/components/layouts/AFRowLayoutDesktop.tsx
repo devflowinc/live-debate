@@ -161,15 +161,14 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
           return [...prev, name];
         });
       },
-      onStatementReceived: (value) => {
+      onStatementReceived: (event) => {
 
-        const content: unknown = JSON.parse(value.content);
+        const content: unknown = JSON.parse(event.content);
         if (typeof content !== "object" || content === null) return;
         const statementCWI: unknown =
           "statementCWI" in content && content.statementCWI;
         const type = "type" in content && content.type;
         const previousEvent = "previousEvent" in content && content.previousEvent;
-        const event = "event" in content && content.event;
 
         const currentTopic = props.topic();
         if (
@@ -182,14 +181,15 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
         ) {
           return;
         }
-
         setOpeningStatements((prev) => {
+          if (prev.find((statement) => statement.event.id === event.id)) {
+            return prev;
+          }
           return [
             ...prev,
             {
               topic: currentTopic,
-              statement: statement,
-              event: value,
+              event: event,
               previousEventId: previousEvent,
               statementCWI: statementCWI,
               type: type,
