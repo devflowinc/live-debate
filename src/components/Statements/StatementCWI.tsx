@@ -4,6 +4,7 @@ import { VsReply } from "solid-icons/vs";
 interface StatementCWIViewProps {
   statement: Statement;
   onWarrantRebuttalClick: () => void;
+  onImpactRebuttalClick: () => void;
 }
 
 export const StatementCWIView = (props: StatementCWIViewProps) => {
@@ -37,7 +38,11 @@ export const StatementCWIView = (props: StatementCWIViewProps) => {
                 {key !== "claim" && (
                   <button
                     type="button"
-                    onClick={props.onWarrantRebuttalClick}
+                    onClick={
+                      key === "warrant"
+                        ? props.onWarrantRebuttalClick
+                        : props.onImpactRebuttalClick
+                    }
                     aria-label="Create Warrant Rebuttal"
                     classList={{
                       "p-1 border rounded-full h-fit": true,

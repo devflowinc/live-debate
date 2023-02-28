@@ -17,6 +17,7 @@ import { StatementCWIView } from "../Statements/StatementCWI";
 import { AddStatementButton } from "../Statements/AddStatementButton";
 import { Column } from "./Column";
 import { CreateWarrantRebuttalForm } from "../Rebuttals/CreateWarrantRebuttalForm";
+import { CreateImpactRebuttalForm } from "../Rebuttals/CreateImpactRebuttalForm";
 
 export const subscribeToArguflowFeedByEventAndValue = ({
   connectedRelayContainers,
@@ -72,6 +73,9 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
   );
   const [warrantEventBeingRebutted, setWarrantEventBeingRebutted] =
     createSignal<Event | undefined>();
+  const [impactEventBeingRebutted, setImpactEventBeingRebutted] = createSignal<
+    Event | undefined
+  >();
 
   const openingStatementsToShow = createMemo(() =>
     openingStatements().filter((statement) => {
@@ -256,7 +260,7 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
   };
 
   createEffect(() => {
-    if (warrantEventBeingRebutted()) {
+    if (warrantEventBeingRebutted() || impactEventBeingRebutted()) {
       setExpandedColumns([1, 0]);
     }
   });
@@ -264,6 +268,7 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
   createEffect(() => {
     if (!expandedColumns().includes(1)) {
       setWarrantEventBeingRebutted(undefined);
+      setImpactEventBeingRebutted(undefined);
     }
   });
 
@@ -295,7 +300,14 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
                   <StatementCWIView
                     statement={statementCWI}
                     onWarrantRebuttalClick={() => {
-                      setWarrantEventBeingRebutted(statementCWI.event);
+                      setWarrantEventBeingRebutted((previous) =>
+                        previous ? undefined : statementCWI.event,
+                      );
+                    }}
+                    onImpactRebuttalClick={() => {
+                      setImpactEventBeingRebutted((previous) =>
+                        previous ? undefined : statementCWI.event,
+                      );
                     }}
                   />
                 )}
@@ -327,6 +339,12 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
             <CreateWarrantRebuttalForm
               previousEvent={warrantEventBeingRebutted}
               onCancel={() => setWarrantEventBeingRebutted(undefined)}
+            />
+          )}
+          {impactEventBeingRebutted() && (
+            <CreateImpactRebuttalForm
+              previousEvent={impactEventBeingRebutted}
+              onCancel={() => setImpactEventBeingRebutted(undefined)}
             />
           )}
         </Column>
