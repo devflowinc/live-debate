@@ -1,5 +1,4 @@
 import { Event, getEventHash } from "nostr-tools";
-import { AiOutlinePlus } from "solid-icons/ai";
 import {
   Accessor,
   createEffect,
@@ -14,11 +13,8 @@ import { CreateStatementForm } from "~/components/Statements/CreateStatementForm
 import { CWI, Statement, implementsCWI } from "~/components/Statements/types";
 import { getUTCSecondsSinceEpoch } from "../Topics/TopicsDisplay";
 import { Topic, TopicValue } from "../Topics/types";
-import { VsReply } from "solid-icons/vs";
-
-interface StatementCWIViewProps {
-  statement: Statement;
-}
+import { StatementCWIView } from "../Statements/StatementCWI";
+import { AddStatementButton } from "../Statements/AddStatementButton";
 
 export const subscribeToArguflowFeedByEventAndValue = ({
   connectedRelayContainers,
@@ -54,74 +50,6 @@ export const subscribeToArguflowFeedByEventAndValue = ({
       onStatementReceived(event);
     });
   });
-};
-
-export const StatementCWIView = (props: StatementCWIViewProps) => {
-  return (
-    <div class="flex flex-col space-y-2 rounded-md border-2 border-indigo-500/75 p-2 text-white">
-      {/* loop over the keys of props.statement.statementCWI */}
-      <For each={Object.keys(props.statement.statementCWI)}>
-        {(key) => {
-          return (
-            <div class="grid grid-cols-[18px_1fr]">
-              <div
-                classList={{
-                  "font-bold": true,
-                  "text-blue-500": key === "claim",
-                  "text-orange-500": key === "warrant",
-                  "text-fuchsia-500": key === "impact",
-                }}
-              >
-                {key.charAt(0).toUpperCase()}
-              </div>
-              <div
-                classList={{
-                  "w-full flex flex-row space-x-2 justify-between items-center":
-                    true,
-                  "text-blue-500": key === "claim",
-                  "text-orange-500": key === "warrant",
-                  "text-fuchsia-500": key === "impact",
-                }}
-              >
-                <span>{props.statement.statementCWI[key as keyof CWI]}</span>
-                {key !== "claim" && (
-                  <button
-                    classList={{
-                      "p-1 border rounded-full h-fit": true,
-                      "border-orange-500": key === "warrant",
-                      "border-fuchsia-500": key === "impact",
-                    }}
-                  >
-                    <VsReply />
-                  </button>
-                )}
-              </div>
-            </div>
-          );
-        }}
-      </For>
-    </div>
-  );
-};
-
-export const AddButton = (props: {
-  setShowStatementForm: (show: boolean) => void;
-  valueName: string;
-}) => {
-  return (
-    <div class="flex w-full justify-center">
-      <div
-        onClick={() => props.setShowStatementForm(true)}
-        class="flex w-fit cursor-pointer items-center space-x-2 rounded-lg border-2 border-purple-500 px-4 py-3 text-white"
-      >
-        <AiOutlinePlus />
-        <div>Add Statement</div>
-        <div class="flex-1" />
-        <span class="font-bold">{props.valueName}</span>
-        <span> value</span>
-      </div>
-    </div>
-  );
 };
 
 interface AFRowLayoutDesktopProps {
@@ -342,7 +270,7 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
                 </For>
               </div>
               {!showStatementForm() && props.currentTopicValue() && (
-                <AddButton
+                <AddStatementButton
                   // Must exist since topicValue exists
                   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
                   valueName={props.currentTopicValue()!.name}
