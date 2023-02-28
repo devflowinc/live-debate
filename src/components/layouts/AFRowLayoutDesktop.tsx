@@ -271,24 +271,18 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
               </div>
               {!showStatementForm() && props.currentTopicValue() && (
                 <AddStatementButton
-                  // Must exist since topicValue exists
-                  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-                  valueName={props.currentTopicValue()!.name}
+                  valueName={props.currentTopicValue()?.name}
                   setShowStatementForm={setShowStatementForm}
                 />
               )}
-              {showStatementForm() &&
-                expandedColumns().includes(0) &&
-                props.currentTopicValue()?.event && (
-                  <CreateStatementForm
-                    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-                    previousEvent={props.currentTopicValue()!.event!}
-                    topic={props.topic}
-                    type={getType(0)}
-                    setShowStatementForm={setShowStatementForm}
-                    onCreateStatmentCWI={onCreateStatementCWI}
-                  />
-                )}
+              {showStatementForm() && (
+                <CreateStatementForm
+                  previousEvent={props.currentTopicValue()?.event}
+                  type={getType(0)}
+                  setShowStatementForm={setShowStatementForm}
+                  onCreateStatmentCWI={onCreateStatementCWI}
+                />
+              )}
             </div>
           )}
         </div>

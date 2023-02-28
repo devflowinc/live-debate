@@ -1,12 +1,10 @@
-import { Accessor, createSignal } from "solid-js";
+import { createSignal } from "solid-js";
 import InputRowsForm from "~/components/Atoms/InputRowsForm";
-import { Topic } from "../Topics/types";
 import { Event } from "nostr-tools";
 import { CWI } from "./types";
 
 interface CreateStatementFormProps {
-  topic: Accessor<Topic | null>;
-  previousEvent: Event;
+  previousEvent: Event | null | undefined;
   type: "aff" | "neg";
   setShowStatementForm: (show: boolean) => void;
   onCreateStatmentCWI: ({
@@ -39,27 +37,33 @@ export const CreateStatementForm = (props: CreateStatementFormProps) => {
   };
 
   return (
-    <InputRowsForm
-      inputGroups={[
-        {
-          label: "Claim",
-          inputValue: getStatementClaim,
-          setInputValue: setStatementClaim,
-        },
-        {
-          label: "Warrant",
-          inputValue: getStatementWarrant,
-          setInputValue: setStatementWarrant,
-        },
-        {
-          label: "Impact",
-          inputValue: getStatementImpact,
-          setInputValue: setStatementImpact,
-        },
-      ]}
-      createButtonText="Create Statement"
-      onCreate={onCreateStatement}
-      onCancel={onCancel}
-    />
+    <>
+      {!props.previousEvent ? (
+        <div />
+      ) : (
+        <InputRowsForm
+          inputGroups={[
+            {
+              label: "Claim",
+              inputValue: getStatementClaim,
+              setInputValue: setStatementClaim,
+            },
+            {
+              label: "Warrant",
+              inputValue: getStatementWarrant,
+              setInputValue: setStatementWarrant,
+            },
+            {
+              label: "Impact",
+              inputValue: getStatementImpact,
+              setInputValue: setStatementImpact,
+            },
+          ]}
+          createButtonText="Create Statement"
+          onCreate={onCreateStatement}
+          onCancel={onCancel}
+        />
+      )}
+    </>
   );
 };
