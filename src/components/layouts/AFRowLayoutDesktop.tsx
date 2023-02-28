@@ -16,6 +16,7 @@ import { Topic, TopicValue } from "../Topics/types";
 import { StatementCWIView } from "../Statements/StatementCWI";
 import { AddStatementButton } from "../Statements/AddStatementButton";
 import { Column } from "./Column";
+import { CreateWarrantRebuttalForm } from "../Rebuttals/CreateWarrantRebuttalForm";
 
 export const subscribeToArguflowFeedByEventAndValue = ({
   connectedRelayContainers,
@@ -60,16 +61,17 @@ interface AFRowLayoutDesktopProps {
 }
 
 export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
+  const globalContext = useContext(GlobalContext);
   const [expandedColumns, setExpandedColumns] = createSignal<number[]>([0, 1]);
   const [showStatementForm, setShowStatementForm] = createSignal(false);
   const [subscribedToValueOnRelay, setSubscribedToValueOnRelay] = createSignal<
     string[]
   >([]);
-  const globalContext = useContext(GlobalContext);
-
   const [openingStatements, setOpeningStatements] = createSignal<Statement[]>(
     [],
   );
+  const [warrantEventBeingRebutted, setWarrantEventBeingRebutted] =
+    createSignal<Event | undefined>();
 
   const openingStatementsToShow = createMemo(() =>
     openingStatements().filter((statement) => {
@@ -253,6 +255,18 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
     });
   };
 
+  createEffect(() => {
+    if (warrantEventBeingRebutted()) {
+      setExpandedColumns([1, 0]);
+    }
+  });
+
+  createEffect(() => {
+    if (!expandedColumns().includes(1)) {
+      setWarrantEventBeingRebutted(undefined);
+    }
+  });
+
   const toggleColumnZero = () => {
     toggleColumn(0);
   };
@@ -278,7 +292,12 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
             <div class="flex flex-col space-y-2">
               <For each={openingStatementsToShow()}>
                 {(statementCWI) => (
-                  <StatementCWIView statement={statementCWI} />
+                  <StatementCWIView
+                    statement={statementCWI}
+                    onWarrantRebuttalClick={() => {
+                      setWarrantEventBeingRebutted(statementCWI.event);
+                    }}
+                  />
                 )}
               </For>
             </div>
@@ -290,6 +309,7 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
             )}
             {showStatementForm() && (
               <CreateStatementForm
+                // TODO: Pass the accessor function instead of the value
                 previousEvent={props.currentTopicValue()?.event}
                 type={getType(0)}
                 setShowStatementForm={setShowStatementForm}
@@ -303,7 +323,12 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
           classList={getClassNamesList(1)}
           visible={expandedColumns().includes(1)}
         >
-          <span />
+          {warrantEventBeingRebutted() && (
+            <CreateWarrantRebuttalForm
+              previousEvent={warrantEventBeingRebutted}
+              onCancel={() => setWarrantEventBeingRebutted(undefined)}
+            />
+          )}
         </Column>
         <Column
           onMouseEnter={toggleColumnTwo}

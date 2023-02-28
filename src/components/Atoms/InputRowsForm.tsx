@@ -1,4 +1,4 @@
-import { Accessor, For } from "solid-js";
+import { Accessor, For, createMemo } from "solid-js";
 
 export interface InputGroup {
   label: string;
@@ -12,11 +12,18 @@ export interface InputRowsFormProps {
   onCreate: () => void;
   onCancel: () => void;
   inputGroups: InputGroup[];
+  borderColor?: string;
 }
 
 const InputRowsForm = (props: InputRowsFormProps) => {
+  const borderColor = createMemo(() => {
+    return props.borderColor ?? "border-white";
+  });
+
   return (
-    <div class="w-full rounded-lg border border-white px-2 py-2 text-white">
+    <div
+      class={`w-full rounded-lg border ${borderColor()} px-2 py-2 text-white`}
+    >
       <div class="flex flex-col space-y-4">
         <div class="flex flex-col space-y-1">
           <For each={props.inputGroups}>
