@@ -3,6 +3,7 @@ import { CWI, Statement } from "./types";
 import { VsReply } from "solid-icons/vs";
 interface StatementCWIViewProps {
   statement: Statement;
+  onWarrantRebuttalClick: () => void;
 }
 
 export const StatementCWIView = (props: StatementCWIViewProps) => {
@@ -35,6 +36,9 @@ export const StatementCWIView = (props: StatementCWIViewProps) => {
                 <span>{props.statement.statementCWI[key as keyof CWI]}</span>
                 {key !== "claim" && (
                   <button
+                    type="button"
+                    onClick={props.onWarrantRebuttalClick}
+                    aria-label="Create Warrant Rebuttal"
                     classList={{
                       "p-1 border rounded-full h-fit": true,
                       "border-orange-500": key === "warrant",
