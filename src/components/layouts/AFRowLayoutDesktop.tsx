@@ -10,7 +10,12 @@ import {
 import { GlobalContext, RelayContainer } from "~/contexts/GlobalContext";
 import { emitEventToConnectedRelays } from "~/nostr-types";
 import { CreateStatementForm } from "~/components/Statements/CreateStatementForm";
-import { CWI, Statement, implementsCWI } from "~/components/Statements/types";
+import {
+  CWI,
+  CreateRebuttalParams,
+  Statement,
+  implementsCWI,
+} from "~/components/Statements/types";
 import { getUTCSecondsSinceEpoch } from "../Topics/TopicsDisplay";
 import { Topic, TopicValue } from "../Topics/types";
 import { StatementCWIView } from "../Statements/StatementCWI";
@@ -55,7 +60,7 @@ export const subscribeToArguflowFeedByEventAndValue = ({
   });
 };
 
-interface AFRowLayoutDesktopProps {
+export interface AFRowLayoutDesktopProps {
   topic: Accessor<Topic | null>;
   currentTopicValue: Accessor<TopicValue | undefined>;
   viewMode: "aff" | "neg";
@@ -194,7 +199,7 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
     const topic = props.topic();
     if (!topic) return;
 
-    const id = getEventHash(topic.event);
+    const topicId = getEventHash(topic.event);
     const createdAt = getUTCSecondsSinceEpoch();
 
     const previousEvents: Event[] = [];
@@ -205,7 +210,6 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
     if (currentTopic?.event) {
       previousEvents.push(currentTopic.event);
     }
-
     if (topicValue?.event) {
       previousEvents.push(topicValue.event);
     }
@@ -231,7 +235,7 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
       created_at: createdAt,
       content: JSON.stringify({
         statementCWI: statementCWI,
-        topicId: id,
+        topicId: topicId,
         previousEvent: previousEvents[previousEvents.length - 1].id,
         type,
       }),
@@ -252,6 +256,82 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
       setShowStatementForm(false);
       globalContext.createToast({
         message: `Statement successfully created for ${
+          topicValue?.name ? topicValue.name : "NO NAME?????"
+        }`,
+        type: "success",
+      });
+    });
+  };
+
+  const onCreateRebuttal = ({
+    rebuttal,
+    previousEvent,
+  }: CreateRebuttalParams) => {
+    const eventPublicKey = globalContext.connectedUser?.()?.publicKey;
+    if (!eventPublicKey) return;
+    const topic = props.topic();
+    if (!topic) return;
+
+    const topicId = getEventHash(topic.event);
+    const createdAt = getUTCSecondsSinceEpoch();
+
+    const previousEvents: Event[] = [];
+
+    const topicValue = props.currentTopicValue();
+    const currentTopic = props.topic();
+
+    if (currentTopic?.event) {
+      previousEvents.push(currentTopic.event);
+    }
+    if (topicValue?.event) {
+      previousEvents.push(topicValue.event);
+    }
+    previousEvents.push(previousEvent);
+
+    const event: Event = {
+      id: "",
+      sig: "",
+      kind: 42,
+      pubkey: eventPublicKey,
+      tags: [
+        ["arguflow"],
+        ["arguflow-rebuttal"],
+        ...previousEvents
+          .map(getEventHash)
+          .map((previousEventId) => [
+            "e",
+            `${previousEventId}`,
+            "nostr.arguflow.gg",
+            "reply",
+          ]),
+        ["p", ...previousEvents.map((event) => event.pubkey)], // Reference what it is replying too
+      ],
+      created_at: createdAt,
+      content: JSON.stringify({
+        rebuttal: rebuttal,
+        topicId: topicId,
+        previousEvent: previousEvents[previousEvents.length - 1].id,
+        type: props.viewMode === "aff" ? "neg" : "aff",
+      }),
+    };
+    event.id = getEventHash(event);
+
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-explicit-any
+    (window as any).nostr.signEvent(event).then((signedEvent: Event) => {
+      if (globalContext.relays) {
+        const connectedRelayContainers = globalContext
+          .relays()
+          .filter((relay) => relay.connected);
+        emitEventToConnectedRelays({
+          event: signedEvent,
+          connectedRelayContainers: connectedRelayContainers,
+        });
+      }
+      rebuttal.counterWarrant
+        ? setWarrantEventBeingRebutted(undefined)
+        : setImpactEventBeingRebutted(undefined);
+      globalContext.createToast({
+        message: `Rebuttal successfully created for ${
           topicValue?.name ? topicValue.name : "NO NAME?????"
         }`,
         type: "success",
@@ -339,12 +419,14 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
             <CreateWarrantRebuttalForm
               previousEvent={warrantEventBeingRebutted}
               onCancel={() => setWarrantEventBeingRebutted(undefined)}
+              onCreateWarrantRebuttal={onCreateRebuttal}
             />
           )}
           {impactEventBeingRebutted() && (
             <CreateImpactRebuttalForm
               previousEvent={impactEventBeingRebutted}
               onCancel={() => setImpactEventBeingRebutted(undefined)}
+              onCreateImpactRebuttal={onCreateRebuttal}
             />
           )}
         </Column>
