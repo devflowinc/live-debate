@@ -1,17 +1,54 @@
 import { Event } from "nostr-tools";
-import { Accessor, createSignal } from "solid-js";
+import { Accessor, createEffect, createSignal, useContext } from "solid-js";
 import InputRowsForm from "../Atoms/InputRowsForm";
+import { CreateRebuttalParams } from "../Statements/types";
+import { GlobalContext } from "~/contexts/GlobalContext";
 
 export interface CreateWarrantRebuttalFormProps {
   previousEvent: Accessor<Event | undefined>;
   onCancel: () => void;
+  onCreateWarrantRebuttal: ({
+    rebuttal,
+    previousEvent,
+  }: CreateRebuttalParams) => void;
 }
 
 export const CreateWarrantRebuttalForm = (
   props: CreateWarrantRebuttalFormProps,
 ) => {
+  const globalContext = useContext(GlobalContext);
   const [getCounterWarrant, setCounterWarrant] = createSignal("");
   const [getDescription, setDescription] = createSignal("");
+  const [creating, setCreating] = createSignal(false);
+
+  createEffect(() => {
+    if (!creating()) return;
+    if (getDescription() === "" || getCounterWarrant() === "") {
+      globalContext.createToast({
+        type: "error",
+        message: "Please fill out all fields",
+      });
+      setCreating(false);
+      return;
+    }
+    const previousEvent = props.previousEvent();
+    if (!previousEvent) {
+      globalContext.createToast({
+        type: "error",
+        message: "No previous event",
+      });
+      setCreating(false);
+      return;
+    }
+    props.onCreateWarrantRebuttal({
+      rebuttal: {
+        counterWarrant: getCounterWarrant(),
+        description: getDescription(),
+      },
+      previousEvent: previousEvent,
+    });
+    setCreating(false);
+  });
 
   return (
     <div>
@@ -31,7 +68,7 @@ export const CreateWarrantRebuttalForm = (
               type: "textarea",
             },
           ]}
-          onCreate={() => null}
+          onCreate={() => setCreating(true)}
           onCancel={props.onCancel}
           borderColor="border-orange-500"
         />

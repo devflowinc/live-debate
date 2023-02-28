@@ -27,3 +27,13 @@ export interface Statement {
   previousEventId: string;
   type: "aff" | "neg";
 }
+
+export interface Rebuttal {
+  counterWarrant?: string;
+  description: string;
+}
+
+export interface CreateRebuttalParams {
+  rebuttal: Rebuttal;
+  previousEvent: Event;
+}
