@@ -73,7 +73,6 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
 
   const openingStatementsToShow = createMemo(() =>
     openingStatements().filter((statement) => {
-      console.log("stst", statement, props.currentTopicValue()?.event?.id);
       return statement.previousEventId === props.currentTopicValue()?.event?.id;
     }),
   );
@@ -283,7 +282,7 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
                 )}
               </For>
             </div>
-            {!showStatementForm() && props.currentTopicValue() && (
+            {!showStatementForm() && (
               <AddStatementButton
                 valueName={props.currentTopicValue()?.name}
                 setShowStatementForm={setShowStatementForm}

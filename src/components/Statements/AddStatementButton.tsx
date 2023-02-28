@@ -6,7 +6,7 @@ export const AddStatementButton = (props: {
 }) => {
   return (
     <>
-      {props.valueName ? (
+      {!props.valueName ? (
         <div />
       ) : (
         <div class="flex w-full justify-center">
