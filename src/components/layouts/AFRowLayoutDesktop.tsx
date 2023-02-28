@@ -15,6 +15,7 @@ import { getUTCSecondsSinceEpoch } from "../Topics/TopicsDisplay";
 import { Topic, TopicValue } from "../Topics/types";
 import { StatementCWIView } from "../Statements/StatementCWI";
 import { AddStatementButton } from "../Statements/AddStatementButton";
+import { Column } from "./Column";
 
 export const subscribeToArguflowFeedByEventAndValue = ({
   connectedRelayContainers,
@@ -253,51 +254,72 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
     });
   };
 
+  const toggleColumnZero = () => {
+    toggleColumn(0);
+  };
+  const toggleColumnOne = () => {
+    toggleColumn(1);
+  };
+  const toggleColumnTwo = () => {
+    toggleColumn(2);
+  };
+  const toggleColumnThree = () => {
+    toggleColumn(3);
+  };
+
   return (
     <div>
       <div class="flex w-full space-x-2 px-10">
-        <div
-          onMouseEnter={() => toggleColumn(0)}
+        <Column
+          onMouseEnter={toggleColumnZero}
           classList={getClassNamesList(0)}
+          visible={expandedColumns().includes(0)}
         >
-          {expandedColumns().includes(0) && (
-            <div class="flex h-full flex-col justify-between">
-              <div class="flex flex-col space-y-2">
-                <For each={openingStatementsToShow()}>
-                  {(statementCWI) => (
-                    <StatementCWIView statement={statementCWI} />
-                  )}
-                </For>
-              </div>
-              {!showStatementForm() && props.currentTopicValue() && (
-                <AddStatementButton
-                  valueName={props.currentTopicValue()?.name}
-                  setShowStatementForm={setShowStatementForm}
-                />
-              )}
-              {showStatementForm() && (
-                <CreateStatementForm
-                  previousEvent={props.currentTopicValue()?.event}
-                  type={getType(0)}
-                  setShowStatementForm={setShowStatementForm}
-                  onCreateStatmentCWI={onCreateStatementCWI}
-                />
-              )}
+          <div class="flex h-full flex-col justify-between">
+            <div class="flex flex-col space-y-2">
+              <For each={openingStatementsToShow()}>
+                {(statementCWI) => (
+                  <StatementCWIView statement={statementCWI} />
+                )}
+              </For>
             </div>
-          )}
-        </div>
-        <div
-          onMouseEnter={() => toggleColumn(1)}
+            {!showStatementForm() && props.currentTopicValue() && (
+              <AddStatementButton
+                valueName={props.currentTopicValue()?.name}
+                setShowStatementForm={setShowStatementForm}
+              />
+            )}
+            {showStatementForm() && (
+              <CreateStatementForm
+                previousEvent={props.currentTopicValue()?.event}
+                type={getType(0)}
+                setShowStatementForm={setShowStatementForm}
+                onCreateStatmentCWI={onCreateStatementCWI}
+              />
+            )}
+          </div>
+        </Column>
+        <Column
+          onMouseEnter={toggleColumnOne}
           classList={getClassNamesList(1)}
-        />
-        <div
-          onMouseEnter={() => toggleColumn(2)}
+          visible={expandedColumns().includes(1)}
+        >
+          <span />
+        </Column>
+        <Column
+          onMouseEnter={toggleColumnTwo}
           classList={getClassNamesList(2)}
-        />
-        <div
-          onMouseEnter={() => toggleColumn(3)}
+          visible={expandedColumns().includes(2)}
+        >
+          <span />
+        </Column>
+        <Column
+          onMouseEnter={toggleColumnThree}
           classList={getClassNamesList(3)}
-        />
+          visible={expandedColumns().includes(3)}
+        >
+          <span />
+        </Column>
       </div>
     </div>
   );
