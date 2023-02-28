@@ -37,7 +37,7 @@ export const CreateStatementForm = (props: CreateStatementFormProps) => {
   };
 
   return (
-    <>
+    <div>
       {!props.previousEvent ? (
         <div />
       ) : (
@@ -57,6 +57,7 @@ export const CreateStatementForm = (props: CreateStatementFormProps) => {
               label: "Impact",
               inputValue: getStatementImpact,
               setInputValue: setStatementImpact,
+              type: "textarea",
             },
           ]}
           createButtonText="Create Statement"
@@ -64,6 +65,6 @@ export const CreateStatementForm = (props: CreateStatementFormProps) => {
           onCancel={onCancel}
         />
       )}
-    </>
+    </div>
   );
 };
