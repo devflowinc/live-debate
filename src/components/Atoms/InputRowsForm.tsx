@@ -4,6 +4,7 @@ export interface InputGroup {
   label: string;
   inputValue: Accessor<string>;
   setInputValue: (value: string) => void;
+  type?: "input" | "textarea";
 }
 
 export interface InputRowsFormProps {
@@ -22,14 +23,25 @@ const InputRowsForm = (props: InputRowsFormProps) => {
             {(inputGroup: InputGroup) => (
               <div class="w-full">
                 <div>{inputGroup.label}:</div>
-                <input
-                  class="w-full rounded border border-white bg-slate-900 px-2 text-white"
-                  type="text"
-                  onInput={(e) =>
-                    inputGroup.setInputValue(e.currentTarget.value)
-                  }
-                  value={inputGroup.inputValue()}
-                />
+                {(!inputGroup.type || inputGroup.type == "input") && (
+                  <input
+                    class="w-full rounded border border-white bg-slate-900 px-2 text-white"
+                    type="text"
+                    onInput={(e) =>
+                      inputGroup.setInputValue(e.currentTarget.value)
+                    }
+                    value={inputGroup.inputValue()}
+                  />
+                )}
+                {inputGroup.type == "textarea" && (
+                  <textarea
+                    class="w-full rounded border border-white bg-slate-900 px-2 text-white"
+                    onInput={(e) =>
+                      inputGroup.setInputValue(e.currentTarget.value)
+                    }
+                    value={inputGroup.inputValue()}
+                  />
+                )}
               </div>
             )}
           </For>
