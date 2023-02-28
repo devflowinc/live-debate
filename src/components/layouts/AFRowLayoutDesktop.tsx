@@ -14,6 +14,7 @@ import { CreateStatementForm } from "~/components/Statements/CreateStatementForm
 import { CWI, Statement, implementsCWI } from "~/components/Statements/types";
 import { getUTCSecondsSinceEpoch } from "../Topics/TopicsDisplay";
 import { Topic, TopicValue } from "../Topics/types";
+import { VsReply } from "solid-icons/vs";
 
 interface StatementCWIViewProps {
   statement: Statement;
@@ -75,12 +76,25 @@ export const StatementCWIView = (props: StatementCWIViewProps) => {
               </div>
               <div
                 classList={{
+                  "w-full flex flex-row space-x-2 justify-between items-center":
+                    true,
                   "text-blue-500": key === "claim",
                   "text-orange-500": key === "warrant",
                   "text-fuchsia-500": key === "impact",
                 }}
               >
-                {props.statement.statementCWI[key as keyof CWI]}
+                <span>{props.statement.statementCWI[key as keyof CWI]}</span>
+                {key !== "claim" && (
+                  <button
+                    classList={{
+                      "p-1 border rounded-full h-fit": true,
+                      "border-orange-500": key === "warrant",
+                      "border-fuchsia-500": key === "impact",
+                    }}
+                  >
+                    <VsReply />
+                  </button>
+                )}
               </div>
             </div>
           );
@@ -162,13 +176,13 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
         });
       },
       onStatementReceived: (event) => {
-
         const content: unknown = JSON.parse(event.content);
         if (typeof content !== "object" || content === null) return;
         const statementCWI: unknown =
           "statementCWI" in content && content.statementCWI;
         const type = "type" in content && content.type;
-        const previousEvent = "previousEvent" in content && content.previousEvent;
+        const previousEvent =
+          "previousEvent" in content && content.previousEvent;
 
         const currentTopic = props.topic();
         if (
