@@ -55,7 +55,7 @@ export const subscribeToArguflowFeedByEventAndValue = ({
   });
 };
 
-interface AFRowLayoutDesktopProps {
+export interface AFRowLayoutDesktopProps {
   topic: Accessor<Topic | null>;
   currentTopicValue: Accessor<TopicValue | undefined>;
   viewMode: "aff" | "neg";
