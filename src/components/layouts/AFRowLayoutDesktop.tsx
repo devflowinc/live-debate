@@ -32,11 +32,21 @@ export const subscribeToArguflowFeedByEventAndValue = ({
 }: {
   topic: Topic;
   connectedRelayContainers: RelayContainer[];
-  onStatementReceived: (event: Event) => void;
+  onStatementReceived: ({
+    statementCWI,
+    type,
+    event,
+    previousEventId,
+  }: {
+    statementCWI: CWI;
+    type: "aff" | "neg";
+    event: Event;
+    previousEventId: string;
+  }) => void;
   onSubscriptionCreated?: (relayName: string) => void;
 }) => {
   connectedRelayContainers.forEach((relayContainer) => {
-    if (!relayContainer.relay) {
+    if (!relayContainer.relay || !topic.event.id) {
       return;
     }
     onSubscriptionCreated?.(relayContainer.name);
@@ -45,8 +55,7 @@ export const subscribeToArguflowFeedByEventAndValue = ({
       [
         {
           kinds: [42],
-          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-          ["#e"]: [topic.event.id!],
+          ["#e"]: [topic.event.id],
         },
       ],
       {
@@ -55,7 +64,32 @@ export const subscribeToArguflowFeedByEventAndValue = ({
     );
 
     topicEventSub.on("event", (event: Event) => {
-      onStatementReceived(event);
+      const content: unknown = JSON.parse(event.content);
+      if (typeof content !== "object" || content === null) return;
+      const type = "type" in content && content.type;
+      const previousEventId =
+        "previousEvent" in content && content.previousEvent;
+
+      if (
+        !previousEventId ||
+        typeof previousEventId !== "string" ||
+        typeof type !== "string" ||
+        (type != "aff" && type != "neg")
+      ) {
+        return;
+      }
+
+      const statementCWI: unknown =
+        "statementCWI" in content && content.statementCWI;
+      if (implementsCWI(statementCWI)) {
+        const cwi: CWI = statementCWI;
+        onStatementReceived({
+          statementCWI: cwi,
+          type,
+          event,
+          previousEventId,
+        });
+      }
     });
   });
 };
@@ -114,40 +148,25 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
           return [...prev, name];
         });
       },
-      onStatementReceived: (event) => {
-        const content: unknown = JSON.parse(event.content);
-        if (typeof content !== "object" || content === null) return;
-        const statementCWI: unknown =
-          "statementCWI" in content && content.statementCWI;
-        const type = "type" in content && content.type;
-        const previousEvent =
-          "previousEvent" in content && content.previousEvent;
-
+      onStatementReceived: ({ type, statementCWI, event, previousEventId }) => {
         const currentTopic = props.topic();
-        if (
-          !previousEvent ||
-          typeof previousEvent !== "string" ||
-          !currentTopic ||
-          typeof type !== "string" ||
-          (type != "aff" && type != "neg") ||
-          !implementsCWI(statementCWI)
-        ) {
+        if (!currentTopic) {
           return;
         }
+
+        const statement: Statement = {
+          topic: currentTopic,
+          event: event,
+          previousEventId: previousEventId,
+          statementCWI: statementCWI,
+          type: type,
+        };
+
         setOpeningStatements((prev) => {
           if (prev.find((statement) => statement.event.id === event.id)) {
             return prev;
           }
-          return [
-            ...prev,
-            {
-              topic: currentTopic,
-              event: event,
-              previousEventId: previousEvent,
-              statementCWI: statementCWI,
-              type: type,
-            },
-          ];
+          return [...prev, statement];
         });
       },
     });
@@ -264,7 +283,7 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
   };
 
   const onCreateRebuttal = ({
-    rebuttal,
+    rebuttalContent,
     previousEvent,
   }: CreateRebuttalParams) => {
     const eventPublicKey = globalContext.connectedUser?.()?.publicKey;
@@ -308,7 +327,7 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
       ],
       created_at: createdAt,
       content: JSON.stringify({
-        rebuttal: rebuttal,
+        rebuttal: rebuttalContent,
         topicId: topicId,
         previousEvent: previousEvents[previousEvents.length - 1].id,
         type: props.viewMode === "aff" ? "neg" : "aff",
@@ -327,7 +346,7 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
           connectedRelayContainers: connectedRelayContainers,
         });
       }
-      rebuttal.counterWarrant
+      rebuttalContent.counterWarrant
         ? setWarrantEventBeingRebutted(undefined)
         : setImpactEventBeingRebutted(undefined);
       globalContext.createToast({
