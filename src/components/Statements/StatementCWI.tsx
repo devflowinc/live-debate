@@ -64,9 +64,9 @@ export const StatementCWIView = (props: StatementCWIViewProps) => {
           type="button"
           class="h-fit rounded-full border border-yellow-500 p-1 text-yellow-500"
           onClick={() => {
-            const elementToScrollIntoView = document.getElementById(
-              "rebuttalgroup-" + props.statement.event.id,
-            );
+            const elementToScrollIntoView = document.getElementById(`
+              rebuttalgroup-${props.statement.event.id ?? ""},
+            `);
             if (elementToScrollIntoView) {
               elementToScrollIntoView.scrollIntoView({
                 behavior: "smooth",
