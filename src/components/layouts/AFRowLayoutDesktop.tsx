@@ -357,9 +357,8 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
       }
       setShowStatementForm(false);
       globalContext.createToast({
-        message: `Statement successfully created for ${
-          topicValue?.name ? topicValue.name : "NO NAME?????"
-        }`,
+        message: `Statement successfully created for ${topicValue?.name ? topicValue.name : "NO NAME?????"
+          }`,
         type: "success",
       });
     });
@@ -433,9 +432,8 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
         ? setWarrantEventBeingRebutted(undefined)
         : setImpactEventBeingRebutted(undefined);
       globalContext.createToast({
-        message: `Rebuttal successfully created for ${
-          topicValue?.name ? topicValue.name : "NO NAME?????"
-        }`,
+        message: `Rebuttal successfully created for ${topicValue?.name ? topicValue.name : "NO NAME?????"
+          }`,
         type: "success",
       });
     });
@@ -547,6 +545,7 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
                     {(rebuttal) => (
                       <RebuttalView
                         rebuttalContent={rebuttal.rebuttalContent}
+                        onCounterArgumentClick={() => null}
                       />
                     )}
                   </For>
