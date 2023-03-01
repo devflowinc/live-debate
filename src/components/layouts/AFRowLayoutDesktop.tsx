@@ -25,6 +25,7 @@ import { Column } from "./Column";
 import { CreateWarrantRebuttalForm } from "../Rebuttals/CreateWarrantRebuttalForm";
 import { CreateImpactRebuttalForm } from "../Rebuttals/CreateImpactRebuttalForm";
 import { RebuttalView } from "../Rebuttals/RebuttalView";
+import { CreateCounterArgumentForm } from "../CounterArgument/CreateCounterArgumentForm";
 
 export const subscribeToArguflowFeedByEventAndValue = ({
   connectedRelayContainers,
@@ -141,6 +142,9 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
   const [warrantEventBeingRebutted, setWarrantEventBeingRebutted] =
     createSignal<Event | undefined>();
   const [impactEventBeingRebutted, setImpactEventBeingRebutted] = createSignal<
+    Event | undefined
+  >();
+  const [eventBeingCounterArgued, setEventBeingCounterArgued] = createSignal<
     Event | undefined
   >();
 
@@ -439,6 +443,8 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
     });
   };
 
+  const onCreateCounterArgument = () => null;
+
   createEffect(() => {
     if (warrantEventBeingRebutted() || impactEventBeingRebutted()) {
       setExpandedColumns([1, 0]);
@@ -446,9 +452,18 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
   });
 
   createEffect(() => {
-    if (!expandedColumns().includes(1)) {
+    if (eventBeingCounterArgued()) {
+      setExpandedColumns([1, 2]);
+    }
+  });
+
+  createEffect(() => {
+    const columns = expandedColumns();
+    if (!columns.includes(1)) {
       setWarrantEventBeingRebutted(undefined);
       setImpactEventBeingRebutted(undefined);
+    } else if (!columns.includes(2)) {
+      setEventBeingCounterArgued(undefined);
     }
   });
 
@@ -545,7 +560,11 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
                     {(rebuttal) => (
                       <RebuttalView
                         rebuttalContent={rebuttal.rebuttalContent}
-                        onCounterArgumentClick={() => null}
+                        onCounterArgumentClick={() => {
+                          setEventBeingCounterArgued((previous) =>
+                            previous ? undefined : rebuttal.event,
+                          );
+                        }}
                       />
                     )}
                   </For>
@@ -559,6 +578,13 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
           classList={getClassNamesList(2)}
           visible={expandedColumns().includes(2)}
         >
+          {eventBeingCounterArgued() && (
+            <CreateCounterArgumentForm
+              previousEvent={eventBeingCounterArgued}
+              onCancel={() => setEventBeingCounterArgued(undefined)}
+              onCreateCounterArgument={onCreateCounterArgument}
+            />
+          )}
           <span />
         </Column>
         <Column
