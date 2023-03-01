@@ -64,11 +64,22 @@ export const StatementCWIView = (props: StatementCWIViewProps) => {
           type="button"
           class="h-fit rounded-full border border-yellow-500 p-1 text-yellow-500"
           onClick={() => {
-            const elementToScrollIntoView = document.getElementById(
-              "rebuttalgroup-" + props.statement.event.id,
-            );
-            if (elementToScrollIntoView) {
-              elementToScrollIntoView.scrollIntoView({
+            const rebuttalGroupToScroll = document.getElementById(`
+              rebuttalgroup-${props.statement.event.id ?? ""},
+            `);
+            if (rebuttalGroupToScroll) {
+              rebuttalGroupToScroll.scrollIntoView({
+                behavior: "smooth",
+                block: "center",
+                inline: "center",
+              });
+            }
+
+            const counterArgumentGroupToScroll = document.getElementById(`
+              counterargumentgroup-${props.statement.event.id ?? ""},
+            `);
+            if (counterArgumentGroupToScroll) {
+              counterArgumentGroupToScroll.scrollIntoView({
                 behavior: "smooth",
                 block: "center",
                 inline: "center",

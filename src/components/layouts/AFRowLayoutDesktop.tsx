@@ -26,12 +26,20 @@ import { CreateWarrantRebuttalForm } from "../Rebuttals/CreateWarrantRebuttalFor
 import { CreateImpactRebuttalForm } from "../Rebuttals/CreateImpactRebuttalForm";
 import { RebuttalView } from "../Rebuttals/RebuttalView";
 import { CreateCounterArgumentForm } from "../CounterArgument/CreateCounterArgumentForm";
+import {
+  CounterArgument,
+  CounterArgumentContent,
+  CreateCounterArgumentParams,
+  implementsCounterArgumentContent,
+} from "../CounterArgument/types";
+import { CounterArgumentView } from "../CounterArgument/CounterArgumentView";
 
 export const subscribeToArguflowFeedByEventAndValue = ({
   connectedRelayContainers,
   topic,
   onStatementReceived,
   onRebuttalReceived,
+  onCounterArgumentReceived,
   onSubscriptionCreated,
 }: {
   topic: Topic;
@@ -54,6 +62,17 @@ export const subscribeToArguflowFeedByEventAndValue = ({
     previousEventId,
   }: {
     rebuttalContent: RebuttalContent;
+    type: "aff" | "neg";
+    event: Event;
+    previousEventId: string;
+  }) => void;
+  onCounterArgumentReceived: ({
+    counterArgumentContent,
+    type,
+    event,
+    previousEventId,
+  }: {
+    counterArgumentContent: CounterArgumentContent;
     type: "aff" | "neg";
     event: Event;
     previousEventId: string;
@@ -118,6 +137,18 @@ export const subscribeToArguflowFeedByEventAndValue = ({
         });
         return;
       }
+
+      const counterArgumentContent: unknown =
+        "counterArgumentContent" in content && content.counterArgumentContent;
+      if (implementsCounterArgumentContent(counterArgumentContent)) {
+        onCounterArgumentReceived({
+          counterArgumentContent,
+          type,
+          event,
+          previousEventId,
+        });
+        return;
+      }
     });
   });
 };
@@ -147,6 +178,9 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
   const [eventBeingCounterArgued, setEventBeingCounterArgued] = createSignal<
     Event | undefined
   >();
+  const [counterArguments, setCounterArguments] = createSignal<
+    CounterArgument[]
+  >([]);
 
   const openingStatementsToShow = createMemo(() =>
     openingStatements().filter((statement) => {
@@ -156,21 +190,11 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
 
   const groupedRebuttalsToShow = createMemo(() => {
     const curStatements = openingStatementsToShow();
-
-    const filteredRebuttals = rebuttals().filter((rebuttal) => {
-      return rebuttal.event.tags.find((tag) => {
-        return (
-          tag.length >= 2 &&
-          curStatements.find((statement) => {
-            return statement.event.id === tag[1];
-          })
-        );
-      });
-    });
+    const rebuttalsItems = rebuttals();
 
     const groupedRebuttals = curStatements
       .map((statement) => {
-        return filteredRebuttals.filter((rebuttal) => {
+        return rebuttalsItems.filter((rebuttal) => {
           return rebuttal.previousEventId === statement.event.id;
         });
       })
@@ -179,6 +203,26 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
       });
 
     return groupedRebuttals;
+  });
+
+  const groupedCounterArgumentsToShow = createMemo(() => {
+    const curStatements = openingStatementsToShow();
+    const counterArgumentsItems = counterArguments();
+
+    const groupedCounterArguments = curStatements
+      .map((statement) => {
+        return counterArgumentsItems.filter((counterArgument) => {
+          console.log("tags: ", counterArgument.event.tags);
+          return counterArgument.event.tags.find((tag) => {
+            return tag.length >= 2 && tag[1] === statement.event.id;
+          });
+        });
+      })
+      .filter((counterArguments) => {
+        return counterArguments.length > 0;
+      });
+
+    return groupedCounterArguments;
   });
 
   createEffect(() => {
@@ -252,6 +296,36 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
             return prev;
           }
           return [...prev, rebuttal];
+        });
+      },
+      onCounterArgumentReceived: ({
+        type,
+        event,
+        previousEventId,
+        counterArgumentContent,
+      }) => {
+        const currentTopic = props.topic();
+        if (!currentTopic) {
+          return;
+        }
+
+        const counterArgument: CounterArgument = {
+          topic: currentTopic,
+          event: event,
+          previousEventId: previousEventId,
+          type: type,
+          counterArgumentContent: counterArgumentContent,
+        };
+
+        setCounterArguments((prev) => {
+          if (
+            prev.find(
+              (counterArgument) => counterArgument.event.id === event.id,
+            )
+          ) {
+            return prev;
+          }
+          return [...prev, counterArgument];
         });
       },
     });
@@ -443,7 +517,87 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
     });
   };
 
-  const onCreateCounterArgument = () => null;
+  const onCreateCounterArgument = ({
+    counterArgumentContent,
+  }: CreateCounterArgumentParams) => {
+    const eventPublicKey = globalContext.connectedUser?.()?.publicKey;
+    if (!eventPublicKey) return;
+    const topic = props.topic();
+    if (!topic) return;
+    const previousEvent = eventBeingCounterArgued();
+    if (!previousEvent) return;
+    console.log("previousEvent", previousEvent.tags);
+
+    const topicId = getEventHash(topic.event);
+    const createdAt = getUTCSecondsSinceEpoch();
+
+    const previousEventTagP = previousEvent.tags.find(
+      (tag) => tag.length >= 2 && tag[0] === "p",
+    );
+    if (!previousEventTagP) {
+      globalContext.createToast({
+        message: `Error: No previous event members found`,
+        type: "error",
+      });
+      return;
+    }
+    if (!previousEventTagP.find((tag) => tag === eventPublicKey)) {
+      previousEventTagP.push(eventPublicKey);
+    }
+    previousEventTagP.shift();
+
+    const previousEventIds: string[] = [];
+    previousEvent.tags.forEach((tag) => {
+      if (tag.length >= 2 && tag[0] === "e" && typeof tag[1] === "string") {
+        previousEventIds.push(tag[1]);
+      }
+    });
+
+    const event: Event = {
+      id: "",
+      sig: "",
+      kind: 42,
+      pubkey: eventPublicKey,
+      tags: [
+        ["arguflow"],
+        ["arguflow-counter-argument"],
+        ...previousEventIds.map((previousEventId) => [
+          "e",
+          `${previousEventId}`,
+          "nostr.arguflow.gg",
+          "reply",
+        ]),
+        ["p", ...previousEventTagP], // Reference what it is replying too
+      ],
+      created_at: createdAt,
+      content: JSON.stringify({
+        counterArgumentContent,
+        topicId: topicId,
+        previousEvent: previousEventIds[previousEventIds.length - 1],
+        type: props.viewMode === "aff" ? "neg" : "aff",
+      }),
+    };
+
+    event.id = getEventHash(event);
+
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-explicit-any
+    (window as any).nostr.signEvent(event).then((signedEvent: Event) => {
+      if (globalContext.relays) {
+        const connectedRelayContainers = globalContext
+          .relays()
+          .filter((relay) => relay.connected);
+        emitEventToConnectedRelays({
+          event: signedEvent,
+          connectedRelayContainers: connectedRelayContainers,
+        });
+      }
+      setEventBeingCounterArgued(undefined);
+      globalContext.createToast({
+        message: `Counter-argument successfully created`,
+        type: "success",
+      });
+    });
+  };
 
   createEffect(() => {
     if (warrantEventBeingRebutted() || impactEventBeingRebutted()) {
@@ -554,7 +708,10 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
           <div class="flex flex-col space-y-2">
             <For each={groupedRebuttalsToShow()}>
               {(rebuttalGroup, index) => (
-                <div class="flex w-full flex-col space-y-2" id={`rebuttalgroup-${rebuttalGroup[0].previousEventId}`}>
+                <div
+                  class="flex w-full flex-col space-y-2"
+                  id={`rebuttalgroup-${rebuttalGroup[0].previousEventId}`}
+                >
                   {index() !== 0 && (
                     <div class="my-2 h-0.5 w-full bg-indigo-500" />
                   )}
@@ -581,13 +738,38 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
           visible={expandedColumns().includes(2)}
         >
           {eventBeingCounterArgued() && (
-            <CreateCounterArgumentForm
-              previousEvent={eventBeingCounterArgued}
-              onCancel={() => setEventBeingCounterArgued(undefined)}
-              onCreateCounterArgument={onCreateCounterArgument}
-            />
+            <div class="mb-2">
+              <CreateCounterArgumentForm
+                previousEvent={eventBeingCounterArgued}
+                onCancel={() => setEventBeingCounterArgued(undefined)}
+                onCreateCounterArgument={onCreateCounterArgument}
+              />
+            </div>
           )}
-          <span />
+          <div class="flex flex-col space-y-2">
+            <For each={groupedCounterArgumentsToShow()}>
+              {(counterArgumentGroup, index) => (
+                <div
+                  class="flex w-full flex-col space-y-2"
+                  id={`counterargumentgroup-${counterArgumentGroup[0].previousEventId}`}
+                >
+                  {index() !== 0 && (
+                    <div class="my-2 h-0.5 w-full bg-indigo-500" />
+                  )}
+                  <For each={counterArgumentGroup}>
+                    {(counterArgument) => (
+                      <CounterArgumentView
+                        counterArgumentContent={
+                          counterArgument.counterArgumentContent
+                        }
+                        onCounterArgumentClick={() => null}
+                      />
+                    )}
+                  </For>
+                </div>
+              )}
+            </For>
+          </div>
         </Column>
         <Column
           onMouseEnter={toggleColumnThree}
