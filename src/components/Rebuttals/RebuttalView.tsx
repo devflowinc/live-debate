@@ -1,6 +1,6 @@
 import { VsReply } from "solid-icons/vs";
 import { For } from "solid-js";
-import { RebuttalContent } from "../Statements/types";
+import { RebuttalContent } from "./types";
 
 export interface RebuttalViewProps {
   rebuttalContent: RebuttalContent;

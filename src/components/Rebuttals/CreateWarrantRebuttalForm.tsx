@@ -1,15 +1,15 @@
 import { Event } from "nostr-tools";
 import { Accessor, createEffect, createSignal, useContext } from "solid-js";
 import InputRowsForm from "../Atoms/InputRowsForm";
-import { CreateRebuttalParams } from "../Statements/types";
+import { CreateRebuttalParams } from "./types";
 import { GlobalContext } from "~/contexts/GlobalContext";
 
 export interface CreateWarrantRebuttalFormProps {
   previousEvent: Accessor<Event | undefined>;
   onCancel: () => void;
   onCreateWarrantRebuttal: ({
-    rebuttalContent: rebuttal,
     previousEvent,
+    rebuttalContent,
   }: CreateRebuttalParams) => void;
 }
 

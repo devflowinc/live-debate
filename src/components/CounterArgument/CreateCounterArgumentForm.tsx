@@ -1,20 +1,20 @@
 import { Accessor, createEffect, createSignal, useContext } from "solid-js";
 import { Event } from "nostr-tools";
 import InputRowsForm from "../Atoms/InputRowsForm";
-import { CreateRebuttalParams } from "./types";
+import { CreateCounterArgumentParams } from "./types";
 import { GlobalContext } from "~/contexts/GlobalContext";
 
-export interface CreateImpactRebuttalFormProps {
+export interface CreateCounterArgumentFormProps {
   previousEvent: Accessor<Event | undefined>;
   onCancel: () => void;
-  onCreateImpactRebuttal: ({
+  onCreateCounterArgument: ({
     previousEvent,
-    rebuttalContent,
-  }: CreateRebuttalParams) => void;
+    counterArgumentContent,
+  }: CreateCounterArgumentParams) => void;
 }
 
-export const CreateImpactRebuttalForm = (
-  props: CreateImpactRebuttalFormProps,
+export const CreateCounterArgumentForm = (
+  props: CreateCounterArgumentFormProps,
 ) => {
   const globalContext = useContext(GlobalContext);
   const [getDescription, setDescription] = createSignal("");
@@ -39,8 +39,8 @@ export const CreateImpactRebuttalForm = (
       setCreating(false);
       return;
     }
-    props.onCreateImpactRebuttal({
-      rebuttalContent: {
+    props.onCreateCounterArgument({
+      counterArgumentContent: {
         description: getDescription(),
       },
       previousEvent: previousEvent,
@@ -52,7 +52,7 @@ export const CreateImpactRebuttalForm = (
     <div>
       {props.previousEvent() ? (
         <InputRowsForm
-          createButtonText="Create Impact Rebuttal"
+          createButtonText="Create Impact CounterArgument"
           inputGroups={[
             {
               label: "Description",
@@ -63,7 +63,6 @@ export const CreateImpactRebuttalForm = (
           ]}
           onCreate={() => setCreating(true)}
           onCancel={props.onCancel}
-          borderColor="border-fuchsia-500"
         />
       ) : (
         <div />
