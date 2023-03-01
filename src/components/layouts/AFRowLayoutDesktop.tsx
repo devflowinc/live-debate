@@ -738,11 +738,13 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
           visible={expandedColumns().includes(2)}
         >
           {eventBeingCounterArgued() && (
-            <CreateCounterArgumentForm
-              previousEvent={eventBeingCounterArgued}
-              onCancel={() => setEventBeingCounterArgued(undefined)}
-              onCreateCounterArgument={onCreateCounterArgument}
-            />
+            <div class="mb-2">
+              <CreateCounterArgumentForm
+                previousEvent={eventBeingCounterArgued}
+                onCancel={() => setEventBeingCounterArgued(undefined)}
+                onCreateCounterArgument={onCreateCounterArgument}
+              />
+            </div>
           )}
           <div class="flex flex-col space-y-2">
             <For each={groupedCounterArgumentsToShow()}>

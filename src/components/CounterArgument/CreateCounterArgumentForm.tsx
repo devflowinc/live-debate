@@ -93,7 +93,6 @@ export const CreateCounterArgumentForm = (
                 label: "Counter Warrant",
                 inputValue: getCounterWarrant,
                 setInputValue: setCounterWarrant,
-                type: "textarea",
               },
               {
                 label: "Description",
