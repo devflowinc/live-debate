@@ -1,14 +1,20 @@
-import { Accessor, createEffect, createSignal, useContext } from "solid-js";
+import {
+  Accessor,
+  createEffect,
+  createMemo,
+  createSignal,
+  useContext,
+} from "solid-js";
 import { Event } from "nostr-tools";
 import InputRowsForm from "../Atoms/InputRowsForm";
 import { CreateCounterArgumentParams } from "./types";
 import { GlobalContext } from "~/contexts/GlobalContext";
+import { implementsRebuttalContent } from "../Rebuttals/types";
 
 export interface CreateCounterArgumentFormProps {
   previousEvent: Accessor<Event | undefined>;
   onCancel: () => void;
   onCreateCounterArgument: ({
-    previousEvent,
     counterArgumentContent,
   }: CreateCounterArgumentParams) => void;
 }
@@ -17,12 +23,26 @@ export const CreateCounterArgumentForm = (
   props: CreateCounterArgumentFormProps,
 ) => {
   const globalContext = useContext(GlobalContext);
+  const [getCounterWarrant, setCounterWarrant] = createSignal("");
   const [getDescription, setDescription] = createSignal("");
   const [creating, setCreating] = createSignal(false);
 
+  const warrantOrImpact = createMemo((): "warrant" | "impact" => {
+    const previousEvent = props.previousEvent();
+    if (!previousEvent) return "impact";
+    const previousEventContent = previousEvent.content;
+    if (implementsRebuttalContent(previousEventContent)) {
+      return previousEventContent.counterWarrant ? "warrant" : "impact";
+    }
+    return "impact";
+  });
+
   createEffect(() => {
     if (!creating()) return;
-    if (getDescription() === "") {
+    if (
+      getDescription() === "" ||
+      (warrantOrImpact() === "warrant" && getCounterWarrant() === "")
+    ) {
       globalContext.createToast({
         type: "error",
         message: "Please fill out all fields",
@@ -41,9 +61,9 @@ export const CreateCounterArgumentForm = (
     }
     props.onCreateCounterArgument({
       counterArgumentContent: {
+        counterWarrant: getCounterWarrant(),
         description: getDescription(),
       },
-      previousEvent: previousEvent,
     });
     setCreating(false);
   });
@@ -51,19 +71,41 @@ export const CreateCounterArgumentForm = (
   return (
     <div>
       {props.previousEvent() ? (
-        <InputRowsForm
-          createButtonText="Create Impact CounterArgument"
-          inputGroups={[
-            {
-              label: "Description",
-              inputValue: getDescription,
-              setInputValue: setDescription,
-              type: "textarea",
-            },
-          ]}
-          onCreate={() => setCreating(true)}
-          onCancel={props.onCancel}
-        />
+        warrantOrImpact() === "warrant" ? (
+          <InputRowsForm
+            createButtonText="Create Impact CounterArgument"
+            inputGroups={[
+              {
+                label: "Description",
+                inputValue: getDescription,
+                setInputValue: setDescription,
+                type: "textarea",
+              },
+            ]}
+            onCreate={() => setCreating(true)}
+            onCancel={props.onCancel}
+          />
+        ) : (
+          <InputRowsForm
+            createButtonText="Create Warrant CounterArgument"
+            inputGroups={[
+              {
+                label: "Counter Warrant",
+                inputValue: getCounterWarrant,
+                setInputValue: setCounterWarrant,
+                type: "textarea",
+              },
+              {
+                label: "Description",
+                inputValue: getDescription,
+                setInputValue: setDescription,
+                type: "textarea",
+              },
+            ]}
+            onCreate={() => setCreating(true)}
+            onCancel={props.onCancel}
+          />
+        )
       ) : (
         <div />
       )}
