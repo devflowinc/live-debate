@@ -10,15 +10,13 @@ import {
 import { GlobalContext, RelayContainer } from "~/contexts/GlobalContext";
 import { emitEventToConnectedRelays } from "~/nostr-types";
 import { CreateStatementForm } from "~/components/Statements/CreateStatementForm";
+import { CWI, Statement, implementsCWI } from "~/components/Statements/types";
 import {
-  CWI,
   CreateRebuttalParams,
   Rebuttal,
   RebuttalContent,
-  Statement,
-  implementsCWI,
   implementsRebuttalContent,
-} from "~/components/Statements/types";
+} from "~/components/Rebuttals/types";
 import { getUTCSecondsSinceEpoch } from "../Topics/TopicsDisplay";
 import { Topic, TopicValue } from "../Topics/types";
 import { StatementCWIView } from "../Statements/StatementCWI";
@@ -357,8 +355,9 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
       }
       setShowStatementForm(false);
       globalContext.createToast({
-        message: `Statement successfully created for ${topicValue?.name ? topicValue.name : "NO NAME?????"
-          }`,
+        message: `Statement successfully created for ${
+          topicValue?.name ? topicValue.name : "NO NAME?????"
+        }`,
         type: "success",
       });
     });
@@ -432,8 +431,9 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
         ? setWarrantEventBeingRebutted(undefined)
         : setImpactEventBeingRebutted(undefined);
       globalContext.createToast({
-        message: `Rebuttal successfully created for ${topicValue?.name ? topicValue.name : "NO NAME?????"
-          }`,
+        message: `Rebuttal successfully created for ${
+          topicValue?.name ? topicValue.name : "NO NAME?????"
+        }`,
         type: "success",
       });
     });
