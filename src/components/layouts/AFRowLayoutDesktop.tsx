@@ -262,12 +262,12 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
       props.viewMode !== "aff" ? "border-emerald-500" : "border-rose-500";
 
     const color = index == 1 ? secondaryColor : primaryColor;
-    const defaults = `border-4 h-[60vh] rounded-xl ${color} flex flex-col`;
+    const defaults = `border-4 h-[60vh] p-1 rounded-xl ${color} flex flex-col`;
 
     return {
       [defaults]: true,
-      "w-[46%] space-y-5 p-5": expandedColumns().includes(index),
-      "w-[2%] items-center": !expandedColumns().includes(index),
+      "w-[46%]": expandedColumns().includes(index),
+      "w-[2%]": !expandedColumns().includes(index),
     };
   };
 
@@ -473,7 +473,24 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
           classList={getClassNamesList(0)}
           visible={expandedColumns().includes(0)}
         >
-          <div class="flex h-full flex-col justify-between">
+          <div class="flex h-full flex-col justify-between space-y-2">
+            <div class="flex flex-col space-y-2">
+              {!showStatementForm() && (
+                <AddStatementButton
+                  valueName={props.currentTopicValue()?.name}
+                  setShowStatementForm={setShowStatementForm}
+                />
+              )}
+              {showStatementForm() && (
+                <CreateStatementForm
+                  // TODO: Pass the accessor function instead of the value
+                  previousEvent={props.currentTopicValue()?.event}
+                  type={getType(0)}
+                  setShowStatementForm={setShowStatementForm}
+                  onCreateStatmentCWI={onCreateStatementCWI}
+                />
+              )}
+            </div>
             <div class="flex flex-col space-y-2">
               <For each={openingStatementsToShow()}>
                 {(statementCWI, index) => (
@@ -498,21 +515,6 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
                 )}
               </For>
             </div>
-            {!showStatementForm() && (
-              <AddStatementButton
-                valueName={props.currentTopicValue()?.name}
-                setShowStatementForm={setShowStatementForm}
-              />
-            )}
-            {showStatementForm() && (
-              <CreateStatementForm
-                // TODO: Pass the accessor function instead of the value
-                previousEvent={props.currentTopicValue()?.event}
-                type={getType(0)}
-                setShowStatementForm={setShowStatementForm}
-                onCreateStatmentCWI={onCreateStatementCWI}
-              />
-            )}
           </div>
         </Column>
         <Column
@@ -537,7 +539,7 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
           <div class="flex flex-col space-y-2">
             <For each={groupedRebuttalsToShow()}>
               {(rebuttalGroup, index) => (
-                <div class="flex w-full flex-col space-y-2">
+                <div class="flex w-full flex-col space-y-2" id={`rebuttalgroup-${rebuttalGroup[0].previousEventId}`}>
                   {index() !== 0 && (
                     <div class="my-2 h-0.5 w-full bg-indigo-500" />
                   )}

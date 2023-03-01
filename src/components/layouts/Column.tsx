@@ -19,7 +19,9 @@ export const Column = (props: ColumnProps) => {
       }}
       classList={props.classList}
     >
-      {props.visible && props.children}
+      <div class="overflow-y-auto p-3 scrollbar-thin scrollbar-track-gray-900 scrollbar-thumb-gray-700">
+        {props.visible && props.children}
+      </div>
     </div>
   );
 };
