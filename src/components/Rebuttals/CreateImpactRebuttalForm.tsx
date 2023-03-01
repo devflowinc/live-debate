@@ -8,7 +8,7 @@ export interface CreateImpactRebuttalFormProps {
   previousEvent: Accessor<Event | undefined>;
   onCancel: () => void;
   onCreateImpactRebuttal: ({
-    rebuttal,
+    rebuttalContent: rebuttal,
     previousEvent,
   }: CreateRebuttalParams) => void;
 }
@@ -40,7 +40,7 @@ export const CreateImpactRebuttalForm = (
       return;
     }
     props.onCreateImpactRebuttal({
-      rebuttal: {
+      rebuttalContent: {
         description: getDescription(),
       },
       previousEvent: previousEvent,

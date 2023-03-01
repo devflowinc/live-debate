@@ -13,8 +13,11 @@ import { CreateStatementForm } from "~/components/Statements/CreateStatementForm
 import {
   CWI,
   CreateRebuttalParams,
+  Rebuttal,
+  RebuttalContent,
   Statement,
   implementsCWI,
+  implementsRebuttalContent,
 } from "~/components/Statements/types";
 import { getUTCSecondsSinceEpoch } from "../Topics/TopicsDisplay";
 import { Topic, TopicValue } from "../Topics/types";
@@ -23,20 +26,43 @@ import { AddStatementButton } from "../Statements/AddStatementButton";
 import { Column } from "./Column";
 import { CreateWarrantRebuttalForm } from "../Rebuttals/CreateWarrantRebuttalForm";
 import { CreateImpactRebuttalForm } from "../Rebuttals/CreateImpactRebuttalForm";
+import { RebuttalView } from "../Rebuttals/RebuttalView";
 
 export const subscribeToArguflowFeedByEventAndValue = ({
   connectedRelayContainers,
   topic,
   onStatementReceived,
+  onRebuttalReceived,
   onSubscriptionCreated,
 }: {
   topic: Topic;
   connectedRelayContainers: RelayContainer[];
-  onStatementReceived: (event: Event) => void;
+  onStatementReceived: ({
+    statementCWI,
+    type,
+    event,
+    previousEventId,
+  }: {
+    statementCWI: CWI;
+    type: "aff" | "neg";
+    event: Event;
+    previousEventId: string;
+  }) => void;
+  onRebuttalReceived: ({
+    rebuttalContent,
+    type,
+    event,
+    previousEventId,
+  }: {
+    rebuttalContent: RebuttalContent;
+    type: "aff" | "neg";
+    event: Event;
+    previousEventId: string;
+  }) => void;
   onSubscriptionCreated?: (relayName: string) => void;
 }) => {
   connectedRelayContainers.forEach((relayContainer) => {
-    if (!relayContainer.relay) {
+    if (!relayContainer.relay || !topic.event.id) {
       return;
     }
     onSubscriptionCreated?.(relayContainer.name);
@@ -45,8 +71,7 @@ export const subscribeToArguflowFeedByEventAndValue = ({
       [
         {
           kinds: [42],
-          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-          ["#e"]: [topic.event.id!],
+          ["#e"]: [topic.event.id],
         },
       ],
       {
@@ -55,7 +80,45 @@ export const subscribeToArguflowFeedByEventAndValue = ({
     );
 
     topicEventSub.on("event", (event: Event) => {
-      onStatementReceived(event);
+      const content: unknown = JSON.parse(event.content);
+      if (typeof content !== "object" || content === null) return;
+      const type = "type" in content && content.type;
+      const previousEventId =
+        "previousEvent" in content && content.previousEvent;
+
+      if (
+        !previousEventId ||
+        typeof previousEventId !== "string" ||
+        typeof type !== "string" ||
+        (type != "aff" && type != "neg")
+      ) {
+        return;
+      }
+
+      const statementCWI: unknown =
+        "statementCWI" in content && content.statementCWI;
+      if (implementsCWI(statementCWI)) {
+        const cwi: CWI = statementCWI;
+        onStatementReceived({
+          statementCWI: cwi,
+          type,
+          event,
+          previousEventId,
+        });
+        return;
+      }
+
+      const rebuttalContent: unknown =
+        "rebuttalContent" in content && content.rebuttalContent;
+      if (implementsRebuttalContent(rebuttalContent)) {
+        onRebuttalReceived({
+          rebuttalContent,
+          type,
+          event,
+          previousEventId,
+        });
+        return;
+      }
     });
   });
 };
@@ -76,6 +139,7 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
   const [openingStatements, setOpeningStatements] = createSignal<Statement[]>(
     [],
   );
+  const [rebuttals, setRebuttals] = createSignal<Rebuttal[]>([]);
   const [warrantEventBeingRebutted, setWarrantEventBeingRebutted] =
     createSignal<Event | undefined>();
   const [impactEventBeingRebutted, setImpactEventBeingRebutted] = createSignal<
@@ -87,6 +151,33 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
       return statement.previousEventId === props.currentTopicValue()?.event?.id;
     }),
   );
+
+  const groupedRebuttalsToShow = createMemo(() => {
+    const curStatements = openingStatementsToShow();
+
+    const filteredRebuttals = rebuttals().filter((rebuttal) => {
+      return rebuttal.event.tags.find((tag) => {
+        return (
+          tag.length >= 2 &&
+          curStatements.find((statement) => {
+            return statement.event.id === tag[1];
+          })
+        );
+      });
+    });
+
+    const groupedRebuttals = curStatements
+      .map((statement) => {
+        return filteredRebuttals.filter((rebuttal) => {
+          return rebuttal.previousEventId === statement.event.id;
+        });
+      })
+      .filter((rebuttals) => {
+        return rebuttals.length > 0;
+      });
+
+    return groupedRebuttals;
+  });
 
   createEffect(() => {
     if (!globalContext.relays?.().find((relay) => relay.connected)) {
@@ -114,40 +205,51 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
           return [...prev, name];
         });
       },
-      onStatementReceived: (event) => {
-        const content: unknown = JSON.parse(event.content);
-        if (typeof content !== "object" || content === null) return;
-        const statementCWI: unknown =
-          "statementCWI" in content && content.statementCWI;
-        const type = "type" in content && content.type;
-        const previousEvent =
-          "previousEvent" in content && content.previousEvent;
-
+      onStatementReceived: ({ type, statementCWI, event, previousEventId }) => {
         const currentTopic = props.topic();
-        if (
-          !previousEvent ||
-          typeof previousEvent !== "string" ||
-          !currentTopic ||
-          typeof type !== "string" ||
-          (type != "aff" && type != "neg") ||
-          !implementsCWI(statementCWI)
-        ) {
+        if (!currentTopic) {
           return;
         }
+
+        const statement: Statement = {
+          topic: currentTopic,
+          event: event,
+          previousEventId: previousEventId,
+          statementCWI: statementCWI,
+          type: type,
+        };
+
         setOpeningStatements((prev) => {
           if (prev.find((statement) => statement.event.id === event.id)) {
             return prev;
           }
-          return [
-            ...prev,
-            {
-              topic: currentTopic,
-              event: event,
-              previousEventId: previousEvent,
-              statementCWI: statementCWI,
-              type: type,
-            },
-          ];
+          return [...prev, statement];
+        });
+      },
+      onRebuttalReceived: ({
+        type,
+        event,
+        previousEventId,
+        rebuttalContent,
+      }) => {
+        const currentTopic = props.topic();
+        if (!currentTopic) {
+          return;
+        }
+
+        const rebuttal: Rebuttal = {
+          topic: currentTopic,
+          event: event,
+          previousEventId: previousEventId,
+          type: type,
+          rebuttalContent: rebuttalContent,
+        };
+
+        setRebuttals((prev) => {
+          if (prev.find((rebuttal) => rebuttal.event.id === event.id)) {
+            return prev;
+          }
+          return [...prev, rebuttal];
         });
       },
     });
@@ -264,7 +366,7 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
   };
 
   const onCreateRebuttal = ({
-    rebuttal,
+    rebuttalContent,
     previousEvent,
   }: CreateRebuttalParams) => {
     const eventPublicKey = globalContext.connectedUser?.()?.publicKey;
@@ -308,7 +410,7 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
       ],
       created_at: createdAt,
       content: JSON.stringify({
-        rebuttal: rebuttal,
+        rebuttalContent,
         topicId: topicId,
         previousEvent: previousEvents[previousEvents.length - 1].id,
         type: props.viewMode === "aff" ? "neg" : "aff",
@@ -327,7 +429,7 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
           connectedRelayContainers: connectedRelayContainers,
         });
       }
-      rebuttal.counterWarrant
+      rebuttalContent.counterWarrant
         ? setWarrantEventBeingRebutted(undefined)
         : setImpactEventBeingRebutted(undefined);
       globalContext.createToast({
@@ -376,20 +478,25 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
           <div class="flex h-full flex-col justify-between">
             <div class="flex flex-col space-y-2">
               <For each={openingStatementsToShow()}>
-                {(statementCWI) => (
-                  <StatementCWIView
-                    statement={statementCWI}
-                    onWarrantRebuttalClick={() => {
-                      setWarrantEventBeingRebutted((previous) =>
-                        previous ? undefined : statementCWI.event,
-                      );
-                    }}
-                    onImpactRebuttalClick={() => {
-                      setImpactEventBeingRebutted((previous) =>
-                        previous ? undefined : statementCWI.event,
-                      );
-                    }}
-                  />
+                {(statementCWI, index) => (
+                  <div class="flex flex-col space-y-2">
+                    {index() !== 0 && (
+                      <div class="my-2 h-0.5 w-full bg-indigo-500" />
+                    )}
+                    <StatementCWIView
+                      statement={statementCWI}
+                      onWarrantRebuttalClick={() => {
+                        setWarrantEventBeingRebutted((previous) =>
+                          previous ? undefined : statementCWI.event,
+                        );
+                      }}
+                      onImpactRebuttalClick={() => {
+                        setImpactEventBeingRebutted((previous) =>
+                          previous ? undefined : statementCWI.event,
+                        );
+                      }}
+                    />
+                  </div>
                 )}
               </For>
             </div>
@@ -429,6 +536,24 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
               onCreateImpactRebuttal={onCreateRebuttal}
             />
           )}
+          <div class="flex flex-col space-y-2">
+            <For each={groupedRebuttalsToShow()}>
+              {(rebuttalGroup, index) => (
+                <div class="flex w-full flex-col space-y-2">
+                  {index() !== 0 && (
+                    <div class="my-2 h-0.5 w-full bg-indigo-500" />
+                  )}
+                  <For each={rebuttalGroup}>
+                    {(rebuttal) => (
+                      <RebuttalView
+                        rebuttalContent={rebuttal.rebuttalContent}
+                      />
+                    )}
+                  </For>
+                </div>
+              )}
+            </For>
+          </div>
         </Column>
         <Column
           onMouseEnter={toggleColumnTwo}

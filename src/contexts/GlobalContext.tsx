@@ -55,6 +55,7 @@ export const GlobalContext = createContext<GlobalStoreProviderType>(
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     setUserTopics: (topics: Topic[]) => {},
     toasterStore: new ToasterStore<ToastContent>(),
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     createToast: ({ message, type }: ToastContent) => {},
   },
   {},
@@ -65,30 +66,6 @@ const RelayStoreContext = (props: GlobalStoreContextProps) => {
   const [connectedUser, setConnectedUser] = createSignal<User | null>(null);
   const [userTopics, setUserTopics] = createSignal<Topic[]>([]);
   const [relayStore, setRelayStore] = createSignal<RelayContainer[]>([
-    {
-      name: "damus",
-      url: "wss://relay.damus.io/",
-      relay: null,
-      connected: false,
-    },
-    {
-      name: "wellorder",
-      url: "wss://nostr-pub.wellorder.net/",
-      relay: null,
-      connected: false,
-    },
-    {
-      name: "zebedee",
-      url: "wss://nostr.zebedee.cloud/",
-      relay: null,
-      connected: false,
-    },
-    {
-      name: "semisol",
-      url: "wss://nostr-pub.semisol.dev/",
-      relay: null,
-      connected: false,
-    },
     {
       name: "arguflow",
       url: "wss://nostr.arguflow.gg/",

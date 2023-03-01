@@ -8,7 +8,7 @@ export interface CreateWarrantRebuttalFormProps {
   previousEvent: Accessor<Event | undefined>;
   onCancel: () => void;
   onCreateWarrantRebuttal: ({
-    rebuttal,
+    rebuttalContent: rebuttal,
     previousEvent,
   }: CreateRebuttalParams) => void;
 }
@@ -41,7 +41,7 @@ export const CreateWarrantRebuttalForm = (
       return;
     }
     props.onCreateWarrantRebuttal({
-      rebuttal: {
+      rebuttalContent: {
         counterWarrant: getCounterWarrant(),
         description: getDescription(),
       },
