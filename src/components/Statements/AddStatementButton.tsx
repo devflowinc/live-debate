@@ -16,9 +16,6 @@ export const AddStatementButton = (props: {
           >
             <AiOutlinePlus />
             <div>Add Statement</div>
-            <div class="flex-1" />
-            <span class="font-bold">{props.valueName}</span>
-            <span> value</span>
           </div>
         </div>
       )}

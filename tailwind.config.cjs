@@ -1,10 +1,14 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
+/* eslint-disable no-undef */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: ["./src/**/*.{html,js,jsx,ts,tsx}"],
   theme: {
-    extend: {}
+    extend: {},
   },
   plugins: [
     require("@tailwindcss/line-clamp"),
-  ]
+    require("tailwind-scrollbar")({ nocompatible: true }),
+  ],
 };
