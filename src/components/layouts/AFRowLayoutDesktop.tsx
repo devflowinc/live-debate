@@ -33,6 +33,8 @@ import {
   implementsCounterArgumentContent,
 } from "../CounterArgument/types";
 import { CounterArgumentView } from "../CounterArgument/CounterArgumentView";
+import { CreateSummaryForm } from "../Summary/CreateSummaryForm";
+import { CreateSummaryParams } from "../Summary/types";
 
 export const subscribeToArguflowFeedByEventAndValue = ({
   connectedRelayContainers,
@@ -181,6 +183,9 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
   const [counterArguments, setCounterArguments] = createSignal<
     CounterArgument[]
   >([]);
+  const [eventBeingSummarized, setEventBeingSummarized] = createSignal<
+    Event | undefined
+  >();
 
   const openingStatementsToShow = createMemo(() =>
     openingStatements().filter((statement) => {
@@ -597,6 +602,87 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
     });
   };
 
+  const onCreateSummary = ({ summaryContent }: CreateSummaryParams): void => {
+    const eventPublicKey = globalContext.connectedUser?.()?.publicKey;
+    if (!eventPublicKey) return;
+    const topic = props.topic();
+    if (!topic) return;
+    const previousEvent = eventBeingSummarized();
+    if (!previousEvent) return;
+
+    const topicId = getEventHash(topic.event);
+    const createdAt = getUTCSecondsSinceEpoch();
+
+    const previousEventTagP = previousEvent.tags.find(
+      (tag) => tag.length >= 2 && tag[0] === "p",
+    );
+    if (!previousEventTagP) {
+      globalContext.createToast({
+        message: `Error: No previous event members found`,
+        type: "error",
+      });
+      return;
+    }
+    if (!previousEventTagP.find((tag) => tag === eventPublicKey)) {
+      previousEventTagP.push(eventPublicKey);
+    }
+    previousEventTagP.shift();
+
+    const previousEventIds: string[] = [];
+    previousEvent.tags.forEach((tag) => {
+      if (tag.length >= 2 && tag[0] === "e" && typeof tag[1] === "string") {
+        previousEventIds.push(tag[1]);
+      }
+    });
+
+    const event: Event = {
+      id: "",
+      sig: "",
+      kind: 42,
+      pubkey: eventPublicKey,
+      tags: [
+        ["arguflow"],
+        ["arguflow-summary"],
+        ...previousEventIds.map((previousEventId) => [
+          "e",
+          `${previousEventId}`,
+          "nostr.arguflow.gg",
+          "reply",
+        ]),
+        ["p", ...previousEventTagP], // Reference what it is replying too
+      ],
+      created_at: createdAt,
+      content: JSON.stringify({
+        summaryContent,
+        topicId: topicId,
+        previousEvent: previousEventIds[previousEventIds.length - 1],
+        type: props.viewMode,
+      }),
+    };
+
+    event.id = getEventHash(event);
+
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-explicit-any
+    (window as any).nostr.signEvent(event).then((signedEvent: Event) => {
+      if (globalContext.relays) {
+        const connectedRelayContainers = globalContext
+          .relays()
+          .filter((relay) => relay.connected);
+        emitEventToConnectedRelays({
+          event: signedEvent,
+          connectedRelayContainers: connectedRelayContainers,
+        });
+      }
+      setEventBeingSummarized(undefined);
+      globalContext.createToast({
+        message: `Summary successfully created`,
+        type: "success",
+      });
+    });
+
+    setEventBeingSummarized(undefined);
+  };
+
   createEffect(() => {
     if (warrantEventBeingRebutted() || impactEventBeingRebutted()) {
       setExpandedColumns([1, 0]);
@@ -606,6 +692,12 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
   createEffect(() => {
     if (eventBeingCounterArgued()) {
       setExpandedColumns([1, 2]);
+    }
+  });
+
+  createEffect(() => {
+    if (eventBeingSummarized()) {
+      setExpandedColumns([2, 3]);
     }
   });
 
@@ -763,7 +855,11 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
                         counterArgumentContent={
                           counterArgument.counterArgumentContent
                         }
-                        onSummaryClick={() => null}
+                        onSummaryClick={() => {
+                          setEventBeingSummarized((previous) => {
+                            return previous ? undefined : counterArgument.event;
+                          });
+                        }}
                       />
                     )}
                   </For>
@@ -777,7 +873,15 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
           classList={getClassNamesList(3)}
           visible={expandedColumns().includes(3)}
         >
-          <span />
+          {eventBeingSummarized() && (
+            <div class="mb-2">
+              <CreateSummaryForm
+                previousEvent={eventBeingSummarized}
+                onCancel={() => setEventBeingSummarized(undefined)}
+                onCreateSummary={onCreateSummary}
+              />
+            </div>
+          )}
         </Column>
       </div>
     </div>
