@@ -29,6 +29,6 @@ export interface Rebuttal {
   rebuttalContent: RebuttalContent;
   topic: Topic;
   event: Event;
-  previousEventId: string;
+  originalStatementEventId: string;
   type: "aff" | "neg";
 }

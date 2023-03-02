@@ -195,7 +195,7 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
     const groupedRebuttals = curStatements
       .map((statement) => {
         return rebuttalsItems.filter((rebuttal) => {
-          return rebuttal.previousEventId === statement.event.id;
+          return rebuttal.originalStatementEventId === statement.event.id;
         });
       })
       .filter((rebuttals) => {
@@ -285,7 +285,7 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
         const rebuttal: Rebuttal = {
           topic: currentTopic,
           event: event,
-          previousEventId: previousEventId,
+          originalStatementEventId: previousEventId,
           type: type,
           rebuttalContent: rebuttalContent,
         };
@@ -708,7 +708,7 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
               {(rebuttalGroup, index) => (
                 <div
                   class="flex w-full flex-col space-y-2"
-                  id={`rebuttalgroup-${rebuttalGroup[0].previousEventId}`}
+                  id={`rebuttalgroup-${rebuttalGroup[0].originalStatementEventId}`}
                 >
                   {index() !== 0 && (
                     <div class="my-2 h-0.5 w-full bg-indigo-500" />
@@ -716,7 +716,7 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
                   <For each={rebuttalGroup}>
                     {(rebuttal) => (
                       <RebuttalView
-                        rebuttalContent={rebuttal.rebuttalContent}
+                        rebuttal={rebuttal}
                         onCounterArgumentClick={() => {
                           setEventBeingCounterArgued((previous) =>
                             previous ? undefined : rebuttal.event,
@@ -757,6 +757,9 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
                   <For each={counterArgumentGroup}>
                     {(counterArgument) => (
                       <CounterArgumentView
+                        originalStatementId={
+                          counterArgumentGroup[0].previousEventId
+                        }
                         counterArgumentContent={
                           counterArgument.counterArgumentContent
                         }
