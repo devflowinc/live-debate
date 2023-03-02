@@ -5,17 +5,24 @@ export interface ColumnProps {
   classList: Record<string, boolean | undefined> | undefined;
   visible: boolean;
   onMouseEnter?: () => void;
+  onMouseLeave?: () => void;
 }
 
 export const Column = (props: ColumnProps) => {
   const onMouseEnterFunction = () => {
     props.onMouseEnter?.();
   };
+  const onMouseLeaveFunction = () => {
+    props.onMouseLeave?.();
+  };
 
   return (
     <div
       onMouseEnter={() => {
         onMouseEnterFunction();
+      }}
+      onMouseLeave={() => {
+        onMouseLeaveFunction();
       }}
       classList={props.classList}
     >

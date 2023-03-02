@@ -181,6 +181,12 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
   const [counterArguments, setCounterArguments] = createSignal<
     CounterArgument[]
   >([]);
+  const [columnZeroIntervalId, setColumnZeroIntervalId] =
+    createSignal<number>();
+  const [columnOneIntervalId, setColumnOneIntervalId] = createSignal<number>();
+  const [columnTwoIntervalId, setColumnTwoIntervalId] = createSignal<number>();
+  const [columnThreeIntervalId, setColumnThreeIntervalId] =
+    createSignal<number>();
 
   const openingStatementsToShow = createMemo(() =>
     openingStatements().filter((statement) => {
@@ -619,24 +625,53 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
     }
   });
 
-  const toggleColumnZero = () => {
-    toggleColumn(0);
+  const openColumnZero = () => {
+    setColumnZeroIntervalId(
+      setInterval(() => {
+        toggleColumn(0);
+      }, 250),
+    );
   };
-  const toggleColumnOne = () => {
-    toggleColumn(1);
+  const closeColumnZero = () => {
+    clearInterval(columnZeroIntervalId());
   };
-  const toggleColumnTwo = () => {
-    toggleColumn(2);
+  const openColumnOne = () => {
+    setColumnOneIntervalId(
+      setInterval(() => {
+        toggleColumn(1);
+      }, 250),
+    );
   };
-  const toggleColumnThree = () => {
-    toggleColumn(3);
+  const closeColumnOne = () => {
+    clearInterval(columnOneIntervalId());
+  };
+  const openColumnTwo = () => {
+    setColumnTwoIntervalId(
+      setInterval(() => {
+        toggleColumn(2);
+      }, 250),
+    );
+  };
+  const closeColumnTwo = () => {
+    clearInterval(columnTwoIntervalId());
+  };
+  const openColumnThree = () => {
+    setColumnThreeIntervalId(
+      setInterval(() => {
+        toggleColumn(3);
+      }, 250),
+    );
+  };
+  const closeColumnThree = () => {
+    clearInterval(columnThreeIntervalId());
   };
 
   return (
     <div>
       <div class="flex w-full space-x-2 px-10">
         <Column
-          onMouseEnter={toggleColumnZero}
+          onMouseEnter={openColumnZero}
+          onMouseLeave={closeColumnZero}
           classList={getClassNamesList(0)}
           visible={expandedColumns().includes(0)}
         >
@@ -685,7 +720,8 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
           </div>
         </Column>
         <Column
-          onMouseEnter={toggleColumnOne}
+          onMouseEnter={openColumnOne}
+          onMouseLeave={closeColumnOne}
           classList={getClassNamesList(1)}
           visible={expandedColumns().includes(1)}
         >
@@ -731,7 +767,8 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
           </div>
         </Column>
         <Column
-          onMouseEnter={toggleColumnTwo}
+          onMouseEnter={openColumnTwo}
+          onMouseLeave={closeColumnTwo}
           classList={getClassNamesList(2)}
           visible={expandedColumns().includes(2)}
         >
@@ -773,7 +810,8 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
           </div>
         </Column>
         <Column
-          onMouseEnter={toggleColumnThree}
+          onMouseEnter={openColumnThree}
+          onMouseLeave={closeColumnThree}
           classList={getClassNamesList(3)}
           visible={expandedColumns().includes(3)}
         >
