@@ -800,7 +800,7 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
                         counterArgumentContent={
                           counterArgument.counterArgumentContent
                         }
-                        onCounterArgumentClick={() => null}
+                        onSummaryClick={() => null}
                       />
                     )}
                   </For>
