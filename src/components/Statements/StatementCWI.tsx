@@ -1,6 +1,7 @@
 import { For } from "solid-js";
 import { CWI, Statement } from "./types";
 import { VsReply, VsEye } from "solid-icons/vs";
+import { scrollElementsIntoView } from "../layouts/ScrollRelevantElementsIntoView";
 interface StatementCWIViewProps {
   statement: Statement;
   onWarrantRebuttalClick: () => void;
@@ -9,7 +10,10 @@ interface StatementCWIViewProps {
 
 export const StatementCWIView = (props: StatementCWIViewProps) => {
   return (
-    <div class="flex flex-col space-y-2 rounded-md border-2 border-indigo-500/75 p-2 text-white">
+    <div
+      class="flex flex-col space-y-2 rounded-md border-2 border-indigo-500/75 p-2 text-white"
+      id={`statement-${props.statement.event.id ?? ""}`}
+    >
       <For each={Object.keys(props.statement.statementCWI)}>
         {(key) => {
           return (
@@ -64,27 +68,10 @@ export const StatementCWIView = (props: StatementCWIViewProps) => {
           type="button"
           class="h-fit rounded-full border border-yellow-500 p-1 text-yellow-500"
           onClick={() => {
-            const rebuttalGroupToScroll = document.getElementById(
-              `rebuttalgroup-${props.statement.event.id ?? ""}`,
-            );
-            if (rebuttalGroupToScroll) {
-              rebuttalGroupToScroll.scrollIntoView({
-                behavior: "smooth",
-                block: "center",
-                inline: "center",
-              });
-            }
-
-            const counterArgumentGroupToScroll = document.getElementById(`
-              counterargumentgroup-${props.statement.event.id ?? ""}
-            `);
-            if (counterArgumentGroupToScroll) {
-              counterArgumentGroupToScroll.scrollIntoView({
-                behavior: "smooth",
-                block: "center",
-                inline: "center",
-              });
-            }
+            scrollElementsIntoView({
+              statementId: props.statement.event.id ?? "",
+              typesToScrollIntoView: ["rebuttal", "counterargument"],
+            });
           }}
         >
           <VsEye />
