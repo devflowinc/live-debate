@@ -212,7 +212,6 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
     const groupedCounterArguments = curStatements
       .map((statement) => {
         return counterArgumentsItems.filter((counterArgument) => {
-          console.log("tags: ", counterArgument.event.tags);
           return counterArgument.event.tags.find((tag) => {
             return tag.length >= 2 && tag[1] === statement.event.id;
           });
@@ -526,7 +525,6 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
     if (!topic) return;
     const previousEvent = eventBeingCounterArgued();
     if (!previousEvent) return;
-    console.log("previousEvent", previousEvent.tags);
 
     const topicId = getEventHash(topic.event);
     const createdAt = getUTCSecondsSinceEpoch();

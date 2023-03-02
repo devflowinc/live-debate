@@ -64,9 +64,9 @@ export const StatementCWIView = (props: StatementCWIViewProps) => {
           type="button"
           class="h-fit rounded-full border border-yellow-500 p-1 text-yellow-500"
           onClick={() => {
-            const rebuttalGroupToScroll = document.getElementById(`
-              rebuttalgroup-${props.statement.event.id ?? ""},
-            `);
+            const rebuttalGroupToScroll = document.getElementById(
+              `rebuttalgroup-${props.statement.event.id ?? ""}`,
+            );
             if (rebuttalGroupToScroll) {
               rebuttalGroupToScroll.scrollIntoView({
                 behavior: "smooth",
@@ -76,7 +76,7 @@ export const StatementCWIView = (props: StatementCWIViewProps) => {
             }
 
             const counterArgumentGroupToScroll = document.getElementById(`
-              counterargumentgroup-${props.statement.event.id ?? ""},
+              counterargumentgroup-${props.statement.event.id ?? ""}
             `);
             if (counterArgumentGroupToScroll) {
               counterArgumentGroupToScroll.scrollIntoView({
