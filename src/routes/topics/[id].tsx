@@ -195,7 +195,6 @@ const TopicDetail = () => {
     }
 
     const createdAt = getUTCSecondsSinceEpoch();
-    console.log("Creating value here");
     const event: Event = {
       id: "",
       sig: "",
