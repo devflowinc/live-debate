@@ -2,6 +2,7 @@ import { createSignal } from "solid-js";
 import InputRowsForm from "~/components/Atoms/InputRowsForm";
 import { Event } from "nostr-tools";
 import { CWI } from "./types";
+import { Combobox } from "../Atoms/Combobox";
 
 interface CreateStatementFormProps {
   previousEvent: Event | null | undefined;
@@ -52,6 +53,12 @@ export const CreateStatementForm = (props: CreateStatementFormProps) => {
               label: "Warrant",
               inputValue: getStatementWarrant,
               setInputValue: setStatementWarrant,
+              component: (
+                <Combobox
+                  inputValue={getStatementWarrant}
+                  setInputValue={setStatementWarrant}
+                />
+              ),
             },
             {
               label: "Impact",
