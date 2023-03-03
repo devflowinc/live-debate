@@ -34,7 +34,13 @@ import {
 } from "../CounterArgument/types";
 import { CounterArgumentView } from "../CounterArgument/CounterArgumentView";
 import { CreateSummaryForm } from "../Summary/CreateSummaryForm";
-import { CreateSummaryParams } from "../Summary/types";
+import {
+  CreateSummaryParams,
+  Summary,
+  SummaryContent,
+  implementsSummaryContent,
+} from "../Summary/types";
+import { SummaryView } from "../Summary/SummaryView";
 
 export const subscribeToArguflowFeedByEventAndValue = ({
   connectedRelayContainers,
@@ -43,6 +49,7 @@ export const subscribeToArguflowFeedByEventAndValue = ({
   onRebuttalReceived,
   onCounterArgumentReceived,
   onSubscriptionCreated,
+  onSummaryReceived,
 }: {
   topic: Topic;
   connectedRelayContainers: RelayContainer[];
@@ -75,6 +82,17 @@ export const subscribeToArguflowFeedByEventAndValue = ({
     previousEventId,
   }: {
     counterArgumentContent: CounterArgumentContent;
+    type: "aff" | "neg";
+    event: Event;
+    previousEventId: string;
+  }) => void;
+  onSummaryReceived: ({
+    summaryContent,
+    type,
+    event,
+    previousEventId,
+  }: {
+    summaryContent: SummaryContent;
     type: "aff" | "neg";
     event: Event;
     previousEventId: string;
@@ -151,6 +169,18 @@ export const subscribeToArguflowFeedByEventAndValue = ({
         });
         return;
       }
+
+      const summaryContent: unknown =
+        "summaryContent" in content && content.summaryContent;
+      if (implementsSummaryContent(summaryContent)) {
+        onSummaryReceived({
+          summaryContent,
+          type,
+          event,
+          previousEventId,
+        });
+        return;
+      }
     });
   });
 };
@@ -186,6 +216,7 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
   const [eventBeingSummarized, setEventBeingSummarized] = createSignal<
     Event | undefined
   >();
+  const [summaries, setSummaries] = createSignal<Summary[]>([]);
 
   const openingStatementsToShow = createMemo(() =>
     openingStatements().filter((statement) => {
@@ -227,6 +258,25 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
       });
 
     return groupedCounterArguments;
+  });
+
+  const groupedSummariesToShow = createMemo(() => {
+    const curStatements = openingStatementsToShow();
+    const summariesItems = summaries();
+
+    const groupedSummaries = curStatements
+      .map((statement) => {
+        return summariesItems.filter((summary) => {
+          return summary.event.tags.find((tag) => {
+            return tag.length >= 2 && tag[1] === statement.event.id;
+          });
+        });
+      })
+      .filter((summaries) => {
+        return summaries.length > 0;
+      });
+
+    return groupedSummaries;
   });
 
   createEffect(() => {
@@ -330,6 +380,27 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
             return prev;
           }
           return [...prev, counterArgument];
+        });
+      },
+      onSummaryReceived({ type, event, previousEventId, summaryContent }) {
+        const currentTopic = props.topic();
+        if (!currentTopic) {
+          return;
+        }
+
+        const summary: Summary = {
+          topic: currentTopic,
+          event: event,
+          originalStatementEventId: previousEventId,
+          type: type,
+          summaryContent: summaryContent,
+        };
+
+        setSummaries((prev) => {
+          if (prev.find((summary) => summary.event.id === event.id)) {
+            return prev;
+          }
+          return [...prev, summary];
         });
       },
     });
@@ -882,6 +953,20 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
               />
             </div>
           )}
+          <div class="flex flex-col space-y-2">
+            <For each={groupedSummariesToShow()}>
+              {(summaryGroup, index) => (
+                <div class="flex w-full flex-col space-y-2">
+                  {index() !== 0 && (
+                    <div class="my-2 h-0.5 w-full bg-indigo-500" />
+                  )}
+                  <For each={summaryGroup}>
+                    {(summary) => <SummaryView summary={summary} />}
+                  </For>
+                </div>
+              )}
+            </For>
+          </div>
         </Column>
       </div>
     </div>
