@@ -25,7 +25,7 @@ export interface ValueSplitButtonProps {
 const ValueSplitButton = (props: ValueSplitButtonProps) => {
   return (
     <div>
-      <div class="relative h-fit w-full rounded border border-purple-500 bg-transparent text-xl">
+      <div class="relative h-fit w-full rounded border border-purple-500 text-xl">
         <Popover defaultOpen={false} class="relative w-full">
           {({ isOpen }) => (
             <div class="relative w-full">
@@ -72,7 +72,7 @@ const ValueSplitButton = (props: ValueSplitButtonProps) => {
                 </table>
               </div>
               <Show when={isOpen()}>
-                <PopoverPanel class="absolute w-full" unmount={false}>
+                <PopoverPanel class="absolute z-10 w-full" unmount={false}>
                   <Menu class="left-0 mt-1 flex w-full origin-top-left flex-col space-y-1 rounded-lg bg-gray-800 p-1 py-2 shadow-lg ring-1 ring-black ring-opacity-5">
                     <MenuItem as="button" aria-label="hidden" />
                     <For each={props.topicValues()}>

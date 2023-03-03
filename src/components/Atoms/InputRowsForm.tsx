@@ -1,10 +1,11 @@
-import { Accessor, For, createMemo } from "solid-js";
+import { Accessor, For, JSXElement, createMemo } from "solid-js";
 
 export interface InputGroup {
   label: string;
-  inputValue: Accessor<string>;
-  setInputValue: (value: string) => void;
+  inputValue?: Accessor<string>;
+  setInputValue?: (value: string) => void;
   type?: "input" | "textarea";
+  component?: JSXElement;
 }
 
 export interface InputRowsFormProps {
@@ -30,25 +31,27 @@ const InputRowsForm = (props: InputRowsFormProps) => {
             {(inputGroup: InputGroup) => (
               <div class="w-full">
                 <div>{inputGroup.label}:</div>
-                {(!inputGroup.type || inputGroup.type == "input") && (
+                {((!inputGroup.component && !inputGroup.type) ||
+                  inputGroup.type == "input") && (
                   <input
                     class="w-full rounded border border-white bg-slate-900 px-2 text-white"
                     type="text"
                     onInput={(e) =>
-                      inputGroup.setInputValue(e.currentTarget.value)
+                      inputGroup.setInputValue?.(e.currentTarget.value)
                     }
-                    value={inputGroup.inputValue()}
+                    value={inputGroup.inputValue?.()}
                   />
                 )}
-                {inputGroup.type == "textarea" && (
+                {!inputGroup.component && inputGroup.type == "textarea" && (
                   <textarea
                     class="w-full rounded border border-white bg-slate-900 px-2 text-white"
                     onInput={(e) =>
-                      inputGroup.setInputValue(e.currentTarget.value)
+                      inputGroup.setInputValue?.(e.currentTarget.value)
                     }
-                    value={inputGroup.inputValue()}
+                    value={inputGroup.inputValue?.()}
                   />
                 )}
+                {inputGroup.component && inputGroup.component}
               </div>
             )}
           </For>
