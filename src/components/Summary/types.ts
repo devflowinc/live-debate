@@ -1,4 +1,5 @@
 import { Topic } from "../Topics/types";
+import { Event } from "nostr-tools";
 
 export interface SummaryContent {
   description: string;

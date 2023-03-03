@@ -3,7 +3,12 @@ export const scrollElementsIntoView = ({
   typesToScrollIntoView,
 }: {
   statementId: string;
-  typesToScrollIntoView: ("statement" | "rebuttal" | "counterargument")[];
+  typesToScrollIntoView: (
+    | "statement"
+    | "rebuttal"
+    | "counterargument"
+    | "summary"
+  )[];
 }): void => {
   if (typesToScrollIntoView.includes("statement")) {
     const statementElementId = `statement-${statementId}`;
@@ -36,6 +41,18 @@ export const scrollElementsIntoView = ({
     );
     if (counterAgumentElement) {
       counterAgumentElement.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+        inline: "center",
+      });
+    }
+  }
+
+  if (typesToScrollIntoView.includes("summary")) {
+    const summaryElementId = `summarygroup-${statementId}`;
+    const summaryElement = document.getElementById(summaryElementId);
+    if (summaryElement) {
+      summaryElement.scrollIntoView({
         behavior: "smooth",
         block: "center",
         inline: "center",
