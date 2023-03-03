@@ -956,7 +956,10 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
           <div class="flex flex-col space-y-2">
             <For each={groupedSummariesToShow()}>
               {(summaryGroup, index) => (
-                <div class="flex w-full flex-col space-y-2">
+                <div
+                  class="flex w-full flex-col space-y-2"
+                  id={`summarygroup-${summaryGroup[0].originalStatementEventId}`}
+                >
                   {index() !== 0 && (
                     <div class="my-2 h-0.5 w-full bg-indigo-500" />
                   )}
