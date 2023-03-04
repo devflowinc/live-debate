@@ -40,7 +40,7 @@ export const CreateWarrantForm = (props: CreateWarrantFormProps) => {
     <div class="mb-2 w-full">
       {!formOpen() && (
         <button
-          class="afCombobox w-full rounded border border-gray-400 bg-gray-200 py-2 px-4 font-semibold text-gray-800 shadow hover:bg-gray-300"
+          class="afCombobox w-full rounded bg-orange-400 py-2 px-4 font-semibold  text-white shadow hover:bg-orange-500"
           onClick={() => setFormOpen(true)}
         >
           Create Warrant

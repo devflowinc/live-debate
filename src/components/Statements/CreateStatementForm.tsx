@@ -1,8 +1,8 @@
-import { createEffect, createSignal, useContext } from "solid-js";
+import { Accessor, createEffect, createSignal, useContext } from "solid-js";
 import InputRowsForm from "~/components/Atoms/InputRowsForm";
 import { Event } from "nostr-tools";
 import { CWI } from "./types";
-import { Combobox } from "../Atoms/Combobox";
+import { Combobox, comboboxItem } from "../Atoms/Combobox";
 import { CreateWarrantForm } from "../Warrants/CreateWarrantFormWithButton";
 import { CreateWarrantParams } from "../Warrants/types";
 import { GlobalContext } from "~/contexts/GlobalContext";
@@ -19,6 +19,7 @@ interface CreateStatementFormProps {
     type: "aff" | "neg";
   }) => void;
   onCreateWarrant: ({ warrantContent }: CreateWarrantParams) => void;
+  warrantOptions: Accessor<comboboxItem[]>;
 }
 
 export const CreateStatementForm = (props: CreateStatementFormProps) => {
@@ -76,6 +77,7 @@ export const CreateStatementForm = (props: CreateStatementFormProps) => {
                 <Combobox
                   inputValue={getStatementWarrant}
                   setInputValue={setStatementWarrant}
+                  options={props.warrantOptions}
                   aboveOptionsElement={
                     <CreateWarrantForm
                       onCreateWarrant={props.onCreateWarrant}
