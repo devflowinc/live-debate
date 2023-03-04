@@ -75,8 +75,6 @@ export const CreateStatementForm = (props: CreateStatementFormProps) => {
               setInputValue: setStatementWarrant,
               component: (
                 <Combobox
-                  inputValue={getStatementWarrant}
-                  setInputValue={setStatementWarrant}
                   options={props.warrantOptions}
                   aboveOptionsElement={
                     <CreateWarrantForm

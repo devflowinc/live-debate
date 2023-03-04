@@ -4,6 +4,7 @@ import {
   For,
   JSXElement,
   createEffect,
+  createMemo,
   createSignal,
   onCleanup,
 } from "solid-js";
@@ -21,14 +22,22 @@ export interface ComboboxProps {
   // selected: Accessor<comboboxItem[]>;
   // onSelect: (option: nameAndAny) => void;
   // onRemove: (option: nameAndAny) => void;
-  inputValue: Accessor<string>;
-  setInputValue: (value: string) => void;
   aboveOptionsElement?: JSXElement | null;
 }
 
 export const Combobox = (props: ComboboxProps) => {
   const [panelOpen, sePanelOpen] = createSignal(false);
   const [usingPanel, setUsingPanel] = createSignal(false);
+  const [inputValue, setInputValue] = createSignal("");
+
+  const filteredOptions = createMemo(() => {
+    if (!inputValue()) return props.options();
+    return props
+      .options()
+      .filter((option) =>
+        option.name.toLowerCase().includes(inputValue().toLowerCase()),
+      );
+  });
 
   createEffect(() => {
     const handler = (e: Event) => {
@@ -52,8 +61,8 @@ export const Combobox = (props: ComboboxProps) => {
           type="text"
           onFocus={() => sePanelOpen(true)}
           onBlur={() => !usingPanel() && sePanelOpen(false)}
-          value={props.inputValue()}
-          onInput={(e) => props.setInputValue(e.currentTarget.value)}
+          value={inputValue()}
+          onInput={(e) => setInputValue(e.currentTarget.value)}
         />
         <PopoverPanel
           unmount={false}
@@ -71,18 +80,22 @@ export const Combobox = (props: ComboboxProps) => {
         >
           {props.aboveOptionsElement}
           <Menu class="flex w-full flex-col space-y-1 overflow-y-auto bg-gray-800 shadow-lg ring-1 ring-black ring-opacity-5 overflow-x-hidden">
-            <For each={props.options()}>
+            <For each={filteredOptions()}>
               {(option) => (
                 <MenuItem
                   as="button"
                   class="flex items-center justify-between rounded p-1 focus:bg-orange-500 focus:text-white focus:outline-none hover:bg-orange-500 hover:text-white"
                 >
-                  <span>{option.name}</span>
-                  <span onClick={(e) => e.stopPropagation()}>
-                    <a href={option.link} target="_blank">
-                      <FiExternalLink class="text-2xl" />
-                    </a>
-                  </span>
+                  <div class="flex flex-row space-x-2">
+                    {option.link && (
+                      <span onClick={(e) => e.stopPropagation()}>
+                        <a href={option.link} target="_blank">
+                          <FiExternalLink class="text-2xl" />
+                        </a>
+                      </span>
+                    )}
+                    <span>{option.name}</span>
+                  </div>
                 </MenuItem>
               )}
             </For>
