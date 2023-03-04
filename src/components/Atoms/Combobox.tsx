@@ -1,5 +1,11 @@
 import { Menu, MenuItem, Popover, PopoverPanel } from "solid-headless";
-import { Accessor, createEffect, createSignal, onCleanup } from "solid-js";
+import {
+  Accessor,
+  JSXElement,
+  createEffect,
+  createSignal,
+  onCleanup,
+} from "solid-js";
 
 export interface nameIdAndAny {
   name: string;
@@ -14,6 +20,7 @@ export interface ComboboxProps {
   // onRemove: (option: nameAndAny) => void;
   inputValue: Accessor<string>;
   setInputValue: (value: string) => void;
+  aboveOptionsElement?: JSXElement | null;
 }
 
 export const Combobox = (props: ComboboxProps) => {
@@ -23,8 +30,7 @@ export const Combobox = (props: ComboboxProps) => {
   createEffect(() => {
     const handler = (e: Event) => {
       if (!e.target) return;
-      const target = e.target as HTMLElement;
-      if (!target.closest(".afCombobox")) {
+      if (!(e.target as HTMLElement).closest(".afCombobox")) {
         sePanelOpen(false);
       }
     };
@@ -60,6 +66,7 @@ export const Combobox = (props: ComboboxProps) => {
             setUsingPanel(false);
           }}
         >
+          {props.aboveOptionsElement}
           <Menu class="flex w-full flex-col space-y-1 overflow-y-auto bg-gray-800 shadow-lg ring-1 ring-black ring-opacity-5 overflow-x-hidden">
             <MenuItem
               as="button"

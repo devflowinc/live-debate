@@ -3,6 +3,8 @@ import InputRowsForm from "~/components/Atoms/InputRowsForm";
 import { Event } from "nostr-tools";
 import { CWI } from "./types";
 import { Combobox } from "../Atoms/Combobox";
+import { CreateWarrantForm } from "../Warrants/CreateWarrantFormWithButton";
+import { CreateWarrantParams } from "../Warrants/types";
 
 interface CreateStatementFormProps {
   previousEvent: Event | null | undefined;
@@ -15,6 +17,7 @@ interface CreateStatementFormProps {
     statementCWI: CWI;
     type: "aff" | "neg";
   }) => void;
+  onCreateWarrant: ({ warrantContent }: CreateWarrantParams) => void;
 }
 
 export const CreateStatementForm = (props: CreateStatementFormProps) => {
@@ -57,6 +60,11 @@ export const CreateStatementForm = (props: CreateStatementFormProps) => {
                 <Combobox
                   inputValue={getStatementWarrant}
                   setInputValue={setStatementWarrant}
+                  aboveOptionsElement={
+                    <CreateWarrantForm
+                      onCreateWarrant={props.onCreateWarrant}
+                    />
+                  }
                 />
               ),
             },
