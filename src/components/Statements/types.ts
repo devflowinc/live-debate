@@ -1,3 +1,4 @@
+import { comboboxItem } from "../Atoms/Combobox";
 import { Topic } from "../Topics/types";
 import { Event } from "nostr-tools";
 
@@ -6,17 +7,17 @@ export const implementsCWI = (arg: unknown): arg is CWI => {
     typeof arg === "object" &&
     arg !== null &&
     "claim" in arg &&
-    "warrant" in arg &&
+    "warrants" in arg &&
     "impact" in arg &&
     typeof (arg as CWI).claim === "string" &&
-    typeof (arg as CWI).warrant === "string" &&
+    Array.isArray((arg as CWI).warrants) &&
     typeof (arg as CWI).impact === "string"
   );
 };
 
 export interface CWI {
   claim: string;
-  warrant: string;
+  warrants: comboboxItem[];
   impact: string;
 }
 

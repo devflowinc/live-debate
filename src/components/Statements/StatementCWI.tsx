@@ -1,5 +1,5 @@
 import { For } from "solid-js";
-import { CWI, Statement } from "./types";
+import { Statement } from "./types";
 import { VsReply, VsEye } from "solid-icons/vs";
 import { scrollElementsIntoView } from "../layouts/ScrollRelevantElementsIntoView";
 interface StatementCWIViewProps {
@@ -14,55 +14,57 @@ export const StatementCWIView = (props: StatementCWIViewProps) => {
       class="flex flex-col space-y-2 rounded-md border-2 border-indigo-500/75 p-2 text-white"
       id={`statement-${props.statement.event.id ?? ""}`}
     >
-      <For each={Object.keys(props.statement.statementCWI)}>
-        {(key) => {
-          return (
-            <div class="flex w-full flex-col space-y-2">
-              <div class="grid grid-cols-[18px_1fr]">
-                <div
-                  classList={{
-                    "font-bold": true,
-                    "text-blue-500": key === "claim",
-                    "text-orange-500": key === "warrant",
-                    "text-fuchsia-500": key === "impact",
-                  }}
-                >
-                  {key.charAt(0).toUpperCase()}
-                </div>
-                <div
-                  classList={{
-                    "w-full flex flex-row space-x-2 justify-between items-center":
-                      true,
-                    "text-blue-500": key === "claim",
-                    "text-orange-500": key === "warrant",
-                    "text-fuchsia-500": key === "impact",
-                  }}
-                >
-                  <span>{props.statement.statementCWI[key as keyof CWI]}</span>
-                  {key !== "claim" && (
-                    <button
-                      type="button"
-                      onClick={
-                        key === "warrant"
-                          ? props.onWarrantRebuttalClick
-                          : props.onImpactRebuttalClick
-                      }
-                      aria-label="Create Warrant Rebuttal"
-                      classList={{
-                        "p-1 border rounded-full h-fit": true,
-                        "border-orange-500": key === "warrant",
-                        "border-fuchsia-500": key === "impact",
-                      }}
+      <div class="flex w-full flex-col space-y-2">
+        <div class="grid grid-cols-[18px_1fr] gap-y-2">
+          <div class="font-bold text-blue-500">C</div>
+          <div class="flex w-full flex-row items-center justify-between space-x-2 text-blue-500">
+            <span>{props.statement.statementCWI.claim}</span>
+          </div>
+
+          <div class="font-bold text-orange-500">W</div>
+          <div class="flex flex-row justify-between">
+            <div class="flex w-full flex-row space-x-2">
+              <For each={props.statement.statementCWI.warrants}>
+                {(warrant) => {
+                  return (
+                    <a
+                      href={warrant.link}
+                      target="_blank"
+                      rel="noreferrer"
+                      class="underline"
                     >
-                      <VsReply />
-                    </button>
-                  )}
-                </div>
-              </div>
+                      {warrant.name}
+                      {`                 `}
+                    </a>
+                  );
+                }}
+              </For>
             </div>
-          );
-        }}
-      </For>
+
+            <button
+              type="button"
+              onClick={() => props.onWarrantRebuttalClick()}
+              aria-label="Create Warrant Rebuttal"
+              class="h-fit rounded-full border border-orange-500 p-1 text-orange-500"
+            >
+              <VsReply />
+            </button>
+          </div>
+
+          <div class="font-bold text-fuchsia-500">I</div>
+          <div class="flex w-full flex-row items-center justify-between space-x-2 text-fuchsia-500">
+            <span>{props.statement.statementCWI.impact}</span>
+            <button
+              type="button"
+              onClick={() => props.onImpactRebuttalClick()}
+              aria-label="Create Impact Rebuttal"
+              class="h-fit rounded-full border border-fuchsia-500 p-1"
+            >
+              <VsReply />
+            </button>
+          </div>
+        </div>
+      </div>
       <div class="flex flex-row space-x-2">
         <button
           type="button"
