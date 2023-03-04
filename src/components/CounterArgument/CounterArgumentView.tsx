@@ -13,18 +13,18 @@ export const CounterArgumentView = (props: CounterArgumentViewProps) => {
   return (
     <div
       class={`flex flex-col space-y-2 rounded-md border-2 p-2 text-white ${
-        props.counterArgumentContent.counterWarrant
+        props.counterArgumentContent.counterWarrants
           ? "border-orange-500"
           : "border-fuchsia-500"
       }`}
     >
       <div class="flex w-full flex-row items-center justify-between">
         <div class="grid grid-cols-[18px_1fr]">
-          {props.counterArgumentContent.counterWarrant && (
+          {props.counterArgumentContent.counterWarrants && (
             <>
               <div class="font-bold text-orange-500">W</div>
               <div class="flex w-full flex-row items-center justify-between space-x-2 text-orange-500">
-                <span>{props.counterArgumentContent.counterWarrant}</span>
+                <span>{props.counterArgumentContent.counterWarrants}</span>
               </div>
             </>
           )}

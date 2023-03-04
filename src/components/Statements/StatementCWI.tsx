@@ -23,7 +23,7 @@ export const StatementCWIView = (props: StatementCWIViewProps) => {
 
           <div class="font-bold text-orange-500">W</div>
           <div class="flex flex-row justify-between">
-            <div class="flex w-full flex-row space-x-2">
+            <div class="flex w-full flex-row space-x-2 text-orange-500">
               <For each={props.statement.statementCWI.warrants}>
                 {(warrant) => {
                   return (
@@ -34,7 +34,6 @@ export const StatementCWIView = (props: StatementCWIViewProps) => {
                       class="underline"
                     >
                       {warrant.name}
-                      {`                 `}
                     </a>
                   );
                 }}

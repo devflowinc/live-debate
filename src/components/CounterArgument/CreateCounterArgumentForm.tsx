@@ -32,7 +32,7 @@ export const CreateCounterArgumentForm = (
     if (!previousEvent) return "impact";
     const previousEventContent = previousEvent.content;
     if (implementsRebuttalContent(previousEventContent)) {
-      return previousEventContent.counterWarrant ? "warrant" : "impact";
+      return previousEventContent.counterWarrants ? "warrant" : "impact";
     }
     return "impact";
   });
@@ -61,7 +61,7 @@ export const CreateCounterArgumentForm = (
     }
     props.onCreateCounterArgument({
       counterArgumentContent: {
-        counterWarrant: getCounterWarrant(),
+        counterWarrants: getCounterWarrant(),
         description: getDescription(),
       },
     });

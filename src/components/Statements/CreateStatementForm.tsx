@@ -27,7 +27,7 @@ export const CreateStatementForm = (props: CreateStatementFormProps) => {
   const [getStatementClaim, setStatementClaim] = createSignal("");
   const [getStatementImpact, setStatementImpact] = createSignal("");
   const [creating, setCreating] = createSignal(false);
-  const [selectedCombboboxItems, setSelectedComboboxItems] = createSignal<
+  const [selectedComboboxItems, setSelectedComboboxItems] = createSignal<
     comboboxItem[]
   >([]);
 
@@ -35,7 +35,7 @@ export const CreateStatementForm = (props: CreateStatementFormProps) => {
     if (!creating()) return;
     if (
       !getStatementClaim() ||
-      !selectedCombboboxItems().length ||
+      !selectedComboboxItems().length ||
       !getStatementImpact()
     ) {
       globalContext.createToast({
@@ -48,7 +48,7 @@ export const CreateStatementForm = (props: CreateStatementFormProps) => {
     props.onCreateStatmentCWI({
       statementCWI: {
         claim: getStatementClaim(),
-        warrants: selectedCombboboxItems(),
+        warrants: selectedComboboxItems(),
         impact: getStatementImpact(),
       },
       type: props.type,
@@ -72,11 +72,11 @@ export const CreateStatementForm = (props: CreateStatementFormProps) => {
               setInputValue: setStatementClaim,
             },
             {
-              label: "Warrant",
+              label: "Warrants",
               component: (
                 <Combobox
                   options={props.warrantOptions}
-                  selected={selectedCombboboxItems}
+                  selected={selectedComboboxItems}
                   onSelect={(option: comboboxItem) => {
                     setSelectedComboboxItems((prev) => {
                       const prevIncludesOption = prev.find((prevOption) => {
