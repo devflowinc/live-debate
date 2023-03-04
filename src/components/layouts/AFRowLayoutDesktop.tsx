@@ -970,11 +970,13 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
             />
           )}
           {impactEventBeingRebutted() && (
-            <CreateImpactRebuttalForm
-              previousEvent={impactEventBeingRebutted}
-              onCancel={() => setImpactEventBeingRebutted(undefined)}
-              onCreateImpactRebuttal={onCreateRebuttal}
-            />
+            <div class="mb-2">
+              <CreateImpactRebuttalForm
+                previousEvent={impactEventBeingRebutted}
+                onCancel={() => setImpactEventBeingRebutted(undefined)}
+                onCreateImpactRebuttal={onCreateRebuttal}
+              />
+            </div>
           )}
           <div class="flex flex-col space-y-2">
             <For each={groupedRebuttalsToShow()}>
