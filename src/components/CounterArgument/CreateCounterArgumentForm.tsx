@@ -10,6 +10,9 @@ import InputRowsForm from "../Atoms/InputRowsForm";
 import { CreateCounterArgumentParams } from "./types";
 import { GlobalContext } from "~/contexts/GlobalContext";
 import { implementsRebuttalContent } from "../Rebuttals/types";
+import { Combobox, comboboxItem } from "../Atoms/Combobox";
+import { CreateWarrantForm } from "../Warrants/CreateWarrantFormWithButton";
+import { CreateWarrantParams } from "../Warrants/types";
 
 export interface CreateCounterArgumentFormProps {
   previousEvent: Accessor<Event | undefined>;
@@ -17,13 +20,17 @@ export interface CreateCounterArgumentFormProps {
   onCreateCounterArgument: ({
     counterArgumentContent,
   }: CreateCounterArgumentParams) => void;
+  warrantOptions: Accessor<comboboxItem[]>;
+  onCreateWarrant: ({ warrantContent }: CreateWarrantParams) => void;
 }
 
 export const CreateCounterArgumentForm = (
   props: CreateCounterArgumentFormProps,
 ) => {
   const globalContext = useContext(GlobalContext);
-  const [getCounterWarrant, setCounterWarrant] = createSignal("");
+  const [selectedComboboxItems, setSelectedComboboxItems] = createSignal<
+    comboboxItem[]
+  >([]);
   const [getDescription, setDescription] = createSignal("");
   const [creating, setCreating] = createSignal(false);
 
@@ -39,10 +46,7 @@ export const CreateCounterArgumentForm = (
 
   createEffect(() => {
     if (!creating()) return;
-    if (
-      getDescription() === "" ||
-      (warrantOrImpact() === "warrant" && getCounterWarrant() === "")
-    ) {
+    if (getDescription() === "" || !selectedComboboxItems().length) {
       globalContext.createToast({
         type: "error",
         message: "Please fill out all fields",
@@ -61,7 +65,7 @@ export const CreateCounterArgumentForm = (
     }
     props.onCreateCounterArgument({
       counterArgumentContent: {
-        counterWarrants: getCounterWarrant(),
+        counterWarrants: selectedComboboxItems(),
         description: getDescription(),
       },
     });
@@ -91,8 +95,30 @@ export const CreateCounterArgumentForm = (
             inputGroups={[
               {
                 label: "Counter Warrant",
-                inputValue: getCounterWarrant,
-                setInputValue: setCounterWarrant,
+                component: (
+                  <Combobox
+                    options={props.warrantOptions}
+                    selected={selectedComboboxItems}
+                    onSelect={(option: comboboxItem) => {
+                      setSelectedComboboxItems((prev) => {
+                        const prevIncludesOption = prev.find((prevOption) => {
+                          return prevOption.eventId === option.eventId;
+                        });
+                        if (!prevIncludesOption) {
+                          return [option, ...prev];
+                        }
+                        return prev.filter(
+                          (prevOption) => prevOption.eventId !== option.eventId,
+                        );
+                      });
+                    }}
+                    aboveOptionsElement={
+                      <CreateWarrantForm
+                        onCreateWarrant={props.onCreateWarrant}
+                      />
+                    }
+                  />
+                ),
               },
               {
                 label: "Description",

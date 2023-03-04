@@ -2,6 +2,7 @@ import { VsEye } from "solid-icons/vs";
 import { CounterArgumentContent } from "./types";
 import { scrollElementsIntoView } from "../layouts/ScrollRelevantElementsIntoView";
 import { AiOutlineFunnelPlot } from "solid-icons/ai";
+import { For } from "solid-js";
 
 export interface CounterArgumentViewProps {
   originalStatementId: string;
@@ -24,7 +25,20 @@ export const CounterArgumentView = (props: CounterArgumentViewProps) => {
             <>
               <div class="font-bold text-orange-500">W</div>
               <div class="flex w-full flex-row items-center justify-between space-x-2 text-orange-500">
-                <span>{props.counterArgumentContent.counterWarrants}</span>
+                <For each={props.counterArgumentContent.counterWarrants}>
+                  {(warrant) => {
+                    return (
+                      <a
+                        href={warrant.link}
+                        target="_blank"
+                        rel="noreferrer"
+                        class="underline"
+                      >
+                        {warrant.name}
+                      </a>
+                    );
+                  }}
+                </For>
               </div>
             </>
           )}
