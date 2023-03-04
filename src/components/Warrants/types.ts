@@ -1,4 +1,5 @@
 import { Topic } from "../Topics/types";
+import { Event } from "nostr-tools";
 
 export interface WarrantContent {
   name: string;
@@ -26,6 +27,4 @@ export interface Warrant {
   warrantContent: WarrantContent;
   topic: Topic;
   event: Event;
-  originalStatementEventId: string;
-  type: "aff" | "neg";
 }

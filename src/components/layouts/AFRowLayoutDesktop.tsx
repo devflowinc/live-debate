@@ -41,7 +41,13 @@ import {
   implementsSummaryContent,
 } from "../Summary/types";
 import { SummaryView } from "../Summary/SummaryView";
-import { CreateWarrantParams } from "../Warrants/types";
+import {
+  CreateWarrantParams,
+  Warrant,
+  WarrantContent,
+  implementsWarrantContent,
+} from "../Warrants/types";
+import { comboboxItem } from "../Atoms/Combobox";
 
 export const subscribeToArguflowFeedByEventAndValue = ({
   connectedRelayContainers,
@@ -51,6 +57,7 @@ export const subscribeToArguflowFeedByEventAndValue = ({
   onCounterArgumentReceived,
   onSubscriptionCreated,
   onSummaryReceived,
+  onWarrantReceived,
 }: {
   topic: Topic;
   connectedRelayContainers: RelayContainer[];
@@ -98,6 +105,14 @@ export const subscribeToArguflowFeedByEventAndValue = ({
     event: Event;
     previousEventId: string;
   }) => void;
+  onWarrantReceived: ({
+    warrantContent,
+    event,
+  }: {
+    warrantContent: WarrantContent;
+    event: Event;
+  }) => void;
+
   onSubscriptionCreated?: (relayName: string) => void;
 }) => {
   connectedRelayContainers.forEach((relayContainer) => {
@@ -121,16 +136,25 @@ export const subscribeToArguflowFeedByEventAndValue = ({
     topicEventSub.on("event", (event: Event) => {
       const content: unknown = JSON.parse(event.content);
       if (typeof content !== "object" || content === null) return;
-      const type = "type" in content && content.type;
+
+      const warrantContent: unknown =
+        "warrantContent" in content && content.warrantContent;
+      if (implementsWarrantContent(warrantContent)) {
+        onWarrantReceived({
+          warrantContent,
+          event,
+        });
+        return;
+      }
+
+      // eventTypes which require previousEventId and type
       const previousEventId =
         "previousEvent" in content && content.previousEvent;
-
-      if (
-        !previousEventId ||
-        typeof previousEventId !== "string" ||
-        typeof type !== "string" ||
-        (type != "aff" && type != "neg")
-      ) {
+      if (!previousEventId || typeof previousEventId !== "string") {
+        return;
+      }
+      const type = "type" in content && content.type;
+      if (typeof type !== "string" || (type != "aff" && type != "neg")) {
         return;
       }
 
@@ -218,6 +242,7 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
     Event | undefined
   >();
   const [summaries, setSummaries] = createSignal<Summary[]>([]);
+  const [warrants, setWarrants] = createSignal<Warrant[]>([]);
 
   const openingStatementsToShow = createMemo(() =>
     openingStatements().filter((statement) => {
@@ -278,6 +303,17 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
       });
 
     return groupedSummaries;
+  });
+
+  const warrantComboboxItems = createMemo(() => {
+    const curWarrants = warrants();
+    return curWarrants.map((warrant) => {
+      return {
+        name: warrant.warrantContent.name,
+        link: warrant.warrantContent.link,
+        id: warrant.event.id,
+      } as comboboxItem;
+    });
   });
 
   createEffect(() => {
@@ -402,6 +438,25 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
             return prev;
           }
           return [...prev, summary];
+        });
+      },
+      onWarrantReceived({ event, warrantContent }) {
+        const currentTopic = props.topic();
+        if (!currentTopic) {
+          return;
+        }
+
+        const warrant: Warrant = {
+          topic: currentTopic,
+          event: event,
+          warrantContent: warrantContent,
+        };
+
+        setWarrants((prev) => {
+          if (prev.find((warrant) => warrant.event.id === event.id)) {
+            return prev;
+          }
+          return [warrant, ...prev];
         });
       },
     });
@@ -870,6 +925,7 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
                   setShowStatementForm={setShowStatementForm}
                   onCreateStatmentCWI={onCreateStatementCWI}
                   onCreateWarrant={onCreateWarrant}
+                  warrantOptions={warrantComboboxItems}
                 />
               )}
             </div>

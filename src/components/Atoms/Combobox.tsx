@@ -1,21 +1,24 @@
 import { Menu, MenuItem, Popover, PopoverPanel } from "solid-headless";
 import {
   Accessor,
+  For,
   JSXElement,
   createEffect,
   createSignal,
   onCleanup,
 } from "solid-js";
+import { FiExternalLink } from "solid-icons/fi";
 
-export interface nameIdAndAny {
+export interface comboboxItem {
   name: string;
+  link?: string;
   id: string;
   [key: string]: unknown;
 }
 
 export interface ComboboxProps {
-  // options: Accessor<nameAndAny[]>;
-  // selected: Accessor<nameAndAny[]>;
+  options: Accessor<comboboxItem[]>;
+  // selected: Accessor<comboboxItem[]>;
   // onSelect: (option: nameAndAny) => void;
   // onRemove: (option: nameAndAny) => void;
   inputValue: Accessor<string>;
@@ -68,42 +71,21 @@ export const Combobox = (props: ComboboxProps) => {
         >
           {props.aboveOptionsElement}
           <Menu class="flex w-full flex-col space-y-1 overflow-y-auto bg-gray-800 shadow-lg ring-1 ring-black ring-opacity-5 overflow-x-hidden">
-            <MenuItem
-              as="button"
-              class="rounded p-1 text-left text-sm focus:bg-orange-500 focus:text-white focus:outline-none hover:bg-orange-500 hover:text-white"
-            >
-              Open Link in New Tab
-            </MenuItem>
-            <MenuItem
-              as="button"
-              class="rounded p-1 text-left text-sm focus:bg-orange-500 focus:text-white focus:outline-none hover:bg-orange-500 hover:text-white"
-            >
-              Open Link in New Window
-            </MenuItem>
-            <MenuItem
-              as="button"
-              class="rounded p-1 text-left text-sm focus:bg-orange-500 focus:text-white focus:outline-none hover:bg-orange-500 hover:text-white"
-            >
-              Open Link in New Incognito Window
-            </MenuItem>
-            <MenuItem
-              as="button"
-              class="rounded p-1 text-left text-sm focus:bg-orange-500 focus:text-white focus:outline-none hover:bg-orange-500 hover:text-white"
-            >
-              Save Link As...
-            </MenuItem>
-            <MenuItem
-              as="button"
-              class="rounded p-1 text-left text-sm focus:bg-orange-500 focus:text-white focus:outline-none hover:bg-orange-500 hover:text-white"
-            >
-              Copy Link Address
-            </MenuItem>
-            <MenuItem
-              as="button"
-              class="rounded p-1 text-left text-sm focus:bg-orange-500 focus:text-white focus:outline-none hover:bg-orange-500 hover:text-white"
-            >
-              Inspect
-            </MenuItem>
+            <For each={props.options()}>
+              {(option) => (
+                <MenuItem
+                  as="button"
+                  class="flex items-center justify-between rounded p-1 focus:bg-orange-500 focus:text-white focus:outline-none hover:bg-orange-500 hover:text-white"
+                >
+                  <span>{option.name}</span>
+                  <span onClick={(e) => e.stopPropagation()}>
+                    <a href={option.link} target="_blank">
+                      <FiExternalLink class="text-2xl" />
+                    </a>
+                  </span>
+                </MenuItem>
+              )}
+            </For>
           </Menu>
         </PopoverPanel>
       </Popover>
