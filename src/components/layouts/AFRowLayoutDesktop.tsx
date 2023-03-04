@@ -1016,6 +1016,8 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
                 previousEvent={eventBeingCounterArgued}
                 onCancel={() => setEventBeingCounterArgued(undefined)}
                 onCreateCounterArgument={onCreateCounterArgument}
+                warrantOptions={warrantComboboxItems}
+                onCreateWarrant={onCreateWarrant}
               />
             </div>
           )}
