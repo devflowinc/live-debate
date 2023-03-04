@@ -1,10 +1,11 @@
-import { createSignal } from "solid-js";
+import { createEffect, createSignal, useContext } from "solid-js";
 import InputRowsForm from "~/components/Atoms/InputRowsForm";
 import { Event } from "nostr-tools";
 import { CWI } from "./types";
 import { Combobox } from "../Atoms/Combobox";
 import { CreateWarrantForm } from "../Warrants/CreateWarrantFormWithButton";
 import { CreateWarrantParams } from "../Warrants/types";
+import { GlobalContext } from "~/contexts/GlobalContext";
 
 interface CreateStatementFormProps {
   previousEvent: Event | null | undefined;
@@ -21,11 +22,26 @@ interface CreateStatementFormProps {
 }
 
 export const CreateStatementForm = (props: CreateStatementFormProps) => {
+  const globalContext = useContext(GlobalContext);
   const [getStatementClaim, setStatementClaim] = createSignal("");
   const [getStatementWarrant, setStatementWarrant] = createSignal("");
   const [getStatementImpact, setStatementImpact] = createSignal("");
+  const [creating, setCreating] = createSignal(false);
 
-  const onCreateStatement = () => {
+  createEffect(() => {
+    if (!creating()) return;
+    if (
+      !getStatementClaim() ||
+      !getStatementWarrant() ||
+      !getStatementImpact()
+    ) {
+      globalContext.createToast({
+        type: "error",
+        message: "Please fill out all fields",
+      });
+      setCreating(false);
+      return;
+    }
     props.onCreateStatmentCWI({
       statementCWI: {
         claim: getStatementClaim(),
@@ -34,7 +50,7 @@ export const CreateStatementForm = (props: CreateStatementFormProps) => {
       },
       type: props.type,
     });
-  };
+  });
 
   const onCancel = () => {
     props.setShowStatementForm(false);
@@ -76,7 +92,7 @@ export const CreateStatementForm = (props: CreateStatementFormProps) => {
             },
           ]}
           createButtonText="Create Statement"
-          onCreate={onCreateStatement}
+          onCreate={() => setCreating(true)}
           onCancel={onCancel}
         />
       )}
