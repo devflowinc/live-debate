@@ -41,6 +41,7 @@ import {
   implementsSummaryContent,
 } from "../Summary/types";
 import { SummaryView } from "../Summary/SummaryView";
+import { CreateWarrantParams } from "../Warrants/types";
 
 export const subscribeToArguflowFeedByEventAndValue = ({
   connectedRelayContainers,
@@ -754,6 +755,56 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
     setEventBeingSummarized(undefined);
   };
 
+  const onCreateWarrant = ({ warrantContent }: CreateWarrantParams): void => {
+    const eventPublicKey = globalContext.connectedUser?.()?.publicKey;
+    if (!eventPublicKey) return;
+    const topic = props.topic();
+    if (!topic) return;
+
+    const topicId = getEventHash(topic.event);
+    const createdAt = getUTCSecondsSinceEpoch();
+
+    const currentTopic = props.topic();
+    if (!currentTopic) return;
+
+    const event: Event = {
+      id: "",
+      sig: "",
+      kind: 42,
+      pubkey: eventPublicKey,
+      tags: [
+        ["arguflow"],
+        ["arguflow-warrant"],
+        ["e", topicId, "nostr.arguflow.gg", "reply"],
+        ["p", topicId, "nostr.arguflow.gg", "topic"],
+      ],
+      created_at: createdAt,
+      content: JSON.stringify({
+        warrantContent,
+        topicId: topicId,
+        type: props.viewMode,
+      }),
+    };
+    event.id = getEventHash(event);
+
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-explicit-any
+    (window as any).nostr.signEvent(event).then((signedEvent: Event) => {
+      if (globalContext.relays) {
+        const connectedRelayContainers = globalContext
+          .relays()
+          .filter((relay) => relay.connected);
+        emitEventToConnectedRelays({
+          event: signedEvent,
+          connectedRelayContainers: connectedRelayContainers,
+        });
+      }
+      globalContext.createToast({
+        message: `Warrant successfully created`,
+        type: "success",
+      });
+    });
+  };
+
   createEffect(() => {
     if (warrantEventBeingRebutted() || impactEventBeingRebutted()) {
       setExpandedColumns([1, 0]);
@@ -818,6 +869,7 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
                   type={getType(0)}
                   setShowStatementForm={setShowStatementForm}
                   onCreateStatmentCWI={onCreateStatementCWI}
+                  onCreateWarrant={onCreateWarrant}
                 />
               )}
             </div>

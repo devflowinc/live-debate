@@ -14,6 +14,7 @@ export interface InputRowsFormProps {
   onCancel: () => void;
   inputGroups: InputGroup[];
   borderColor?: string;
+  buttonClass?: string;
 }
 
 const InputRowsForm = (props: InputRowsFormProps) => {
@@ -58,13 +59,17 @@ const InputRowsForm = (props: InputRowsFormProps) => {
         </div>
         <div class="mt-2 flex w-full justify-end space-x-2">
           <button
-            class="w-fit rounded-full border border-red-500 bg-transparent px-2 text-red-500"
+            class={`${
+              props.buttonClass ?? ""
+            } w-fit rounded-full border border-red-500 bg-transparent px-2 text-red-500`}
             onClick={() => props.onCancel()}
           >
             Cancel
           </button>
           <button
-            class="w-fit rounded-full border border-green-500 bg-transparent px-2 text-green-500"
+            class={`${
+              props.buttonClass ?? ""
+            } w-fit rounded-full border border-green-500 bg-transparent px-2 text-green-500`}
             onClick={() => props.onCreate()}
           >
             {props.createButtonText}
