@@ -235,7 +235,7 @@ const TopicDetail = () => {
 
   return (
     <ApplicationLayout>
-      <div class="flex flex-col space-y-4">
+      <div class="flex flex-col space-y-4 pb-8">
         <div class="mt-4 flex w-full justify-center">
           <div class="flex w-full max-w-[75%] flex-col items-center justify-center space-y-6 rounded-lg border border-slate-600 px-8 py-4">
             <div class="flex w-full items-center space-x-8">
@@ -263,9 +263,15 @@ const TopicDetail = () => {
         <Show when={currentTopic() != null}>
           <AFRowLayoutDesktop
             currentTopicValue={currentTopicValue}
-            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
             topic={currentTopic}
             viewMode="aff"
+          />
+        </Show>
+        <Show when={currentTopic() != null}>
+          <AFRowLayoutDesktop
+            currentTopicValue={currentTopicValue}
+            topic={currentTopic}
+            viewMode="neg"
           />
         </Show>
       </div>
