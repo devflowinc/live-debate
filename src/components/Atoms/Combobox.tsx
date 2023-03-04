@@ -9,19 +9,19 @@ import {
   onCleanup,
 } from "solid-js";
 import { FiExternalLink } from "solid-icons/fi";
+import { FaSolidCheck } from "solid-icons/fa";
 
 export interface comboboxItem {
   name: string;
+  eventId: string;
   link?: string;
-  id: string;
   [key: string]: unknown;
 }
 
 export interface ComboboxProps {
   options: Accessor<comboboxItem[]>;
-  // selected: Accessor<comboboxItem[]>;
-  // onSelect: (option: nameAndAny) => void;
-  // onRemove: (option: nameAndAny) => void;
+  selected: Accessor<comboboxItem[]>;
+  onSelect: (option: comboboxItem) => void;
   aboveOptionsElement?: JSXElement | null;
 }
 
@@ -30,13 +30,22 @@ export const Combobox = (props: ComboboxProps) => {
   const [usingPanel, setUsingPanel] = createSignal(false);
   const [inputValue, setInputValue] = createSignal("");
 
-  const filteredOptions = createMemo(() => {
-    if (!inputValue()) return props.options();
-    return props
-      .options()
-      .filter((option) =>
-        option.name.toLowerCase().includes(inputValue().toLowerCase()),
+  const filteredOptionsWithSelected = createMemo(() => {
+    const selected = props.selected();
+    const optionsWithSelected = props.options().map((option) => {
+      const isSelected = selected.some(
+        (selectedOption) => selectedOption.eventId === option.eventId,
       );
+      return {
+        ...option,
+        isSelected,
+      };
+    });
+
+    if (!inputValue()) return optionsWithSelected;
+    return optionsWithSelected.filter((option) =>
+      option.name.toLowerCase().includes(inputValue().toLowerCase()),
+    );
   });
 
   createEffect(() => {
@@ -80,24 +89,37 @@ export const Combobox = (props: ComboboxProps) => {
         >
           {props.aboveOptionsElement}
           <Menu class="flex w-full flex-col space-y-1 overflow-y-auto bg-gray-800 shadow-lg ring-1 ring-black ring-opacity-5 overflow-x-hidden">
-            <For each={filteredOptions()}>
-              {(option) => (
-                <MenuItem
-                  as="button"
-                  class="flex items-center justify-between rounded p-1 focus:bg-orange-500 focus:text-white focus:outline-none hover:bg-orange-500 hover:text-white"
-                >
-                  <div class="flex flex-row space-x-2">
-                    {option.link && (
-                      <span onClick={(e) => e.stopPropagation()}>
-                        <a href={option.link} target="_blank">
-                          <FiExternalLink class="text-2xl" />
-                        </a>
+            <For each={filteredOptionsWithSelected()}>
+              {(option) => {
+                const onClick = (e: Event) => {
+                  e.stopPropagation();
+                  props.onSelect(option);
+                };
+
+                return (
+                  <MenuItem
+                    as="button"
+                    class="afCombobox flex items-center justify-between rounded p-1 focus:bg-orange-500 focus:text-white focus:outline-none hover:bg-orange-500 hover:text-white"
+                    onClick={onClick}
+                  >
+                    <div class="flex flex-row space-x-2">
+                      {option.link && (
+                        <span onClick={(e) => e.stopPropagation()}>
+                          <a href={option.link} target="_blank">
+                            <FiExternalLink class="text-2xl" />
+                          </a>
+                        </span>
+                      )}
+                      <span>{option.name}</span>
+                    </div>
+                    {option.isSelected && (
+                      <span>
+                        <FaSolidCheck class="text-xl" />
                       </span>
                     )}
-                    <span>{option.name}</span>
-                  </div>
-                </MenuItem>
-              )}
+                  </MenuItem>
+                );
+              }}
             </For>
           </Menu>
         </PopoverPanel>
