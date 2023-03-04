@@ -25,7 +25,6 @@ interface CreateStatementFormProps {
 export const CreateStatementForm = (props: CreateStatementFormProps) => {
   const globalContext = useContext(GlobalContext);
   const [getStatementClaim, setStatementClaim] = createSignal("");
-  const [getStatementWarrant, setStatementWarrant] = createSignal("");
   const [getStatementImpact, setStatementImpact] = createSignal("");
   const [creating, setCreating] = createSignal(false);
   const [selectedCombboboxItems, setSelectedComboboxItems] = createSignal<
@@ -36,7 +35,7 @@ export const CreateStatementForm = (props: CreateStatementFormProps) => {
     if (!creating()) return;
     if (
       !getStatementClaim() ||
-      !getStatementWarrant() ||
+      !selectedCombboboxItems().length ||
       !getStatementImpact()
     ) {
       globalContext.createToast({
@@ -49,7 +48,7 @@ export const CreateStatementForm = (props: CreateStatementFormProps) => {
     props.onCreateStatmentCWI({
       statementCWI: {
         claim: getStatementClaim(),
-        warrant: getStatementWarrant(),
+        warrants: selectedCombboboxItems(),
         impact: getStatementImpact(),
       },
       type: props.type,
@@ -74,8 +73,6 @@ export const CreateStatementForm = (props: CreateStatementFormProps) => {
             },
             {
               label: "Warrant",
-              inputValue: getStatementWarrant,
-              setInputValue: setStatementWarrant,
               component: (
                 <Combobox
                   options={props.warrantOptions}
