@@ -52,6 +52,7 @@ import { comboboxItem } from "../Atoms/Combobox";
 export const subscribeToArguflowFeedByEventAndValue = ({
   connectedRelayContainers,
   topic,
+  rowType,
   onStatementReceived,
   onRebuttalReceived,
   onCounterArgumentReceived,
@@ -60,6 +61,7 @@ export const subscribeToArguflowFeedByEventAndValue = ({
   onWarrantReceived,
 }: {
   topic: Topic;
+  rowType: "aff" | "neg";
   connectedRelayContainers: RelayContainer[];
   onStatementReceived: ({
     statementCWI,
@@ -160,7 +162,7 @@ export const subscribeToArguflowFeedByEventAndValue = ({
 
       const statementCWI: unknown =
         "statementCWI" in content && content.statementCWI;
-      if (implementsCWI(statementCWI)) {
+      if (implementsCWI(statementCWI) && type === rowType) {
         const cwi: CWI = statementCWI;
         onStatementReceived({
           statementCWI: cwi,
@@ -337,6 +339,7 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
     subscribeToArguflowFeedByEventAndValue({
       connectedRelayContainers: unusedConnectedRelayContainers,
       topic: topic,
+      rowType: props.viewMode,
       onSubscriptionCreated: (name) => {
         setSubscribedToValueOnRelay((prev) => {
           return [...prev, name];
