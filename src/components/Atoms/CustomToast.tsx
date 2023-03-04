@@ -41,7 +41,7 @@ export const CustomToast = (props: ToastProps) => {
   return (
     <Transition
       show={isOpen()}
-      class={`relative rounded-lg ${
+      class={`relative my-2 rounded-lg ${
         props.type === "error" ? "bg-rose-900" : "bg-green-900"
       } p-4 transition`}
       enter="ease-out duration-300"
