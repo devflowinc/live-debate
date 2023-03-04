@@ -311,7 +311,7 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
       return {
         name: warrant.warrantContent.name,
         link: warrant.warrantContent.link,
-        id: warrant.event.id,
+        eventId: warrant.event.id,
       } as comboboxItem;
     });
   });

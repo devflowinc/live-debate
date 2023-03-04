@@ -28,6 +28,9 @@ export const CreateStatementForm = (props: CreateStatementFormProps) => {
   const [getStatementWarrant, setStatementWarrant] = createSignal("");
   const [getStatementImpact, setStatementImpact] = createSignal("");
   const [creating, setCreating] = createSignal(false);
+  const [selectedCombboboxItems, setSelectedComboboxItems] = createSignal<
+    comboboxItem[]
+  >([]);
 
   createEffect(() => {
     if (!creating()) return;
@@ -76,6 +79,20 @@ export const CreateStatementForm = (props: CreateStatementFormProps) => {
               component: (
                 <Combobox
                   options={props.warrantOptions}
+                  selected={selectedCombboboxItems}
+                  onSelect={(option: comboboxItem) => {
+                    setSelectedComboboxItems((prev) => {
+                      const prevIncludesOption = prev.find((prevOption) => {
+                        return prevOption.eventId === option.eventId;
+                      });
+                      if (!prevIncludesOption) {
+                        return [option, ...prev];
+                      }
+                      return prev.filter(
+                        (prevOption) => prevOption.eventId !== option.eventId,
+                      );
+                    });
+                  }}
                   aboveOptionsElement={
                     <CreateWarrantForm
                       onCreateWarrant={props.onCreateWarrant}
