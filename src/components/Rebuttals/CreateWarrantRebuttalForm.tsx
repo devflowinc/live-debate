@@ -3,6 +3,9 @@ import { Accessor, createEffect, createSignal, useContext } from "solid-js";
 import InputRowsForm from "../Atoms/InputRowsForm";
 import { CreateRebuttalParams } from "./types";
 import { GlobalContext } from "~/contexts/GlobalContext";
+import { Combobox, comboboxItem } from "../Atoms/Combobox";
+import { CreateWarrantParams } from "../Warrants/types";
+import { CreateWarrantForm } from "../Warrants/CreateWarrantFormWithButton";
 
 export interface CreateWarrantRebuttalFormProps {
   previousEvent: Accessor<Event | undefined>;
@@ -11,19 +14,23 @@ export interface CreateWarrantRebuttalFormProps {
     previousEvent,
     rebuttalContent,
   }: CreateRebuttalParams) => void;
+  warrantOptions: Accessor<comboboxItem[]>;
+  onCreateWarrant: ({ warrantContent }: CreateWarrantParams) => void;
 }
 
 export const CreateWarrantRebuttalForm = (
   props: CreateWarrantRebuttalFormProps,
 ) => {
   const globalContext = useContext(GlobalContext);
-  const [getCounterWarrant, setCounterWarrant] = createSignal("");
+  const [selectedComboboxItems, setSelectedComboboxItems] = createSignal<
+    comboboxItem[]
+  >([]);
   const [getDescription, setDescription] = createSignal("");
   const [creating, setCreating] = createSignal(false);
 
   createEffect(() => {
     if (!creating()) return;
-    if (getDescription() === "" || getCounterWarrant() === "") {
+    if (getDescription() === "" || !selectedComboboxItems().length) {
       globalContext.createToast({
         type: "error",
         message: "Please fill out all fields",
@@ -42,7 +49,7 @@ export const CreateWarrantRebuttalForm = (
     }
     props.onCreateWarrantRebuttal({
       rebuttalContent: {
-        counterWarrant: getCounterWarrant(),
+        counterWarrants: selectedComboboxItems(),
         description: getDescription(),
       },
       previousEvent: previousEvent,
@@ -57,9 +64,31 @@ export const CreateWarrantRebuttalForm = (
           createButtonText="Create Warrant Rebuttal"
           inputGroups={[
             {
-              label: "Counter Warrant",
-              inputValue: getCounterWarrant,
-              setInputValue: setCounterWarrant,
+              label: "Counter Warrants",
+              component: (
+                <Combobox
+                  options={props.warrantOptions}
+                  selected={selectedComboboxItems}
+                  onSelect={(option: comboboxItem) => {
+                    setSelectedComboboxItems((prev) => {
+                      const prevIncludesOption = prev.find((prevOption) => {
+                        return prevOption.eventId === option.eventId;
+                      });
+                      if (!prevIncludesOption) {
+                        return [option, ...prev];
+                      }
+                      return prev.filter(
+                        (prevOption) => prevOption.eventId !== option.eventId,
+                      );
+                    });
+                  }}
+                  aboveOptionsElement={
+                    <CreateWarrantForm
+                      onCreateWarrant={props.onCreateWarrant}
+                    />
+                  }
+                />
+              ),
             },
             {
               label: "Description",

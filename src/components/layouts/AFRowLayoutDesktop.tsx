@@ -636,7 +636,7 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
           connectedRelayContainers: connectedRelayContainers,
         });
       }
-      rebuttalContent.counterWarrant
+      rebuttalContent.counterWarrants
         ? setWarrantEventBeingRebutted(undefined)
         : setImpactEventBeingRebutted(undefined);
       globalContext.createToast({
@@ -965,6 +965,8 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
               previousEvent={warrantEventBeingRebutted}
               onCancel={() => setWarrantEventBeingRebutted(undefined)}
               onCreateWarrantRebuttal={onCreateRebuttal}
+              warrantOptions={warrantComboboxItems}
+              onCreateWarrant={onCreateWarrant}
             />
           )}
           {impactEventBeingRebutted() && (

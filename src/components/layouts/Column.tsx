@@ -15,7 +15,7 @@ export const Column = (props: ColumnProps) => {
 
   return (
     <div onClick={onCloseClickFunction} classList={props.classList}>
-      <div class="overflow-y-auto p-3 scrollbar-thin scrollbar-track-gray-900 scrollbar-thumb-gray-700">
+      <div class="h-full overflow-y-auto p-3 scrollbar-thin scrollbar-track-gray-900 scrollbar-thumb-gray-700">
         {props.visible && props.children}
       </div>
     </div>

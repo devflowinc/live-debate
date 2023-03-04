@@ -1,8 +1,9 @@
+import { comboboxItem } from "../Atoms/Combobox";
 import { Topic } from "../Topics/types";
 import { Event } from "nostr-tools";
 
 export interface RebuttalContent {
-  counterWarrant?: string;
+  counterWarrants?: comboboxItem[];
   description: string;
 }
 
@@ -20,7 +21,7 @@ export const implementsRebuttalContent = (
     "description" in arg &&
     typeof (arg as RebuttalContent).description === "string" &&
     ("counterWarrant" in arg
-      ? typeof (arg as RebuttalContent).counterWarrant === "string"
+      ? Array.isArray((arg as RebuttalContent).counterWarrants)
       : true)
   );
 };
