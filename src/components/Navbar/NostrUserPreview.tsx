@@ -54,6 +54,10 @@ export const getNostrUserMetadata = ({
       metadataSub.on("event", (event: Event) => {
         onMetadataReceived(event);
       });
+
+      metadataSub.on("eose", () => {
+        metadataSub.unsub();
+      });
     }
   });
 };

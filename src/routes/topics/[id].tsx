@@ -63,6 +63,10 @@ export const subscribeToArguflowTopicByEventId = ({
       isEventArguflowTopicByTags(tags) && onTopicReceived(event);
     });
 
+    topicEventSub.on("eose", () => {
+      topicEventSub.unsub();
+    });
+
     const topicRepliesEventSub = relay.sub(
       [
         {
