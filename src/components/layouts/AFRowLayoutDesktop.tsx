@@ -336,6 +336,7 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
 
     const topic = props.topic();
     if (!topic) return;
+
     subscribeToArguflowFeedByEventAndValue({
       connectedRelayContainers: unusedConnectedRelayContainers,
       topic: topic,
@@ -912,7 +913,7 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
           classList={getClassNamesList(0)}
           visible={expandedColumns().includes(0)}
         >
-          <div class="flex h-full flex-col justify-between space-y-2">
+          <div class="flex h-full flex-col space-y-2">
             <div class="flex flex-col space-y-2">
               {!showStatementForm() && (
                 <AddStatementButton
