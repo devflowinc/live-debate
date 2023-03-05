@@ -21,15 +21,10 @@ import { CustomToast } from "~/components/Atoms/CustomToast";
 import { AFRowLayoutDesktop } from "~/components/layouts/AFRowLayoutDesktop";
 
 export const isEventArguflowValueByTags = (tags: string[][]): boolean => {
-  let foundArguflow = false;
-  let foundArguflowTopicValue = false;
-  tags.forEach((tag) => {
-    if (tag[0] === "arguflow") foundArguflow = true;
-    if (tag[0] === "arguflow-topic-value") foundArguflowTopicValue = true;
-  });
-
-  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-  return foundArguflow && foundArguflowTopicValue;
+  return (
+    tags.some((tag) => tag[0] === "arguflow") &&
+    tags.some((tag) => tag[0] === "arguflow-topic-value")
+  );
 };
 
 export const subscribeToArguflowTopicByEventId = ({
@@ -90,9 +85,6 @@ export const subscribeToArguflowTopicByEventId = ({
 const TopicDetail = () => {
   const [currentTopic, setCurrentTopic] = createSignal<Topic | null>(null);
   const [selectedTopic, setSelectedTopic] = createSignal<number>(0);
-  const [subscribedToTopicOnRelay, setSubscribedToTopicOnRelay] = createSignal<
-    string[]
-  >([]);
   const [topicValues, setTopicValues] = createSignal<TopicValue[]>([]);
   const [showCreateValueForm, setShowCreateValueForm] =
     createSignal<boolean>(false);
@@ -117,32 +109,22 @@ const TopicDetail = () => {
     const connectedRelayContainers = globalContext
       .relays()
       .filter((relay) => relay.connected);
-    const unusedConnectedRelayContainers = connectedRelayContainers.filter(
-      (relay) =>
-        !subscribedToTopicOnRelay().find(
-          (relayName) => relayName === relay.name,
-        ),
-    );
 
     subscribeToArguflowTopicByEventId({
       eventId: params.id,
-      connectedRelayContainers: unusedConnectedRelayContainers,
-      onSubscriptionCreated: (relayName) => {
-        setSubscribedToTopicOnRelay((current) => [...current, relayName]);
-      },
+      connectedRelayContainers: connectedRelayContainers,
       onTopicReceived: (topic) => {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        const content = JSON.parse(topic.content);
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
-        const topicQuestion = content.name;
+        const content: unknown = JSON.parse(topic.content);
+        if (typeof content !== "object" || !content) return;
+        const topicQuestion = "name" in content && content.name;
         if (!topicQuestion || typeof topicQuestion !== "string") return;
 
-        if (
-          currentTopic() ||
-          currentTopic()?.event ||
-          currentTopic()?.event.id === params.id
-        )
+        if (!topicQuestion) return;
+        if (!topicQuestion || typeof topicQuestion !== "string") return;
+
+        if (currentTopic()?.event.id === params.id) {
           return;
+        }
 
         setCurrentTopic({
           event: topic,
@@ -151,19 +133,13 @@ const TopicDetail = () => {
         });
       },
       onValueReceived: (value) => {
-        // TODO maybe use zod for this?
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        const content = JSON.parse(value.content);
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
-        const valueName = content.name;
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
-        const valueDescription = content.description;
-        if (
-          !valueName ||
-          typeof valueName !== "string" ||
-          typeof valueDescription !== "string"
-        )
-          return;
+        const content: unknown = JSON.parse(value.content);
+        if (typeof content !== "object" || !content) return;
+        const valueName = "name" in content && content.name;
+        if (!valueName || typeof valueName !== "string") return;
+        const valueDescription =
+          "description" in content && content.description;
+        if (!valueDescription || typeof valueDescription !== "string") return;
 
         if (topicValues().find((topicValue) => topicValue.name === valueName))
           return;
@@ -260,20 +236,20 @@ const TopicDetail = () => {
             )}
           </div>
         </div>
-        <Show when={currentTopic() != null}>
-          <AFRowLayoutDesktop
-            currentTopicValue={currentTopicValue}
-            topic={currentTopic}
-            viewMode="aff"
-          />
-        </Show>
-        <Show when={currentTopic() != null}>
-          <AFRowLayoutDesktop
-            currentTopicValue={currentTopicValue}
-            topic={currentTopic}
-            viewMode="neg"
-          />
-        </Show>
+        {currentTopic() && (
+          <>
+            <AFRowLayoutDesktop
+              currentTopicValue={currentTopicValue}
+              topic={currentTopic}
+              viewMode="aff"
+            />
+            <AFRowLayoutDesktop
+              currentTopicValue={currentTopicValue}
+              topic={currentTopic}
+              viewMode="neg"
+            />
+          </>
+        )}
       </div>
       <Toaster class="fixed-0 absolute left-0 bottom-0 m-4">
         <Show when={notifs().length > 0}>

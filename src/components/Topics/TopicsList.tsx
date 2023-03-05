@@ -1,4 +1,4 @@
-import { useContext, For } from "solid-js";
+import { useContext, For, createEffect } from "solid-js";
 import { GlobalContext, RelayContainer } from "~/contexts/GlobalContext";
 import { Event } from "nostr-tools";
 import { A } from "solid-start";
@@ -27,7 +27,7 @@ export const isEventArguflowValueByTags = (tags: string[][]): boolean => {
   return foundArguflow && foundArguflowTopicValue;
 };
 
-export const subscribeToArguflowTopicsForPublickKey = ({
+export const subscribeToArguflowTopicsForPublicKey = ({
   publicKey,
   connectedRelayContainers,
   onTopicReceived,
@@ -37,43 +37,44 @@ export const subscribeToArguflowTopicsForPublickKey = ({
   onTopicReceived: (topic: Event) => void;
 }) => {
   connectedRelayContainers.forEach((relayContainer) => {
-    if (relayContainer.relay) {
-      const relay = relayContainer.relay;
-      const metadataSub = relay.sub(
-        [
-          {
-            authors: [publicKey],
-            kinds: [40],
-          },
-        ],
-        {
-          skipVerification: true,
-        },
-      );
+    if (!relayContainer.relay) return;
 
-      metadataSub.on("event", (event: Event) => {
-        const tags = event.tags;
-        isEventArguflowTopicByTags(tags) && onTopicReceived(event);
-      });
-    }
+    const relay = relayContainer.relay;
+    const metadataSub = relay.sub(
+      [
+        {
+          authors: [publicKey],
+          kinds: [40],
+        },
+      ],
+      {
+        skipVerification: true,
+      },
+    );
+
+    metadataSub.on("event", (event: Event) => {
+      const tags = event.tags;
+      isEventArguflowTopicByTags(tags) && onTopicReceived(event);
+    });
   });
 };
 
 const TopicsList = () => {
   const globalContext = useContext(GlobalContext);
 
-  if (
-    globalContext.relays &&
-    globalContext.connectedUser &&
-    globalContext.connectedUser()?.publicKey
-  ) {
-    const connectedRelayContainers = globalContext
-      .relays()
-      .filter((relay) => relay.connected);
-    const userPublicKey = globalContext.connectedUser()?.publicKey;
+  createEffect(() => {
+    if (
+      globalContext.relays &&
+      globalContext.connectedUser &&
+      globalContext.connectedUser()?.publicKey
+    ) {
+      const connectedRelayContainers = globalContext
+        .relays()
+        .filter((relay) => relay.connected);
+      const userPublicKey = globalContext.connectedUser()?.publicKey;
+      if (!userPublicKey) return;
 
-    if (userPublicKey) {
-      subscribeToArguflowTopicsForPublickKey({
+      subscribeToArguflowTopicsForPublicKey({
         publicKey: userPublicKey,
         connectedRelayContainers: connectedRelayContainers,
         onTopicReceived: (topicEvent: Event) => {
@@ -89,19 +90,21 @@ const TopicsList = () => {
             return;
 
           if (topicQuestion && typeof topicQuestion === "string") {
-            globalContext.userTopics?.() &&
+            const currentUserTopics = globalContext.userTopics?.();
+            if (Array.isArray(currentUserTopics)) {
               globalContext.setUserTopics([
                 {
                   event: topicEvent,
                   title: topicQuestion,
                 },
-                ...globalContext.userTopics(),
+                ...currentUserTopics,
               ]);
+            }
           }
         },
       });
     }
-  }
+  });
 
   return (
     <div class="flex w-full flex-col items-center justify-center space-y-2 px-2">
