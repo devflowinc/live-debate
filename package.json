@@ -7,6 +7,7 @@
     "lint": "eslint src --ext .ts",
     "lint:fix": "pnpm run lint --fix"
   },
+  "license": "AGPL-3.0",
   "type": "module",
   "devDependencies": {
     "@tailwindcss/line-clamp": "^0.4.2",
