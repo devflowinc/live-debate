@@ -84,7 +84,7 @@ export const ScrollRelevantElementsIntoViewButton = (
         );
         scrollElementsIntoView({
           statementId: props.statementId,
-          typesToScrollIntoView: ["statement", "rebuttal"],
+          typesToScrollIntoView: props.typesToScrollIntoView,
         });
       }}
     >
