@@ -11,7 +11,7 @@ import { CreateCounterArgumentParams } from "./types";
 import { GlobalContext } from "~/contexts/GlobalContext";
 import { implementsRebuttalContent } from "../Rebuttals/types";
 import { Combobox, comboboxItem } from "../Atoms/Combobox";
-import { CreateWarrantForm } from "../Warrants/CreateWarrantFormWithButton";
+import { CreateWarrantFormWithButton } from "../Warrants/CreateWarrantFormWithButton";
 import { CreateWarrantParams } from "../Warrants/types";
 
 export interface CreateCounterArgumentFormProps {
@@ -37,9 +37,22 @@ export const CreateCounterArgumentForm = (
   const warrantOrImpact = createMemo((): "warrant" | "impact" => {
     const previousEvent = props.previousEvent();
     if (!previousEvent) return "impact";
-    const previousEventContent = previousEvent.content;
-    if (implementsRebuttalContent(previousEventContent)) {
-      return previousEventContent.counterWarrants ? "warrant" : "impact";
+    const previousEventContent: unknown = JSON.parse(previousEvent.content);
+    if (previousEventContent && typeof previousEventContent !== "object")
+      return "impact";
+    if (!("rebuttalContent" in (previousEventContent as object)))
+      return "impact";
+    const previousEventRebuttalContent: unknown = (
+      previousEventContent as {
+        rebuttalContent: unknown;
+      }
+    ).rebuttalContent;
+
+    if (implementsRebuttalContent(previousEventRebuttalContent)) {
+      return previousEventRebuttalContent.counterWarrants &&
+        previousEventRebuttalContent.counterWarrants.length > 0
+        ? "warrant"
+        : "impact";
     }
     return "impact";
   });
@@ -75,7 +88,7 @@ export const CreateCounterArgumentForm = (
   return (
     <div>
       {props.previousEvent() ? (
-        warrantOrImpact() === "warrant" ? (
+        warrantOrImpact() === "impact" ? (
           <InputRowsForm
             createButtonText="Create Impact CounterArgument"
             inputGroups={[
@@ -94,7 +107,7 @@ export const CreateCounterArgumentForm = (
             createButtonText="Create Warrant CounterArgument"
             inputGroups={[
               {
-                label: "Counter Warrant",
+                label: "Counter Warrants",
                 component: (
                   <Combobox
                     options={props.warrantOptions}
@@ -113,7 +126,7 @@ export const CreateCounterArgumentForm = (
                       });
                     }}
                     aboveOptionsElement={
-                      <CreateWarrantForm
+                      <CreateWarrantFormWithButton
                         onCreateWarrant={props.onCreateWarrant}
                       />
                     }

@@ -3,11 +3,13 @@ import { CreateWarrantParams } from "./types";
 import { createEffect, createSignal, useContext } from "solid-js";
 import InputRowsForm from "../Atoms/InputRowsForm";
 
-export interface CreateWarrantFormProps {
+export interface CreateWarrantFormWithButtonProps {
   onCreateWarrant: ({ warrantContent }: CreateWarrantParams) => void;
 }
 
-export const CreateWarrantForm = (props: CreateWarrantFormProps) => {
+export const CreateWarrantFormWithButton = (
+  props: CreateWarrantFormWithButtonProps,
+) => {
   const globalContext = useContext(GlobalContext);
   const [getName, setName] = createSignal("");
   const [getLink, setLink] = createSignal("");
