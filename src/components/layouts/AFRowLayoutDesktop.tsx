@@ -945,14 +945,26 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
                     <StatementCWIView
                       statement={statementCWI}
                       onWarrantRebuttalClick={() => {
-                        setWarrantEventBeingRebutted((previous) =>
-                          previous ? undefined : statementCWI.event,
+                        globalContext.setHighlightedEventId(
+                          statementCWI.event.id,
                         );
+                        setWarrantEventBeingRebutted((previous) => {
+                          const unset = previous
+                            ? previous.id === statementCWI.event.id
+                            : false;
+                          return unset ? undefined : statementCWI.event;
+                        });
                       }}
                       onImpactRebuttalClick={() => {
-                        setImpactEventBeingRebutted((previous) =>
-                          previous ? undefined : statementCWI.event,
+                        globalContext.setHighlightedEventId(
+                          statementCWI.event.id,
                         );
+                        setImpactEventBeingRebutted((previous) => {
+                          const unset = previous
+                            ? previous.id === statementCWI.event.id
+                            : false;
+                          return unset ? undefined : statementCWI.event;
+                        });
                       }}
                       highlighted={
                         globalContext.highlightedEventId?.() ===
@@ -974,7 +986,10 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
             <div class="mb-2">
               <CreateWarrantRebuttalForm
                 previousEvent={warrantEventBeingRebutted}
-                onCancel={() => setWarrantEventBeingRebutted(undefined)}
+                onCancel={() => {
+                  globalContext.setHighlightedEventId("");
+                  setWarrantEventBeingRebutted(undefined);
+                }}
                 onCreateWarrantRebuttal={onCreateRebuttal}
                 warrantOptions={warrantComboboxItems}
                 onCreateWarrant={onCreateWarrant}
@@ -985,7 +1000,10 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
             <div class="mb-2">
               <CreateImpactRebuttalForm
                 previousEvent={impactEventBeingRebutted}
-                onCancel={() => setImpactEventBeingRebutted(undefined)}
+                onCancel={() => {
+                  globalContext.setHighlightedEventId("");
+                  setImpactEventBeingRebutted(undefined);
+                }}
                 onCreateImpactRebuttal={onCreateRebuttal}
               />
             </div>
@@ -1005,9 +1023,15 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
                       <RebuttalView
                         rebuttal={rebuttal}
                         onCounterArgumentClick={() => {
-                          setEventBeingCounterArgued((previous) =>
-                            previous ? undefined : rebuttal.event,
+                          globalContext.setHighlightedEventId(
+                            rebuttalGroup[0].originalStatementEventId,
                           );
+                          setEventBeingCounterArgued((previous) => {
+                            const unset = previous
+                              ? previous.id === rebuttal.event.id
+                              : false;
+                            return unset ? undefined : rebuttal.event;
+                          });
                         }}
                         highlighted={
                           globalContext.highlightedEventId?.() ===
@@ -1030,7 +1054,10 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
             <div class="mb-2">
               <CreateCounterArgumentForm
                 previousEvent={eventBeingCounterArgued}
-                onCancel={() => setEventBeingCounterArgued(undefined)}
+                onCancel={() => {
+                  globalContext.setHighlightedEventId("");
+                  setEventBeingCounterArgued(undefined);
+                }}
                 onCreateCounterArgument={onCreateCounterArgument}
                 warrantOptions={warrantComboboxItems}
                 onCreateWarrant={onCreateWarrant}
@@ -1057,6 +1084,9 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
                           counterArgument.counterArgumentContent
                         }
                         onSummaryClick={() => {
+                          globalContext.setHighlightedEventId(
+                            counterArgumentGroup[0].previousEventId,
+                          );
                           setEventBeingSummarized((previous) => {
                             return previous ? undefined : counterArgument.event;
                           });
@@ -1082,7 +1112,10 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
             <div class="mb-2">
               <CreateSummaryForm
                 previousEvent={eventBeingSummarized}
-                onCancel={() => setEventBeingSummarized(undefined)}
+                onCancel={() => {
+                  globalContext.setHighlightedEventId("");
+                  setEventBeingSummarized(undefined);
+                }}
                 onCreateSummary={onCreateSummary}
               />
             </div>
