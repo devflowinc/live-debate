@@ -133,7 +133,7 @@ const RelayStoreContext = (props: GlobalStoreContextProps) => {
           <div class="max-w-[70%] rounded-lg bg-black px-8 py-4 text-red-500">
             You need to install{` `}
             <a
-              href="https://github.com/fiatjaf/nos2x"
+              href="https://chrome.google.com/webstore/detail/nos2x/kpgefcfmnafjgpblomihpgmejjdanjjp"
               target="_blank"
               referrerPolicy="no-referrer"
               class="text-red-300 underline"
@@ -142,7 +142,7 @@ const RelayStoreContext = (props: GlobalStoreContextProps) => {
             </a>
             {` `} or{` `}
             <a
-              href="https://diegogurpegui.com/nos2x-fox/"
+              href="https://addons.mozilla.org/en-US/firefox/addon/nos2x-fox/"
               target="_blank"
               referrerPolicy="no-referrer"
               class="text-red-300 underline"
