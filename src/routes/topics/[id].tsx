@@ -228,7 +228,7 @@ const TopicDetail = () => {
                   setShowCreateValueForm={setShowCreateValueForm}
                 />
               </div>
-              <div class="max-w-[50%] text-center text-2xl text-white">
+              <div class="max-w-[50%] animate-pulse text-center text-2xl text-white">
                 {currentTopic() ? currentTopic()?.title : "Loading..."}
               </div>
             </div>
