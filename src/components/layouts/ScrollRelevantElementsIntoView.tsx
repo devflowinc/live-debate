@@ -75,7 +75,7 @@ export const ScrollRelevantElementsIntoViewButton = (
   return (
     <button
       type="button"
-      class="h-fit rounded-full border border-yellow-500 p-1 text-yellow-500"
+      class="h-fit w-fit rounded-full border border-yellow-500 p-1 text-yellow-500"
       onClick={() => {
         globalContext.setHighlightedEventId(
           globalContext.highlightedEventId?.() === props.statementId
