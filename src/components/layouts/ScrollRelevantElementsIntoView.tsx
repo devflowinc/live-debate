@@ -1,7 +1,8 @@
-export const scrollElementsIntoView = ({
-  statementId,
-  typesToScrollIntoView,
-}: {
+import { VsEye } from "solid-icons/vs";
+import { useContext } from "solid-js";
+import { GlobalContext } from "~/contexts/GlobalContext";
+
+export interface ScrollRelevantElementsIntoViewProps {
   statementId: string;
   typesToScrollIntoView: (
     | "statement"
@@ -9,7 +10,12 @@ export const scrollElementsIntoView = ({
     | "counterargument"
     | "summary"
   )[];
-}): void => {
+}
+
+export const scrollElementsIntoView = ({
+  statementId,
+  typesToScrollIntoView,
+}: ScrollRelevantElementsIntoViewProps): void => {
   if (typesToScrollIntoView.includes("statement")) {
     const statementElementId = `statement-${statementId}`;
     const statementElement = document.getElementById(statementElementId);
@@ -59,4 +65,30 @@ export const scrollElementsIntoView = ({
       });
     }
   }
+};
+
+export const ScrollRelevantElementsIntoViewButton = (
+  props: ScrollRelevantElementsIntoViewProps,
+) => {
+  const globalContext = useContext(GlobalContext);
+
+  return (
+    <button
+      type="button"
+      class="h-fit rounded-full border border-yellow-500 p-1 text-yellow-500"
+      onClick={() => {
+        globalContext.setHighlightedEventId(
+          globalContext.highlightedEventId?.() === props.statementId
+            ? ""
+            : props.statementId,
+        );
+        scrollElementsIntoView({
+          statementId: props.statementId,
+          typesToScrollIntoView: props.typesToScrollIntoView,
+        });
+      }}
+    >
+      <VsEye />
+    </button>
+  );
 };

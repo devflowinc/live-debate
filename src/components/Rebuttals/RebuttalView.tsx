@@ -1,11 +1,12 @@
-import { VsEye, VsReply } from "solid-icons/vs";
+import { VsReply } from "solid-icons/vs";
 import { For } from "solid-js";
 import { Rebuttal } from "./types";
-import { scrollElementsIntoView } from "../layouts/ScrollRelevantElementsIntoView";
+import { ScrollRelevantElementsIntoViewButton } from "../layouts/ScrollRelevantElementsIntoView";
 
 export interface RebuttalViewProps {
   rebuttal: Rebuttal;
   onCounterArgumentClick: () => void;
+  highlighted?: boolean;
 }
 
 export const RebuttalView = (props: RebuttalViewProps) => {
@@ -16,6 +17,7 @@ export const RebuttalView = (props: RebuttalViewProps) => {
           true,
         "border-orange-500": !!props.rebuttal.rebuttalContent.counterWarrants,
         "border-fuchsia-500": !props.rebuttal.rebuttalContent.counterWarrants,
+        "bg-neutral-900": props.highlighted,
       }}
     >
       <div class="flex w-full flex-row items-center justify-between">
@@ -61,18 +63,10 @@ export const RebuttalView = (props: RebuttalViewProps) => {
         </button>
       </div>
       <div class="flex flex-row space-x-2">
-        <button
-          type="button"
-          class="h-fit rounded-full border border-yellow-500 p-1 text-yellow-500"
-          onClick={() => {
-            scrollElementsIntoView({
-              statementId: props.rebuttal.originalStatementEventId,
-              typesToScrollIntoView: ["statement", "counterargument"],
-            });
-          }}
-        >
-          <VsEye />
-        </button>
+        <ScrollRelevantElementsIntoViewButton
+          statementId={props.rebuttal.originalStatementEventId}
+          typesToScrollIntoView={["statement", "counterargument", "summary"]}
+        />
       </div>
     </div>
   );

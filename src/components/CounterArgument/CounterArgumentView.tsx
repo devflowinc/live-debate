@@ -1,6 +1,5 @@
-import { VsEye } from "solid-icons/vs";
 import { CounterArgumentContent } from "./types";
-import { scrollElementsIntoView } from "../layouts/ScrollRelevantElementsIntoView";
+import { ScrollRelevantElementsIntoViewButton } from "../layouts/ScrollRelevantElementsIntoView";
 import { AiOutlineFunnelPlot } from "solid-icons/ai";
 import { For } from "solid-js";
 
@@ -8,16 +7,18 @@ export interface CounterArgumentViewProps {
   originalStatementId: string;
   counterArgumentContent: CounterArgumentContent;
   onSummaryClick: () => void;
+  highlighted?: boolean;
 }
 
 export const CounterArgumentView = (props: CounterArgumentViewProps) => {
   return (
     <div
-      class={`flex flex-col space-y-2 rounded-md border-2 p-2 text-white ${
-        props.counterArgumentContent.counterWarrants
-          ? "border-orange-500"
-          : "border-fuchsia-500"
-      }`}
+      classList={{
+        "flex flex-col space-y-2 rounded-md border-2 p-2 text-white": true,
+        "border-orange-500": !!props.counterArgumentContent.counterWarrants,
+        "border-fuchsia-500": !props.counterArgumentContent.counterWarrants,
+        "bg-neutral-900": props.highlighted,
+      }}
     >
       <div class="flex w-full flex-row items-center justify-between">
         <div class="grid grid-cols-[18px_1fr]">
@@ -56,20 +57,10 @@ export const CounterArgumentView = (props: CounterArgumentViewProps) => {
           <AiOutlineFunnelPlot />
         </button>
       </div>
-      <div class="flex flex-row space-x-2">
-        <button
-          type="button"
-          class="h-fit rounded-full border border-yellow-500 p-1 text-yellow-500"
-          onClick={() => {
-            scrollElementsIntoView({
-              statementId: props.originalStatementId,
-              typesToScrollIntoView: ["statement", "rebuttal"],
-            });
-          }}
-        >
-          <VsEye />
-        </button>
-      </div>
+      <ScrollRelevantElementsIntoViewButton
+        statementId={props.originalStatementId}
+        typesToScrollIntoView={["statement", "rebuttal", "summary"]}
+      />
     </div>
   );
 };

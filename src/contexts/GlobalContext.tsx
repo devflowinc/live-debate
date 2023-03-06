@@ -41,6 +41,8 @@ export interface GlobalStoreProviderType {
   setUserTopics: (topics: Topic[]) => void;
   toasterStore: ToasterStore<ToastContent>;
   createToast: ({ message, type }: ToastContent) => void;
+  highlightedEventId: Accessor<string> | null;
+  setHighlightedEventId: (eventId: string | null) => void;
 }
 
 export const GlobalContext = createContext<GlobalStoreProviderType>(
@@ -48,6 +50,7 @@ export const GlobalContext = createContext<GlobalStoreProviderType>(
     connectedUser: null,
     relays: null,
     userTopics: null,
+    highlightedEventId: null,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     setConnectedUser: (user: User) => {},
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -57,6 +60,8 @@ export const GlobalContext = createContext<GlobalStoreProviderType>(
     toasterStore: new ToasterStore<ToastContent>(),
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     createToast: ({ message, type }: ToastContent) => {},
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    setHighlightedEventId: (eventId: string | null) => {},
   },
   {},
 );
@@ -64,6 +69,7 @@ export const GlobalContext = createContext<GlobalStoreProviderType>(
 const RelayStoreContext = (props: GlobalStoreContextProps) => {
   const [hasNostrInWindow, setHasNostrInWindow] = createSignal(false);
   const [connectedUser, setConnectedUser] = createSignal<User | null>(null);
+  const [highlightedEventId, setHighlightedEventId] = createSignal<string>("");
   const [userTopics, setUserTopics] = createSignal<Topic[]>([]);
   const [relayStore, setRelayStore] = createSignal<RelayContainer[]>([
     {
@@ -78,7 +84,8 @@ const RelayStoreContext = (props: GlobalStoreContextProps) => {
   const globalStoreProvider = {
     connectedUser,
     relays: relayStore,
-    userTopics: userTopics,
+    userTopics,
+    highlightedEventId,
     setConnectedUser: (user: User) => {
       setConnectedUser(user);
     },
@@ -98,16 +105,15 @@ const RelayStoreContext = (props: GlobalStoreContextProps) => {
         });
       });
     },
-    setUserTopics: (topics: Topic[]) => {
-      setUserTopics(topics);
-    },
-    toasterStore: toasterStore,
+    setUserTopics,
+    toasterStore,
     createToast: ({ message, type }: ToastContent) => {
       toasterStore.create({
         message,
         type,
       });
     },
+    setHighlightedEventId,
   };
 
   onMount(() => {

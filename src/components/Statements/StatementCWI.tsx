@@ -1,18 +1,23 @@
 import { For } from "solid-js";
 import { Statement } from "./types";
-import { VsReply, VsEye } from "solid-icons/vs";
-import { scrollElementsIntoView } from "../layouts/ScrollRelevantElementsIntoView";
+import { VsReply } from "solid-icons/vs";
+import { ScrollRelevantElementsIntoViewButton } from "../layouts/ScrollRelevantElementsIntoView";
 interface StatementCWIViewProps {
   statement: Statement;
   onWarrantRebuttalClick: () => void;
   onImpactRebuttalClick: () => void;
+  highlighted?: boolean;
 }
 
 export const StatementCWIView = (props: StatementCWIViewProps) => {
   return (
     <div
-      class="flex flex-col space-y-2 rounded-md border-2 border-indigo-500/75 p-2 text-white"
-      id={`statement-${props.statement.event.id ?? ""}`}
+      classList={{
+        "flex flex-col space-y-2 rounded-md border-2 border-indigo-500/75 p-2 text-white":
+          true,
+        "bg-neutral-900": props.highlighted,
+      }}
+      id={`statement-${props.statement.event.id}`}
     >
       <div class="flex w-full flex-col space-y-2">
         <div class="grid grid-cols-[18px_1fr] gap-y-2">
@@ -65,18 +70,10 @@ export const StatementCWIView = (props: StatementCWIViewProps) => {
         </div>
       </div>
       <div class="flex flex-row space-x-2">
-        <button
-          type="button"
-          class="h-fit rounded-full border border-yellow-500 p-1 text-yellow-500"
-          onClick={() => {
-            scrollElementsIntoView({
-              statementId: props.statement.event.id ?? "",
-              typesToScrollIntoView: ["rebuttal", "counterargument"],
-            });
-          }}
-        >
-          <VsEye />
-        </button>
+        <ScrollRelevantElementsIntoViewButton
+          statementId={props.statement.event.id}
+          typesToScrollIntoView={["rebuttal", "counterargument", "summary"]}
+        />
       </div>
     </div>
   );
