@@ -5,7 +5,7 @@ import { CreateRebuttalParams } from "./types";
 import { GlobalContext } from "~/contexts/GlobalContext";
 import { Combobox, comboboxItem } from "../Atoms/Combobox";
 import { CreateWarrantParams } from "../Warrants/types";
-import { CreateWarrantForm } from "../Warrants/CreateWarrantFormWithButton";
+import { CreateWarrantFormWithButton } from "../Warrants/CreateWarrantFormWithButton";
 
 export interface CreateWarrantRebuttalFormProps {
   previousEvent: Accessor<Event | undefined>;
@@ -83,7 +83,7 @@ export const CreateWarrantRebuttalForm = (
                     });
                   }}
                   aboveOptionsElement={
-                    <CreateWarrantForm
+                    <CreateWarrantFormWithButton
                       onCreateWarrant={props.onCreateWarrant}
                     />
                   }

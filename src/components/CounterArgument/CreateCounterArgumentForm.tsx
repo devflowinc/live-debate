@@ -11,7 +11,7 @@ import { CreateCounterArgumentParams } from "./types";
 import { GlobalContext } from "~/contexts/GlobalContext";
 import { implementsRebuttalContent } from "../Rebuttals/types";
 import { Combobox, comboboxItem } from "../Atoms/Combobox";
-import { CreateWarrantForm } from "../Warrants/CreateWarrantFormWithButton";
+import { CreateWarrantFormWithButton } from "../Warrants/CreateWarrantFormWithButton";
 import { CreateWarrantParams } from "../Warrants/types";
 
 export interface CreateCounterArgumentFormProps {
@@ -113,7 +113,7 @@ export const CreateCounterArgumentForm = (
                       });
                     }}
                     aboveOptionsElement={
-                      <CreateWarrantForm
+                      <CreateWarrantFormWithButton
                         onCreateWarrant={props.onCreateWarrant}
                       />
                     }
