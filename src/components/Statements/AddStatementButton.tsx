@@ -12,7 +12,7 @@ export const AddStatementButton = (props: {
         <div class="flex w-full justify-center">
           <div
             onClick={() => props.setShowStatementForm(true)}
-            class="flex w-fit cursor-pointer items-center space-x-2 rounded-lg border-2 border-purple-500 px-4 py-3 text-white"
+            class="flex w-fit cursor-pointer items-center space-x-2 rounded-lg border-2 border-white px-4 py-3 text-white"
           >
             <AiOutlinePlus />
             <div>Add Statement</div>
