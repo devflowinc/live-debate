@@ -19,6 +19,7 @@ import CreateValueForm from "~/components/Topics/CreateValueForm";
 import { Toaster, useToaster } from "solid-headless";
 import { CustomToast } from "~/components/Atoms/CustomToast";
 import { AFRowLayoutDesktop } from "~/components/layouts/AFRowLayoutDesktop";
+import { HiOutlineSwitchVertical } from "solid-icons/hi";
 
 export const isEventArguflowValueByTags = (tags: string[][]): boolean => {
   return (
@@ -89,6 +90,7 @@ const TopicDetail = () => {
   const [topicValues, setTopicValues] = createSignal<TopicValue[]>([]);
   const [showCreateValueForm, setShowCreateValueForm] =
     createSignal<boolean>(false);
+  const [firstRow, setFirstRow] = createSignal<"aff" | "neg">("aff");
 
   const currentTopicValue = createMemo(() => {
     if (topicValues().length == 0) {
@@ -210,6 +212,78 @@ const TopicDetail = () => {
     });
   };
 
+  const affRow = createMemo(() => {
+    if (!currentTopic()) return;
+    return (
+      <AFRowLayoutDesktop
+        currentTopicValue={currentTopicValue}
+        topic={currentTopic}
+        viewMode="aff"
+      />
+    );
+  });
+
+  const negRow = createMemo(() => {
+    if (!currentTopic()) return;
+    return (
+      <AFRowLayoutDesktop
+        currentTopicValue={currentTopicValue}
+        topic={currentTopic}
+        viewMode="neg"
+      />
+    );
+  });
+
+  const rows = createMemo(() => {
+    const currentFirstRow = firstRow();
+
+    const affRowComponent = affRow();
+    const negRowComponent = negRow();
+
+    if (!affRowComponent || !negRowComponent) return;
+
+    const flipButton = (
+      <div
+        classList={{
+          "flex flex-row justify-center": true,
+          "text-emerald-500": currentFirstRow === "aff",
+          "text-rose-500": currentFirstRow === "neg",
+        }}
+      >
+        <button
+          onClick={() =>
+            setFirstRow((current) => (current === "aff" ? "neg" : "aff"))
+          }
+          classList={{
+            "w-fit border-2 rounded-xl p-1": true,
+            "border-emerald-500": currentFirstRow === "aff",
+            "border-rose-500": currentFirstRow === "neg",
+          }}
+        >
+          <HiOutlineSwitchVertical class="h-8 w-8" />
+        </button>
+      </div>
+    );
+
+    if (currentFirstRow === "aff") {
+      return (
+        <>
+          {affRowComponent}
+          {flipButton}
+          {negRowComponent}
+        </>
+      );
+    } else {
+      return (
+        <>
+          {negRowComponent}
+          {flipButton}
+          {affRowComponent}
+        </>
+      );
+    }
+  });
+
   return (
     <ApplicationLayout>
       <div class="flex flex-col space-y-4 pb-8">
@@ -241,20 +315,7 @@ const TopicDetail = () => {
             )}
           </div>
         </div>
-        {currentTopic() && (
-          <>
-            <AFRowLayoutDesktop
-              currentTopicValue={currentTopicValue}
-              topic={currentTopic}
-              viewMode="aff"
-            />
-            <AFRowLayoutDesktop
-              currentTopicValue={currentTopicValue}
-              topic={currentTopic}
-              viewMode="neg"
-            />
-          </>
-        )}
+        {rows()}
       </div>
       <Toaster class="fixed-0 absolute left-0 bottom-0 m-4">
         <Show when={notifs().length > 0}>
