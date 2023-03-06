@@ -364,7 +364,7 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
           if (prev.find((statement) => statement.event.id === event.id)) {
             return prev;
           }
-          return [...prev, statement];
+          return [statement, ...prev];
         });
       },
       onRebuttalReceived: ({
@@ -390,7 +390,7 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
           if (prev.find((rebuttal) => rebuttal.event.id === event.id)) {
             return prev;
           }
-          return [...prev, rebuttal];
+          return [rebuttal, ...prev];
         });
       },
       onCounterArgumentReceived: ({
@@ -420,7 +420,7 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
           ) {
             return prev;
           }
-          return [...prev, counterArgument];
+          return [counterArgument, ...prev];
         });
       },
       onSummaryReceived({ type, event, previousEventId, summaryContent }) {
@@ -441,7 +441,7 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
           if (prev.find((summary) => summary.event.id === event.id)) {
             return prev;
           }
-          return [...prev, summary];
+          return [summary, ...prev];
         });
       },
       onWarrantReceived({ event, warrantContent }) {
