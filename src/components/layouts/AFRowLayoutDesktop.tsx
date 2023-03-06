@@ -889,6 +889,8 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
       setImpactEventBeingRebutted(undefined);
     } else if (!columns.includes(2)) {
       setEventBeingCounterArgued(undefined);
+    } else if (!columns.includes(3)) {
+      setEventBeingSummarized(undefined);
     }
   });
 
@@ -952,6 +954,10 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
                           previous ? undefined : statementCWI.event,
                         );
                       }}
+                      highlighted={
+                        globalContext.highlightedEventId?.() ===
+                        statementCWI.event.id
+                      }
                     />
                   </div>
                 )}
@@ -965,13 +971,15 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
           visible={expandedColumns().includes(1)}
         >
           {warrantEventBeingRebutted() && (
-            <CreateWarrantRebuttalForm
-              previousEvent={warrantEventBeingRebutted}
-              onCancel={() => setWarrantEventBeingRebutted(undefined)}
-              onCreateWarrantRebuttal={onCreateRebuttal}
-              warrantOptions={warrantComboboxItems}
-              onCreateWarrant={onCreateWarrant}
-            />
+            <div class="mb-2">
+              <CreateWarrantRebuttalForm
+                previousEvent={warrantEventBeingRebutted}
+                onCancel={() => setWarrantEventBeingRebutted(undefined)}
+                onCreateWarrantRebuttal={onCreateRebuttal}
+                warrantOptions={warrantComboboxItems}
+                onCreateWarrant={onCreateWarrant}
+              />
+            </div>
           )}
           {impactEventBeingRebutted() && (
             <div class="mb-2">
@@ -1001,6 +1009,10 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
                             previous ? undefined : rebuttal.event,
                           );
                         }}
+                        highlighted={
+                          globalContext.highlightedEventId?.() ===
+                          rebuttalGroup[0].originalStatementEventId
+                        }
                       />
                     )}
                   </For>
@@ -1049,6 +1061,10 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
                             return previous ? undefined : counterArgument.event;
                           });
                         }}
+                        highlighted={
+                          globalContext.highlightedEventId?.() ===
+                          counterArgumentGroup[0].previousEventId
+                        }
                       />
                     )}
                   </For>
@@ -1082,7 +1098,15 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
                     <div class="my-2 h-0.5 w-full bg-indigo-500" />
                   )}
                   <For each={summaryGroup}>
-                    {(summary) => <SummaryView summary={summary} />}
+                    {(summary) => (
+                      <SummaryView
+                        summary={summary}
+                        highlighted={
+                          globalContext.highlightedEventId?.() ===
+                          summaryGroup[0].originalStatementEventId
+                        }
+                      />
+                    )}
                   </For>
                 </div>
               )}
