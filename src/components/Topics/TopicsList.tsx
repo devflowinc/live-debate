@@ -40,7 +40,7 @@ export const subscribeToArguflowTopicsForPublicKey = ({
     if (!relayContainer.relay) return;
 
     const relay = relayContainer.relay;
-    const metadataSub = relay.sub(
+    const topicsSub = relay.sub(
       [
         {
           authors: [publicKey],
@@ -52,7 +52,7 @@ export const subscribeToArguflowTopicsForPublicKey = ({
       },
     );
 
-    metadataSub.on("event", (event: Event) => {
+    topicsSub.on("event", (event: Event) => {
       const tags = event.tags;
       isEventArguflowTopicByTags(tags) && onTopicReceived(event);
     });

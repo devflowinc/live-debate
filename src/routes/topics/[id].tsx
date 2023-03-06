@@ -32,19 +32,16 @@ export const subscribeToArguflowTopicByEventId = ({
   connectedRelayContainers,
   onTopicReceived,
   onValueReceived,
-  onSubscriptionCreated,
 }: {
   eventId: string;
   connectedRelayContainers: RelayContainer[];
   onTopicReceived: (topic: Event) => void;
   onValueReceived: (value: Event) => void;
-  onSubscriptionCreated?: (relayName: string) => void;
 }) => {
   connectedRelayContainers.forEach((relayContainer) => {
     if (!relayContainer.relay) {
       return;
     }
-    onSubscriptionCreated?.(relayContainer.name);
     const relay = relayContainer.relay;
     const topicEventSub = relay.sub(
       [
