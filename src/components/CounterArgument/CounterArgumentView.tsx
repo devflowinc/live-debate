@@ -20,7 +20,7 @@ export const CounterArgumentView = (props: CounterArgumentViewProps) => {
         "bg-neutral-900": props.highlighted,
       }}
     >
-      <div class="flex w-full flex-row items-center justify-between">
+      <div class="flex w-full flex-row items-center justify-between space-x-2">
         <div class="grid grid-cols-[18px_1fr]">
           {props.counterArgumentContent.counterWarrants && (
             <>
