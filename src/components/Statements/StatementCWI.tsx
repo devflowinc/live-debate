@@ -2,6 +2,8 @@ import { For } from "solid-js";
 import { Statement } from "./types";
 import { VsReply } from "solid-icons/vs";
 import { ScrollRelevantElementsIntoViewButton } from "../layouts/ScrollRelevantElementsIntoView";
+import NostrUserName from "../Atoms/NostrUserName";
+
 interface StatementCWIViewProps {
   statement: Statement;
   onWarrantRebuttalClick: () => void;
@@ -69,11 +71,12 @@ export const StatementCWIView = (props: StatementCWIViewProps) => {
           </div>
         </div>
       </div>
-      <div class="flex flex-row space-x-2">
+      <div class="flex items-center justify-between">
         <ScrollRelevantElementsIntoViewButton
           statementId={props.statement.event.id}
           typesToScrollIntoView={["rebuttal", "counterargument", "summary"]}
         />
+        <NostrUserName pubkey={props.statement.event.pubkey} />
       </div>
     </div>
   );

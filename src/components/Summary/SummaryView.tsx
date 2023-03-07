@@ -1,5 +1,6 @@
 import { ScrollRelevantElementsIntoViewButton } from "../layouts/ScrollRelevantElementsIntoView";
 import { Summary } from "./types";
+import NostrUserName from "../Atoms/NostrUserName";
 
 export interface SummaryViewProps {
   summary: Summary;
@@ -21,10 +22,13 @@ export const SummaryView = (props: SummaryViewProps) => {
           <span>{props.summary.summaryContent.description}</span>
         </div>
       </div>
-      <ScrollRelevantElementsIntoViewButton
-        statementId={props.summary.originalStatementEventId}
-        typesToScrollIntoView={["statement", "rebuttal", "counterargument"]}
-      />
+      <div class="flex items-center justify-between">
+        <ScrollRelevantElementsIntoViewButton
+          statementId={props.summary.originalStatementEventId}
+          typesToScrollIntoView={["statement", "rebuttal", "counterargument"]}
+        />
+        <NostrUserName pubkey={props.summary.event.pubkey} />
+      </div>
     </div>
   );
 };

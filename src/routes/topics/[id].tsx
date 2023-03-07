@@ -92,6 +92,8 @@ const TopicDetail = () => {
     createSignal<boolean>(false);
   const [firstRow, setFirstRow] = createSignal<"aff" | "neg">("aff");
 
+  const [topicPubKeys, setTopicPubKeys] = createSignal<string[]>([]);
+
   const currentTopicValue = createMemo(() => {
     if (topicValues().length == 0) {
       return undefined;
@@ -103,6 +105,13 @@ const TopicDetail = () => {
   const notifs = useToaster(globalContext.toasterStore);
 
   const params = useParams<{ id: string }>();
+
+  const addPubKey = (pubkey: string) => {
+    const currentPubKeys = topicPubKeys();
+    if (!currentPubKeys.includes(pubkey)) {
+      setTopicPubKeys([...currentPubKeys, pubkey]);
+    }
+  };
 
   createEffect(() => {
     if (!globalContext.relays?.().find((relay) => relay.connected)) {
@@ -117,6 +126,10 @@ const TopicDetail = () => {
       eventId: params.id,
       connectedRelayContainers: connectedRelayContainers,
       onTopicReceived: (topic) => {
+        if (!topicPubKeys().includes(topic.pubkey)) {
+          setTopicPubKeys([...topicPubKeys(), topic.pubkey]);
+        }
+        addPubKey(topic.pubkey);
         const content: unknown = JSON.parse(topic.content);
         if (typeof content !== "object" || !content) return;
         const topicQuestion = "name" in content && content.name;
@@ -136,6 +149,8 @@ const TopicDetail = () => {
         });
       },
       onValueReceived: (value) => {
+        addPubKey(value.pubkey);
+
         const content: unknown = JSON.parse(value.content);
         if (typeof content !== "object" || !content) return;
         const valueName = "name" in content && content.name;
@@ -193,6 +208,7 @@ const TopicDetail = () => {
     };
     event.id = getEventHash(event);
 
+    addPubKey(eventPublicKey);
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-explicit-any
     (window as any).nostr.signEvent(event).then((signedEvent: Event) => {
       if (globalContext.relays) {
@@ -218,6 +234,7 @@ const TopicDetail = () => {
       <AFRowLayoutDesktop
         currentTopicValue={currentTopicValue}
         topic={currentTopic}
+        addPubKey={addPubKey}
         viewMode="aff"
       />
     );
@@ -228,6 +245,7 @@ const TopicDetail = () => {
     return (
       <AFRowLayoutDesktop
         currentTopicValue={currentTopicValue}
+        addPubKey={addPubKey}
         topic={currentTopic}
         viewMode="neg"
       />
@@ -292,6 +310,18 @@ const TopicDetail = () => {
                 >
                   <HiOutlineSwitchVertical class="h-8 w-8" />
                 </button>
+              </div>
+              <div class="flex flex-col text-white">
+                <p class="font-bold">Authors:</p>
+                <For each={topicPubKeys()}>
+                  {(pubkey) => {
+                    return (
+                      <div>
+                        {pubkey.slice(0, 3)}...{pubkey.slice(-3)}
+                      </div>
+                    );
+                  }}
+                </For>
               </div>
             </div>
             {showCreateValueForm() && (
