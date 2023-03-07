@@ -491,8 +491,6 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
 
     return {
       [defaults]: true,
-      "w-[46%]": expandedColumns().includes(index),
-      "w-[2%] hover:cursor-pointer": !expandedColumns().includes(index),
     };
   };
 
@@ -928,6 +926,7 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
           onClosedClick={toggleColumnZero}
           classList={getClassNamesList(0)}
           visible={expandedColumns().includes(0)}
+          columnTitle="Initial Statements"
         >
           <div class="flex h-full flex-col space-y-2">
             <div class="flex flex-col space-y-2">
@@ -995,6 +994,7 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
           onClosedClick={toggleColumnOne}
           classList={getClassNamesList(1)}
           visible={expandedColumns().includes(1)}
+          columnTitle="Rebuttals"
         >
           {warrantEventBeingRebutted() && (
             <div class="mb-2">
@@ -1063,6 +1063,7 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
           onClosedClick={toggleColumnTwo}
           classList={getClassNamesList(2)}
           visible={expandedColumns().includes(2)}
+          columnTitle="Counter Arguments"
         >
           {eventBeingCounterArgued() && (
             <div class="mb-2">
@@ -1121,6 +1122,7 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
           onClosedClick={toggleColumnThree}
           classList={getClassNamesList(3)}
           visible={expandedColumns().includes(3)}
+          columnTitle="Summaries"
         >
           {eventBeingSummarized() && (
             <div class="mb-2">
