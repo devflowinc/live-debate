@@ -242,45 +242,10 @@ const TopicDetail = () => {
 
     if (!affRowComponent || !negRowComponent) return;
 
-    const flipButton = (
-      <div
-        classList={{
-          "flex flex-row justify-center": true,
-          "text-emerald-500": currentFirstRow === "aff",
-          "text-rose-500": currentFirstRow === "neg",
-        }}
-      >
-        <button
-          onClick={() =>
-            setFirstRow((current) => (current === "aff" ? "neg" : "aff"))
-          }
-          classList={{
-            "w-fit border-2 rounded-xl p-1": true,
-            "border-emerald-500": currentFirstRow === "aff",
-            "border-rose-500": currentFirstRow === "neg",
-          }}
-        >
-          <HiOutlineSwitchVertical class="h-8 w-8" />
-        </button>
-      </div>
-    );
-
     if (currentFirstRow === "aff") {
-      return (
-        <>
-          {affRowComponent}
-          {flipButton}
-          {negRowComponent}
-        </>
-      );
+      return <>{affRowComponent}</>;
     } else {
-      return (
-        <>
-          {negRowComponent}
-          {flipButton}
-          {affRowComponent}
-        </>
-      );
+      return <>{negRowComponent}</>;
     }
   });
 
@@ -305,6 +270,28 @@ const TopicDetail = () => {
                 ) : (
                   <span class="animate-pulse">"Loading..."</span>
                 )}
+              </div>
+              <div
+                classList={{
+                  "flex flex-row justify-center": true,
+                  "text-emerald-500": firstRow() === "aff",
+                  "text-rose-500": firstRow() === "neg",
+                }}
+              >
+                <button
+                  onClick={() =>
+                    setFirstRow((current) =>
+                      current === "aff" ? "neg" : "aff",
+                    )
+                  }
+                  classList={{
+                    "w-fit border-2 rounded-xl p-1": true,
+                    "border-emerald-500": firstRow() === "aff",
+                    "border-rose-500": firstRow() === "neg",
+                  }}
+                >
+                  <HiOutlineSwitchVertical class="h-8 w-8" />
+                </button>
               </div>
             </div>
             {showCreateValueForm() && (
