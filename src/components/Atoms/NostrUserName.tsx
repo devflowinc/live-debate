@@ -12,7 +12,6 @@ const NostrUserName = (props: NostrUserNameProps) => {
   const globalContext = useContext(GlobalContext);
   const [userName, setUserName] = createSignal<string | undefined>(undefined);
   const [userImage, setUserImage] = createSignal<string | undefined>(undefined);
-  const [userEmail, setUserEmail] = createSignal<string | undefined>(undefined);
 
   createEffect(() => {
     if (!globalContext.relays?.().find((relay) => relay.connected)) {
@@ -44,7 +43,6 @@ const NostrUserName = (props: NostrUserNameProps) => {
         const metadata = JSON.parse(event.content) as NostrUserMetadata;
         setUserName(metadata.name);
         setUserImage(metadata.picture);
-        setUserEmail(metadata.nip05);
       });
 
       metadataSub.on("eose", () => {
@@ -60,7 +58,7 @@ const NostrUserName = (props: NostrUserNameProps) => {
 
   return (
     <div class="flex items-center space-x-1">
-      <CgProfile />
+      {userImage() ? <img class="h-8 w-8" src={userImage()} /> : <CgProfile />}
       {userName() && <span>{userName()}</span>}
       {!userName() && (
         <span>
