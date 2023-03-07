@@ -15,8 +15,8 @@ export const SummaryView = (props: SummaryViewProps) => {
           true,
         "bg-neutral-900": props.highlighted,
       }}
-    >24px
-      <div class="grid grid-cols-[18px_1fr]">
+    >
+      <div class="grid grid-cols-[24px_1fr]">
         <div class="font-bold">D</div>
         <div>
           <span>{props.summary.summaryContent.description}</span>

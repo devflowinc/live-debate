@@ -22,8 +22,8 @@ export const RebuttalView = (props: RebuttalViewProps) => {
       }}
     >
       <div class="flex w-full flex-row items-center justify-between space-x-2">
-        <div class="flex flex-col spac24px2 ">
-          <div class="grid grid-cols-[18px_1fr] gap-y-2">
+        <div class="flex flex-col space-y-2 ">
+          <div class="grid grid-cols-[24px_1fr] gap-y-2">
             {!!props.rebuttal.rebuttalContent.counterWarrants && (
               <>
                 <div class="font-bold text-orange-500">W</div>
