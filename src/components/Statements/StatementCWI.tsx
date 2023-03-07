@@ -1,8 +1,8 @@
 import { For } from "solid-js";
 import { Statement } from "./types";
 import { VsReply } from "solid-icons/vs";
-import { CgProfile } from "solid-icons/cg";
 import { ScrollRelevantElementsIntoViewButton } from "../layouts/ScrollRelevantElementsIntoView";
+import NostrUserName from "../Atoms/NostrUserName";
 
 interface StatementCWIViewProps {
   statement: Statement;
@@ -76,13 +76,7 @@ export const StatementCWIView = (props: StatementCWIViewProps) => {
           statementId={props.statement.event.id}
           typesToScrollIntoView={["rebuttal", "counterargument", "summary"]}
         />
-        <div class="flex items-center space-x-1">
-          <CgProfile />
-          <p>
-            {props.statement.event.pubkey.slice(0, 3)}...
-            {props.statement.event.pubkey.slice(-3)}
-          </p>
-        </div>
+        <NostrUserName pubkey={props.statement.event.pubkey} />
       </div>
     </div>
   );

@@ -1,8 +1,8 @@
 import { CounterArgument } from "./types";
 import { ScrollRelevantElementsIntoViewButton } from "../layouts/ScrollRelevantElementsIntoView";
 import { AiOutlineFunnelPlot } from "solid-icons/ai";
-import { CgProfile } from "solid-icons/cg";
 import { For } from "solid-js";
+import NostrUserName from "../Atoms/NostrUserName";
 
 export interface CounterArgumentViewProps {
   originalStatementId: string;
@@ -72,13 +72,7 @@ export const CounterArgumentView = (props: CounterArgumentViewProps) => {
           typesToScrollIntoView={["statement", "rebuttal", "summary"]}
         />
 
-        <div class="flex items-center space-x-1">
-          <CgProfile />
-          <p>
-            {props.counterArgument.event.pubkey.slice(0, 3)}...
-            {props.counterArgument.event.pubkey.slice(-3)}
-          </p>
-        </div>
+        <NostrUserName pubkey={props.counterArgument.event.pubkey} />
       </div>
     </div>
   );

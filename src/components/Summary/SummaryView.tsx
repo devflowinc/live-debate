@@ -1,6 +1,6 @@
 import { ScrollRelevantElementsIntoViewButton } from "../layouts/ScrollRelevantElementsIntoView";
-import { CgProfile } from "solid-icons/cg";
 import { Summary } from "./types";
+import NostrUserName from "../Atoms/NostrUserName";
 
 export interface SummaryViewProps {
   summary: Summary;
@@ -27,13 +27,7 @@ export const SummaryView = (props: SummaryViewProps) => {
           statementId={props.summary.originalStatementEventId}
           typesToScrollIntoView={["statement", "rebuttal", "counterargument"]}
         />
-        <div class="flex items-center space-x-1">
-          <CgProfile />
-          <p>
-            {props.summary.event.pubkey.slice(0, 3)}...
-            {props.summary.event.pubkey.slice(-3)}
-          </p>
-        </div>
+        <NostrUserName pubkey={props.summary.event.pubkey} />
       </div>
     </div>
   );
