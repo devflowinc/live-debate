@@ -19,7 +19,7 @@ import {
 } from "~/components/Rebuttals/types";
 import { getUTCSecondsSinceEpoch } from "../Topics/TopicsDisplay";
 import { Topic, TopicValue } from "../Topics/types";
-import { StatementCWIView } from "../Statements/StatementCWI";
+import { StatementCWIView } from "../Statements/StatementCWIView";
 import { AddStatementButton } from "../Statements/AddStatementButton";
 import { Column } from "./Column";
 import { CreateWarrantRebuttalForm } from "../Rebuttals/CreateWarrantRebuttalForm";

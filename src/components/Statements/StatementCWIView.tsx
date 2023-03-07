@@ -22,7 +22,7 @@ export const StatementCWIView = (props: StatementCWIViewProps) => {
       id={`statement-${props.statement.event.id}`}
     >
       <div class="flex w-full flex-col space-y-2">
-        <div class="grid grid-cols-[18px_1fr] gap-y-2">
+        <div class="grid grid-cols-[24px_1fr] gap-y-2">
           <div class="font-bold text-blue-500">C</div>
           <div class="flex w-full flex-row items-center justify-between space-x-2 text-blue-500">
             <span>{props.statement.statementCWI.claim}</span>

@@ -24,7 +24,7 @@ export const CounterArgumentView = (props: CounterArgumentViewProps) => {
       }}
     >
       <div class="flex w-full flex-row items-center justify-between space-x-2">
-        <div class="grid grid-cols-[18px_1fr]">
+        <div class="grid grid-cols-[24px_1fr]">
           {props.counterArgument.counterArgumentContent.counterWarrants && (
             <>
               <div class="font-bold text-orange-500">W</div>
