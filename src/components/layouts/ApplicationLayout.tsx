@@ -16,7 +16,7 @@ const ApplicationLayout = (props: ApplicationLayoutProps) => {
         props.children
       ) : (
         <div class="mt-6 flex w-full justify-center px-4 text-white">
-          <div class="w-fit max-w-[75%] text-center">
+          <div class="w-fit text-center">
             Please connect your Nostr ID to use the app
           </div>
         </div>

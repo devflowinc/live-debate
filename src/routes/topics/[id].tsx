@@ -20,6 +20,7 @@ import { Toaster, useToaster } from "solid-headless";
 import { CustomToast } from "~/components/Atoms/CustomToast";
 import { AFRowLayoutDesktop } from "~/components/layouts/AFRowLayoutDesktop";
 import { HiOutlineSwitchVertical } from "solid-icons/hi";
+import NostrUserName from "~/components/Atoms/NostrUserName";
 
 export const isEventArguflowValueByTags = (tags: string[][]): boolean => {
   return (
@@ -269,11 +270,11 @@ const TopicDetail = () => {
 
   return (
     <ApplicationLayout>
-      <div class="flex flex-col space-y-4 pb-8">
+      <div class="flex flex-col space-y-4 px-4 py-2 md:px-8 md:py-4">
         <div class="mt-4 flex w-full justify-center">
-          <div class="flex w-full max-w-[75%] flex-col items-center justify-center space-y-6 rounded-lg border border-slate-600 px-8 py-4">
-            <div class="flex w-full items-center space-x-8">
-              <div class="min-w-[30%] max-w-[50%]">
+          <div class="flex w-full flex-col items-center justify-center space-y-6 rounded-lg border border-slate-600 p-2 md:px-8 md:py-4">
+            <div class="flex w-full flex-wrap items-center justify-center space-x-4 space-y-2 md:justify-between md:space-x-6 ">
+              <div class="md:min-w-[30%] md:max-w-[40%]">
                 <ValueSplitButton
                   selectedTopic={selectedTopic}
                   setSelectedTopic={setSelectedTopic}
@@ -282,7 +283,7 @@ const TopicDetail = () => {
                   setShowCreateValueForm={setShowCreateValueForm}
                 />
               </div>
-              <div class="max-w-[50%] text-center text-2xl text-white">
+              <div class="text-center text-2xl text-white md:max-w-[40%]">
                 {currentTopic() ? (
                   currentTopic()?.title
                 ) : (
@@ -315,11 +316,7 @@ const TopicDetail = () => {
                 <p class="font-bold">Authors:</p>
                 <For each={topicPubKeys()}>
                   {(pubkey) => {
-                    return (
-                      <div>
-                        {pubkey.slice(0, 3)}...{pubkey.slice(-3)}
-                      </div>
-                    );
+                    return <NostrUserName pubkey={pubkey} />;
                   }}
                 </For>
               </div>

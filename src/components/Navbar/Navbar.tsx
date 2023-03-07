@@ -9,7 +9,7 @@ const Navbar = () => {
   const globalStore = useContext(GlobalContext);
 
   return (
-    <div class="flex w-full items-center justify-between border-b border-gray-800 bg-transparent px-16 py-4">
+    <div class="flex w-full items-center justify-between border-b border-gray-800 bg-transparent p-4 md:px-16">
       <A href="/" class="text-2xl text-white">
         Arguflow
       </A>

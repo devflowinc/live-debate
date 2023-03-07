@@ -130,7 +130,7 @@ const RelayStoreContext = (props: GlobalStoreContextProps) => {
       {props.children}
       {!hasNostrInWindow() && (
         <div class="fixed top-0 left-0 flex h-screen w-screen items-center justify-center bg-gray-600/20 backdrop-blur-sm">
-          <div class="max-w-[70%] rounded-lg bg-black px-8 py-4 text-red-500">
+          <div class="rounded-lg bg-black px-8 py-4 text-red-500">
             You need to install{` `}
             <a
               href="https://chrome.google.com/webstore/detail/nos2x/kpgefcfmnafjgpblomihpgmejjdanjjp"

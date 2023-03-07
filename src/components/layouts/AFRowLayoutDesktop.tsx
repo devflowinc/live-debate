@@ -927,7 +927,7 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
 
   return (
     <div>
-      <div class="flex w-full space-x-2 px-10">
+      <div class="flex w-full flex-col space-x-2 md:flex-row">
         <Column
           onClosedClick={toggleColumnZero}
           classList={getClassNamesList(0)}

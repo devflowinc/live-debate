@@ -57,7 +57,7 @@ const NostrUserName = (props: NostrUserNameProps) => {
   });
 
   return (
-    <div class="flex items-center space-x-1">
+    <div class="flex items-center space-x-1 text-sm">
       {userImage() ? <img class="h-8 w-8" src={userImage()} /> : <CgProfile />}
       {userName() && <span>{userName()}</span>}
       {!userName() && (
