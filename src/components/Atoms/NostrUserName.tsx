@@ -42,7 +42,6 @@ const NostrUserName = (props: NostrUserNameProps) => {
 
       console.log("fetching user metadata");
       metadataSub.on("event", (event: Event) => {
-        console.log("fetching user metadata");
         const metadata = JSON.parse(event.content) as NostrUserMetadata;
         setUserName(metadata.name);
         setUserImage(metadata.picture);
