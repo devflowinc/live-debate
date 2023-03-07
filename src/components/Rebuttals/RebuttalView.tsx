@@ -1,4 +1,5 @@
 import { VsReply } from "solid-icons/vs";
+import { CgProfile } from "solid-icons/cg";
 import { For } from "solid-js";
 import { Rebuttal } from "./types";
 import { ScrollRelevantElementsIntoViewButton } from "../layouts/ScrollRelevantElementsIntoView";
@@ -62,11 +63,18 @@ export const RebuttalView = (props: RebuttalViewProps) => {
           <VsReply />
         </button>
       </div>
-      <div class="flex flex-row space-x-2">
+      <div class="flex items-center justify-between">
         <ScrollRelevantElementsIntoViewButton
           statementId={props.rebuttal.originalStatementEventId}
           typesToScrollIntoView={["statement", "counterargument", "summary"]}
         />
+        <div class="flex items-center space-x-1">
+          <CgProfile />
+          <p>
+            {props.rebuttal.event.pubkey.slice(0, 3)}...
+            {props.rebuttal.event.pubkey.slice(-3)}
+          </p>
+        </div>
       </div>
     </div>
   );

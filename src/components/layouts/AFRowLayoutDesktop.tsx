@@ -1095,9 +1095,7 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
                         originalStatementId={
                           counterArgumentGroup[0].previousEventId
                         }
-                        counterArgumentContent={
-                          counterArgument.counterArgumentContent
-                        }
+                        counterArgument={counterArgument}
                         onSummaryClick={() => {
                           globalContext.setHighlightedEventId(
                             counterArgumentGroup[0].previousEventId,
