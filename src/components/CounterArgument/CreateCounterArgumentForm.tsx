@@ -59,7 +59,10 @@ export const CreateCounterArgumentForm = (
 
   createEffect(() => {
     if (!creating()) return;
-    if (getDescription() === "" || !selectedComboboxItems().length) {
+    if (
+      getDescription() === "" ||
+      (warrantOrImpact() === "warrant" && !selectedComboboxItems().length)
+    ) {
       globalContext.createToast({
         type: "error",
         message: "Please fill out all fields",
