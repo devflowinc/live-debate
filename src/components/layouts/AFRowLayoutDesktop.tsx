@@ -214,6 +214,7 @@ export const subscribeToArguflowFeedByEventAndValue = ({
 
 export interface AFRowLayoutDesktopProps {
   topic: Accessor<Topic | null>;
+  addPubKey: (pubkey: string) => void;
   currentTopicValue: Accessor<TopicValue | undefined>;
   viewMode: "aff" | "neg";
 }
@@ -361,6 +362,7 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
         });
       },
       onStatementReceived: ({ type, statementCWI, event, previousEventId }) => {
+        props.addPubKey(event.pubkey);
         const currentTopic = props.topic();
         if (!currentTopic) {
           return;
@@ -387,6 +389,7 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
         previousEventId,
         rebuttalContent,
       }) => {
+        props.addPubKey(event.pubkey);
         const currentTopic = props.topic();
         if (!currentTopic) {
           return;
@@ -413,6 +416,7 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
         previousEventId,
         counterArgumentContent,
       }) => {
+        props.addPubKey(event.pubkey);
         const currentTopic = props.topic();
         if (!currentTopic) {
           return;
@@ -438,6 +442,7 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
         });
       },
       onSummaryReceived({ type, event, previousEventId, summaryContent }) {
+        props.addPubKey(event.pubkey);
         const currentTopic = props.topic();
         if (!currentTopic) {
           return;
@@ -459,6 +464,7 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
         });
       },
       onWarrantReceived({ event, warrantContent }) {
+        props.addPubKey(event.pubkey);
         const currentTopic = props.topic();
         if (!currentTopic) {
           return;
