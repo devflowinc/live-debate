@@ -318,6 +318,20 @@ export const AFRowLayoutDesktop = (props: AFRowLayoutDesktopProps) => {
     });
   });
 
+  createEffect((prevTopicValue) => {
+    const currentTopicVal = props.currentTopicValue();
+    if (currentTopicVal === prevTopicValue) {
+      return currentTopicVal;
+    }
+
+    setImpactEventBeingRebutted(undefined);
+    setWarrantEventBeingRebutted(undefined);
+    setEventBeingCounterArgued(undefined);
+    setEventBeingSummarized(undefined);
+
+    return currentTopicVal;
+  });
+
   createEffect(() => {
     if (!globalContext.relays?.().find((relay) => relay.connected)) {
       return;
