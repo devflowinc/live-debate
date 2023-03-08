@@ -1,7 +1,7 @@
 import { CounterArgument } from "./types";
 import { ScrollRelevantElementsIntoViewButton } from "../layouts/ScrollRelevantElementsIntoView";
 import { AiOutlineFunnelPlot } from "solid-icons/ai";
-import { For } from "solid-js";
+import { For, createMemo } from "solid-js";
 import NostrUserName from "../Atoms/NostrUserName";
 
 export interface CounterArgumentViewProps {
@@ -12,20 +12,25 @@ export interface CounterArgumentViewProps {
 }
 
 export const CounterArgumentView = (props: CounterArgumentViewProps) => {
+  const viewMode = createMemo(() => {
+    const counterWarrantsExist =
+      props.counterArgument.counterArgumentContent.counterWarrants &&
+      props.counterArgument.counterArgumentContent.counterWarrants.length > 0;
+    return counterWarrantsExist ? "warrant" : "description";
+  });
+
   return (
     <div
       classList={{
         "flex flex-col space-y-2 rounded-md border-2 p-2 text-white": true,
-        "border-orange-500":
-          !!props.counterArgument.counterArgumentContent.counterWarrants,
-        "border-fuchsia-500":
-          !props.counterArgument.counterArgumentContent.counterWarrants,
+        "border-orange-500": viewMode() === "warrant",
+        "border-fuchsia-500": viewMode() === "description",
         "bg-neutral-900": props.highlighted,
       }}
     >
       <div class="flex w-full flex-row items-center justify-between space-x-2">
         <div class="grid grid-cols-[24px_1fr]">
-          {props.counterArgument.counterArgumentContent.counterWarrants && (
+          {viewMode() === "warrant" && (
             <>
               <div class="font-bold text-orange-500">W</div>
               <div class="flex w-full flex-row items-center justify-between space-x-2 text-orange-500">
