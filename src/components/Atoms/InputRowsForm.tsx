@@ -23,7 +23,7 @@ const InputRowsForm = (props: InputRowsFormProps) => {
   });
 
   return (
-    <div class={`w-full rounded border ${borderColor()} px-2 py-2 border-fuchsia-400 dark:text-white `}
+    <div class={`w-full rounded border dark:${borderColor()} px-2 py-2 border-fuchsia-400 dark:text-white `}
     >
       <div class="flex flex-col space-y-4">
         <div class="flex flex-col space-y-1">

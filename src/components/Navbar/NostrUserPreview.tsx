@@ -97,7 +97,7 @@ const NostrUserPreview = () => {
   }...${globalStore.connectedUser?.()?.publicKey.slice(-3) ?? ""}`;
 
   return (
-    <div class="text-white">
+    <div class="dark:text-white">
       {globalStore.connectedUser?.()?.name ? (
         <UserPreview user={globalStore.connectedUser()} />
       ) : (
