@@ -35,7 +35,7 @@ const ValueSplitButton = (props: ValueSplitButtonProps) => {
                   props.topicValues()[props.selectedTopic()].description
                 }
               >
-                <div class="text-regular w-full border-b border-purple-500 px-2 py-1 text-center text-base text-purple-300/90">
+                <div class="text-regular w-full border-b border-purple-500 px-2 py-1 text-center text-base text-purple-800 dark:text-purple-300/90">
                   {props.topicValues()[props.selectedTopic()].description}
                 </div>
               </Show>
@@ -73,7 +73,7 @@ const ValueSplitButton = (props: ValueSplitButtonProps) => {
               </div>
               <Show when={isOpen()}>
                 <PopoverPanel class="absolute z-10 w-full" unmount={false}>
-                  <Menu class="left-0 mt-1 flex w-full origin-top-left flex-col space-y-1 rounded-lg bg-gray-800 p-1 py-2 shadow-lg ring-1 ring-black ring-opacity-5">
+                  <Menu class="left-0 mt-1 flex w-full origin-top-left flex-col space-y-1 rounded-lg bg-fuchsia-200 dark:bg-gray-800 p-1 py-2 shadow-lg ring-1 ring-black ring-opacity-5">
                     <MenuItem as="button" aria-label="hidden" />
                     <For each={props.topicValues()}>
                       {(value, index) => {
@@ -85,9 +85,9 @@ const ValueSplitButton = (props: ValueSplitButtonProps) => {
                             <MenuItem
                               as="div"
                               classList={{
-                                "text-purple-500 rounded px-2 hover:cursor-pointer hover:bg-gray-700 w-full":
+                                "text-purple-500 rounded px-2 hover:cursor-pointer hover:bg-blue-300 dark:hover:bg-gray-700 w-full":
                                   true,
-                                "bg-gray-700 text-purple-500":
+                                "bg-sky-200 dark:bg-gray-700 text-purple-500":
                                   props.topicValues()[props.selectedTopic()]
                                     .name === value.name,
                                 "text-purple-400":

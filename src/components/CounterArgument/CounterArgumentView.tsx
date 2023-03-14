@@ -22,10 +22,10 @@ export const CounterArgumentView = (props: CounterArgumentViewProps) => {
   return (
     <div
       classList={{
-        "flex flex-col space-y-2 rounded-md border-2 p-2 text-white": true,
+        "flex flex-col space-y-2 rounded-md border-2 p-2 text-black dark:text-white": true,
         "border-orange-500": viewMode() === "warrant",
         "border-fuchsia-500": viewMode() === "description",
-        "bg-neutral-900": props.highlighted,
+        "bg-blue-100 dark:bg-neutral-900": props.highlighted,
       }}
     >
       <div class="flex w-full flex-row items-center justify-between space-x-2">

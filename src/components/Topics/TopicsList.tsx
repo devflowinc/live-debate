@@ -111,13 +111,13 @@ const TopicsList = () => {
       <For each={globalContext.userTopics?.()}>
         {(topic) => {
           return (
-            <div class="w-full rounded-lg bg-gray-800">
+            <div class="w-full rounded-lg bg-emerald-200 dark:bg-gray-800">
               <A
                 // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
                 href={`/topics/${topic.event.id}`}
                 aria-label="topic detail page"
               >
-                <div class="p-4 text-lg font-bold text-white">
+                <div class="p-4 text-lg font-bold text-blue-600 dark:text-white border rounded-lg border-violet-400">
                   {topic.title}
                 </div>
               </A>
@@ -126,7 +126,7 @@ const TopicsList = () => {
         }}
       </For>
       {!globalContext.userTopics?.().length && (
-        <div class="w-full text-center text-lg font-bold text-white">
+        <div class="w-full text-center text-lg font-bold text-blue-600 dark:text-white">
           You have no topics yet
         </div>
       )}

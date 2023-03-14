@@ -18,9 +18,9 @@ const ConnectIdButton = () => {
   const globalStore = useContext(GlobalContext);
 
   return (
-    <div class="h-fit w-fit rounded-full border border-yellow-500">
+    <div class="h-fit w-fit rounded-full border border-sky-500 dark:border-yellow-500">
       <button
-        class="px-4 py-2 text-yellow-500"
+        class="px-4 py-2 text-sky-500 dark:text-yellow-500"
         onClick={() => {
           void getNostrPublicKey().then((nostrPublicKey) => {
             globalStore.setConnectedUser({

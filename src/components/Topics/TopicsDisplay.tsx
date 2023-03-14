@@ -52,12 +52,12 @@ const TopicsDisplay = () => {
   };
 
   return (
-    <div class="flex w-full flex-col items-center justify-center space-y-6 rounded-lg border border-slate-600 py-2 md:max-w-[75%]">
-      <div class="flex w-full items-center justify-center space-x-3 border-b border-slate-700 py-2">
-        <div class="w-fit text-2xl font-bold text-white">Your Topics</div>
+    <div class="flex w-full flex-col items-center justify-center space-y-6 rounded-lg border border-violet-400 dark:border-slate-600 py-2 md:max-w-[75%]">
+      <div class="flex w-full items-center justify-center space-x-3 border-b border-violet-400 dark:border-slate-700 py-2">
+        <div class="w-fit text-2xl font-bold text-blue-700 dark:text-white">Your Topics</div>
         {!showCreateTopicForm() && (
           <button
-            class="rounded-full border border-green-500 bg-transparent p-2 text-green-500"
+            class="rounded-full border border-teal-300 dark:border-green-700 bg-transparent p-2 text-green-500"
             onClick={() => {
               setShowCreateTopicForm(true);
             }}

@@ -14,11 +14,11 @@ export const RebuttalView = (props: RebuttalViewProps) => {
   return (
     <div
       classList={{
-        "rounded-md border-2 p-2 text-white w-full flex flex-col space-y-2":
+        "rounded-md border-2 p-2 text-black dark:text-white w-full flex flex-col space-y-2":
           true,
         "border-orange-500": !!props.rebuttal.rebuttalContent.counterWarrants,
         "border-fuchsia-500": !props.rebuttal.rebuttalContent.counterWarrants,
-        "bg-neutral-900": props.highlighted,
+        "dark:bg-neutral-900": props.highlighted,
       }}
     >
       <div class="flex w-full flex-row items-center justify-between space-x-2">

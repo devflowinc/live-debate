@@ -17,7 +17,7 @@ export const StatementCWIView = (props: StatementCWIViewProps) => {
       classList={{
         "flex flex-col space-y-2 rounded-md border-2 border-indigo-500/75 p-2 text-white":
           true,
-        "bg-neutral-900": props.highlighted,
+        "bg-sky-100 dark:bg-neutral-900": props.highlighted,
       }}
       id={`statement-${props.statement.event.id}`}
     >

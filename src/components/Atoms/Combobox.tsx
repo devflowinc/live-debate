@@ -77,7 +77,7 @@ export const Combobox = (props: ComboboxProps) => {
     <div class="afCombobox w-full">
       <Popover class="relative w-full" defaultOpen={false}>
         <input
-          class="w-full rounded border border-white bg-slate-900 px-2 text-white"
+          class="w-full rounded border border-fuchsia-300 dark:border-white bg-white dark:bg-slate-900 px-2 text-black dark:text-white"
           type="text"
           onFocus={() => sePanelOpen(true)}
           onBlur={() => !usingPanel() && sePanelOpen(false)}
@@ -88,7 +88,7 @@ export const Combobox = (props: ComboboxProps) => {
         <PopoverPanel
           unmount={false}
           classList={{
-            "absolute w-full left-1/2 z-10 mt-1 -translate-x-1/2 transform p-2 bg-gray-800 rounded-lg":
+            "absolute w-full left-1/2 z-10 mt-1 -translate-x-1/2 transform p-2 bg-pink-300 dark:bg-gray-800 rounded-lg":
               true,
             hidden: !panelOpen(),
           }}
@@ -100,7 +100,7 @@ export const Combobox = (props: ComboboxProps) => {
           }}
         >
           {props.aboveOptionsElement}
-          <Menu class="flex w-full flex-col space-y-1 overflow-y-auto bg-gray-800 shadow-lg ring-1 ring-black ring-opacity-5 overflow-x-hidden">
+          <Menu class="flex w-full rounded flex-col space-y-1 overflow-y-auto bg-pink-50 dark:bg-gray-800 shadow-lg ring-1 ring-black ring-opacity-5 overflow-x-hidden">
             <For each={filteredOptionsWithIsSelected()}>
               {(option) => {
                 const onClick = (e: Event) => {
@@ -111,7 +111,7 @@ export const Combobox = (props: ComboboxProps) => {
                 return (
                   <MenuItem
                     as="button"
-                    class="afCombobox flex items-center justify-between rounded p-1 focus:bg-orange-500 focus:text-white focus:outline-none hover:bg-orange-500 hover:text-white"
+                    class="afCombobox flex items-center justify-between rounded p-1 focus:bg-rose-400 dark:focus:bg-orange-500 focus:text-black dark:focus:text-white focus:outline-none dark:hover:bg-orange-500 dark:hover:text-white"
                     onClick={onClick}
                   >
                     <div class="flex flex-row space-x-2">
