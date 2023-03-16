@@ -91,6 +91,7 @@ export const Combobox = (props: ComboboxProps) => {
               } else if (e.key == "Escape") {
                 sePanelOpen(false);
               } else if (e.key == "Tab") {
+                e.preventDefault(); // Prevents tabbing out of the input
                 const options = filteredOptionsWithIsSelected();
                 if (options.length == 1) {
                   props.onSelect(options[0]);
