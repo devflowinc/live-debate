@@ -43,8 +43,10 @@ export const Combobox = (props: ComboboxProps) => {
     });
 
     if (!inputValue()) return optionsWithSelected;
-    return optionsWithSelected.filter((option) =>
-      option.name.toLowerCase().includes(inputValue().toLowerCase()),
+    return optionsWithSelected.filter(
+      (option) =>
+        option.name.toLowerCase().includes(inputValue().toLowerCase()) &&
+        !option.isSelected,
     );
   });
 
