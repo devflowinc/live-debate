@@ -9,7 +9,7 @@ import {
   onCleanup,
 } from "solid-js";
 import { FiExternalLink } from "solid-icons/fi";
-import { FaSolidCheck } from "solid-icons/fa";
+import { AiOutlineClose } from "solid-icons/ai";
 
 export interface comboboxItem {
   name: string;
@@ -66,16 +66,30 @@ export const Combobox = (props: ComboboxProps) => {
   return (
     <div class="afCombobox w-full">
       <Popover class="relative w-full" defaultOpen={false}>
-        <div class="flex w-full rounded border border-white bg-slate-900 px-2 text-white">
+        <div class="flex w-full flex-wrap space-x-1 space-y-1 rounded border border-white bg-slate-900 px-2 py-3 text-white">
           <For each={props.selected()}>
-            {(choice) => (
-              <div class="w-full rounded-lg bg-slate-700 px-3 py-2">
-                {choice.name}
-              </div>
-            )}
+            {(choice) => {
+              const onClick = () => {
+                props.onSelect(choice);
+              };
+
+              return (
+                <span class="flex space-x-2 rounded-lg bg-slate-700 px-3 py-2">
+                  <span class="w-fit whitespace-nowrap line-clamp-1">
+                    {choice.name}
+                  </span>
+                  <div>
+                    <AiOutlineClose
+                      class="inline cursor-pointer"
+                      onClick={onClick}
+                    />
+                  </div>
+                </span>
+              );
+            }}
           </For>
           <input
-            class="flex w-full rounded bg-slate-900 px-2 text-white focus:outline-none focus:ring-0"
+            class="rounded bg-slate-900 px-2 text-white focus:outline-none focus:ring-0"
             type="text"
             onFocus={() => sePanelOpen(true)}
             onBlur={() => !usingPanel() && sePanelOpen(false)}
@@ -93,6 +107,7 @@ export const Combobox = (props: ComboboxProps) => {
               } else if (e.key == "Tab") {
                 e.preventDefault(); // Prevents tabbing out of the input
                 const options = filteredOptionsWithIsSelected();
+                console.log("length ", options.length, options);
                 if (options.length == 1) {
                   props.onSelect(options[0]);
                   setInputValue("");
