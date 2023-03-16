@@ -83,7 +83,7 @@ export const CreateStatementForm = (props: CreateStatementFormProps) => {
                         return prevOption.eventId === option.eventId;
                       });
                       if (!prevIncludesOption) {
-                        return [option, ...prev];
+                        return [...prev, option];
                       }
                       return prev.filter(
                         (prevOption) => prevOption.eventId !== option.eventId,
