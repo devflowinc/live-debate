@@ -30,6 +30,8 @@ export const Combobox = (props: ComboboxProps) => {
   const [usingPanel, setUsingPanel] = createSignal(false);
   const [inputValue, setInputValue] = createSignal("");
 
+  let inputBox: HTMLInputElement | undefined = undefined;
+
   const filteredOptionsWithIsSelected = createMemo(() => {
     const selected = props.selected();
     const optionsWithSelected = props.options().map((option) => {
@@ -68,7 +70,14 @@ export const Combobox = (props: ComboboxProps) => {
   return (
     <div class="afCombobox w-full">
       <Popover class="relative w-full" defaultOpen={false}>
-        <div class="flex w-full flex-wrap space-x-1 space-y-1 rounded border border-white bg-slate-900 px-2 py-3 text-white">
+        <div
+          tabindex={0}
+          onFocus={() => {
+            setUsingPanel(true);
+            inputBox?.focus();
+          }}
+          class="flex w-full flex-wrap space-x-1 space-y-1 rounded border border-white bg-slate-900 px-2 py-3 text-white"
+        >
           <For each={props.selected()}>
             {(choice) => {
               const onClick = () => {
@@ -91,6 +100,8 @@ export const Combobox = (props: ComboboxProps) => {
             }}
           </For>
           <input
+            ref={inputBox}
+            tabindex={-1}
             class="rounded bg-slate-900 px-2 text-white focus:outline-none focus:ring-0"
             type="text"
             onFocus={() => sePanelOpen(true)}
