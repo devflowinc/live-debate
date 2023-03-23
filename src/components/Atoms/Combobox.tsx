@@ -9,7 +9,7 @@ import {
   onCleanup,
 } from "solid-js";
 import { FiExternalLink } from "solid-icons/fi";
-import { FaSolidCheck } from "solid-icons/fa";
+import { AiOutlineClose } from "solid-icons/ai";
 
 export interface comboboxItem {
   name: string;
@@ -30,6 +30,9 @@ export const Combobox = (props: ComboboxProps) => {
   const [usingPanel, setUsingPanel] = createSignal(false);
   const [inputValue, setInputValue] = createSignal("");
 
+  // eslint-disable-next-line prefer-const
+  let inputBox: HTMLInputElement | undefined = undefined;
+
   const filteredOptionsWithIsSelected = createMemo(() => {
     const selected = props.selected();
     const optionsWithSelected = props.options().map((option) => {
@@ -43,8 +46,10 @@ export const Combobox = (props: ComboboxProps) => {
     });
 
     if (!inputValue()) return optionsWithSelected;
-    return optionsWithSelected.filter((option) =>
-      option.name.toLowerCase().includes(inputValue().toLowerCase()),
+    return optionsWithSelected.filter(
+      (option) =>
+        option.name.toLowerCase().includes(inputValue().toLowerCase()) &&
+        !option.isSelected,
     );
   });
 
@@ -63,28 +68,68 @@ export const Combobox = (props: ComboboxProps) => {
     });
   });
 
-  const placeholder = createMemo(() => {
-    let placeholder = "";
-    const selected = props.selected();
-    selected.forEach((option) => {
-      placeholder != "" && (placeholder += ", ");
-      placeholder += option.name;
-    });
-    return placeholder;
-  });
-
   return (
     <div class="afCombobox w-full">
       <Popover class="relative w-full" defaultOpen={false}>
-        <input
-          class="w-full rounded border border-white bg-slate-900 px-2 text-white"
-          type="text"
-          onFocus={() => sePanelOpen(true)}
-          onBlur={() => !usingPanel() && sePanelOpen(false)}
-          value={inputValue()}
-          onInput={(e) => setInputValue(e.currentTarget.value)}
-          placeholder={placeholder()}
-        />
+        <div
+          tabindex={0}
+          onFocus={() => {
+            setUsingPanel(true);
+            inputBox?.focus();
+          }}
+          class="flex w-full flex-wrap space-x-1 space-y-1 rounded border border-white bg-slate-900 px-2 py-3 text-white"
+        >
+          <For each={props.selected()}>
+            {(choice) => {
+              const onClick = () => {
+                props.onSelect(choice);
+              };
+
+              return (
+                <span class="flex space-x-2 rounded-lg bg-slate-700 px-3 py-2">
+                  <span class="w-fit whitespace-nowrap line-clamp-1">
+                    {choice.name}
+                  </span>
+                  <div>
+                    <AiOutlineClose
+                      class="inline cursor-pointer"
+                      onClick={onClick}
+                    />
+                  </div>
+                </span>
+              );
+            }}
+          </For>
+          <input
+            ref={inputBox}
+            tabindex={-1}
+            class="rounded bg-slate-900 px-2 text-white focus:outline-none focus:ring-0"
+            type="text"
+            onFocus={() => sePanelOpen(true)}
+            onBlur={() => !usingPanel() && sePanelOpen(false)}
+            value={inputValue()}
+            onInput={(e) => setInputValue(e.currentTarget.value)}
+            onKeyDown={(e) => {
+              if (e.key == "Backspace") {
+                if (inputValue() == "" && props.selected().length > 0) {
+                  const selected = props.selected();
+                  props.onSelect(selected[selected.length - 1]);
+                  setInputValue("");
+                }
+              } else if (e.key == "Escape") {
+                sePanelOpen(false);
+              } else if (e.key == "Tab") {
+                e.preventDefault(); // Prevents tabbing out of the input
+                const options = filteredOptionsWithIsSelected();
+                console.log("length ", options.length, options);
+                if (options.length == 1) {
+                  props.onSelect(options[0]);
+                  setInputValue("");
+                }
+              }
+            }}
+          />
+        </div>
         <PopoverPanel
           unmount={false}
           classList={{
@@ -103,9 +148,12 @@ export const Combobox = (props: ComboboxProps) => {
           <Menu class="flex w-full flex-col space-y-1 overflow-y-auto bg-gray-800 shadow-lg ring-1 ring-black ring-opacity-5 overflow-x-hidden">
             <For each={filteredOptionsWithIsSelected()}>
               {(option) => {
+                if (option.isSelected) return;
+
                 const onClick = (e: Event) => {
                   e.stopPropagation();
                   props.onSelect(option);
+                  setInputValue("");
                 };
 
                 return (
@@ -124,11 +172,6 @@ export const Combobox = (props: ComboboxProps) => {
                       )}
                       <span>{option.name}</span>
                     </div>
-                    {option.isSelected && (
-                      <span>
-                        <FaSolidCheck class="text-xl" />
-                      </span>
-                    )}
                   </MenuItem>
                 );
               }}
