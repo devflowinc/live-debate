@@ -30,6 +30,7 @@ export const Combobox = (props: ComboboxProps) => {
   const [usingPanel, setUsingPanel] = createSignal(false);
   const [inputValue, setInputValue] = createSignal("");
 
+  // eslint-disable-next-line prefer-const
   let inputBox: HTMLInputElement | undefined = undefined;
 
   const filteredOptionsWithIsSelected = createMemo(() => {
