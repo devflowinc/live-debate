@@ -117,7 +117,7 @@ const TopicsList = () => {
                 href={`/topics/${topic.event.id}`}
                 aria-label="topic detail page"
               >
-                <div class="p-4 text-lg font-bold text-blue-600 dark:text-white border rounded-lg border-violet-400">
+                <div class="rounded-lg border border-violet-400 p-4 text-lg font-bold text-blue-600 dark:text-white">
                   {topic.title}
                 </div>
               </A>

@@ -71,6 +71,9 @@ const RelayStoreContext = (props: GlobalStoreContextProps) => {
   const [connectedUser, setConnectedUser] = createSignal<User | null>(null);
   const [highlightedEventId, setHighlightedEventId] = createSignal<string>("");
   const [userTopics, setUserTopics] = createSignal<Topic[]>([]);
+  const [theme, setTheme] = createSignal<"dark" | "light" | "default">(
+    "default",
+  );
   const [relayStore, setRelayStore] = createSignal<RelayContainer[]>([
     {
       name: "arguflow",

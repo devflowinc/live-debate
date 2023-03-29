@@ -272,7 +272,7 @@ const TopicDetail = () => {
     <ApplicationLayout>
       <div class="flex flex-col space-y-4 px-4 py-2 md:px-8 md:py-4">
         <div class="mt-4 flex w-full justify-center">
-          <div class="flex w-full flex-col items-center justify-center space-y-6 rounded-lg border border-emerald-300 dark:border-slate-600 p-2 md:px-8 md:py-4">
+          <div class="flex w-full flex-col items-center justify-center space-y-6 rounded-lg border border-emerald-300 p-2 dark:border-slate-600 md:px-8 md:py-4">
             <div class="flex w-full flex-wrap items-center justify-center space-x-4 space-y-2 md:justify-between md:space-x-6 ">
               <div class="md:min-w-[30%] md:max-w-[40%]">
                 <ValueSplitButton

@@ -77,7 +77,7 @@ export const Combobox = (props: ComboboxProps) => {
     <div class="afCombobox w-full">
       <Popover class="relative w-full" defaultOpen={false}>
         <input
-          class="w-full rounded border border-fuchsia-300 dark:border-white bg-white dark:bg-slate-900 px-2 text-black dark:text-white"
+          class="w-full rounded border border-fuchsia-300 bg-white px-2 text-black dark:border-white dark:bg-slate-900 dark:text-white"
           type="text"
           onFocus={() => sePanelOpen(true)}
           onBlur={() => !usingPanel() && sePanelOpen(false)}
@@ -100,7 +100,7 @@ export const Combobox = (props: ComboboxProps) => {
           }}
         >
           {props.aboveOptionsElement}
-          <Menu class="flex w-full rounded flex-col space-y-1 overflow-y-auto bg-pink-50 dark:bg-gray-800 shadow-lg ring-1 ring-black ring-opacity-5 overflow-x-hidden">
+          <Menu class="flex w-full flex-col space-y-1 overflow-y-auto rounded bg-pink-50 shadow-lg ring-1 ring-black ring-opacity-5 overflow-x-hidden dark:bg-gray-800">
             <For each={filteredOptionsWithIsSelected()}>
               {(option) => {
                 const onClick = (e: Event) => {
@@ -111,7 +111,7 @@ export const Combobox = (props: ComboboxProps) => {
                 return (
                   <MenuItem
                     as="button"
-                    class="afCombobox flex items-center justify-between rounded p-1 focus:bg-rose-400 dark:focus:bg-orange-500 focus:text-black dark:focus:text-white focus:outline-none dark:hover:bg-orange-500 dark:hover:text-white"
+                    class="afCombobox flex items-center justify-between rounded p-1 focus:bg-rose-400 focus:text-black focus:outline-none dark:focus:bg-orange-500 dark:focus:text-white dark:hover:bg-orange-500 dark:hover:text-white"
                     onClick={onClick}
                   >
                     <div class="flex flex-row space-x-2">

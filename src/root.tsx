@@ -12,10 +12,15 @@ import {
 } from "solid-start";
 import "./root.css";
 import RelayStoreContext from "./contexts/GlobalContext";
+import theme from "./contexts/GlobalContext";
 
 export default function Root() {
-  let setDark = ""
-  if(localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches))
+  let setDark = "";
+  if (
+    localStorage.theme === "dark" ||
+    (!("theme" in localStorage) &&
+      window.matchMedia("(prefers-color-scheme: dark)").matches)
+  )
     setDark = "dark";
   return (
     <Html lang="en" class={setDark}>

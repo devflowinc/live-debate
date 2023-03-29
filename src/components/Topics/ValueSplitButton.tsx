@@ -73,7 +73,7 @@ const ValueSplitButton = (props: ValueSplitButtonProps) => {
               </div>
               <Show when={isOpen()}>
                 <PopoverPanel class="absolute z-10 w-full" unmount={false}>
-                  <Menu class="left-0 mt-1 flex w-full origin-top-left flex-col space-y-1 rounded-lg bg-fuchsia-200 dark:bg-gray-800 p-1 py-2 shadow-lg ring-1 ring-black ring-opacity-5">
+                  <Menu class="left-0 mt-1 flex w-full origin-top-left flex-col space-y-1 rounded-lg bg-fuchsia-200 p-1 py-2 shadow-lg ring-1 ring-black ring-opacity-5 dark:bg-gray-800">
                     <MenuItem as="button" aria-label="hidden" />
                     <For each={props.topicValues()}>
                       {(value, index) => {

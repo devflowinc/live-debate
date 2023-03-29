@@ -15,7 +15,7 @@ export const StatementCWIView = (props: StatementCWIViewProps) => {
   return (
     <div
       classList={{
-        "flex flex-col space-y-2 rounded-md border-2 border-indigo-500/75 p-2 text-white":
+        "flex flex-col space-y-2 rounded-md border-2 border-indigo-500/75 p-2 dark:text-white":
           true,
         "bg-sky-100 dark:bg-neutral-900": props.highlighted,
       }}
