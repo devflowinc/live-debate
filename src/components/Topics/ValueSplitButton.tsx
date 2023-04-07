@@ -25,7 +25,7 @@ export interface ValueSplitButtonProps {
 const ValueSplitButton = (props: ValueSplitButtonProps) => {
   return (
     <div>
-      <div class="relative h-fit w-full rounded border border-purple-500 text-xl">
+      <div class="relative h-fit w-full rounded border border-indigo-500 text-xl">
         <Popover defaultOpen={false} class="relative w-full">
           {({ isOpen }) => (
             <div class="relative w-full">
@@ -35,34 +35,26 @@ const ValueSplitButton = (props: ValueSplitButtonProps) => {
                   props.topicValues()[props.selectedTopic()].description
                 }
               >
-                <div class="text-regular w-full border-b border-purple-500 px-2 py-1 text-center text-base text-purple-800 dark:text-purple-300/90">
+                <div class="text-regular w-full border-b border-indigo-500 px-2 py-1 text-center text-base text-indigo-800 dark:text-indigo-300/90">
                   {props.topicValues()[props.selectedTopic()].description}
                 </div>
               </Show>
               <div class="w-full">
-                <table class="h-fit w-full table-auto items-center text-purple-500">
+                <table class="h-fit w-full table-auto items-center text-indigo-500">
                   <thead>
                     <tr>
-                      <th class="w-full border-r border-purple-500 px-2 font-normal">
+                      <th class="w-full border-r border-indigo-500 px-2 font-normal">
                         {props.topicValues().length > props.selectedTopic()
                           ? props.topicValues()[props.selectedTopic()].name
                           : "No values exist"}
                       </th>
-                      <th class="h-full w-fit border-r border-purple-500 px-2 hover:cursor-pointer">
-                        {props.topicValues().length <= 1 ? (
-                          <AiOutlineDown />
-                        ) : (
-                          <PopoverButton class="flex w-fit items-center ">
-                            {isOpen() || props.topicValues().length <= 1 ? (
-                              <AiOutlineUp />
-                            ) : (
-                              <AiOutlineDown />
-                            )}
-                          </PopoverButton>
-                        )}
+                      <th class="h-full w-fit border-r border-indigo-500 px-2 hover:cursor-pointer">
+                        <PopoverButton class="flex w-fit items-center ">
+                          {isOpen() ? <AiOutlineUp /> : <AiOutlineDown />}
+                        </PopoverButton>
                       </th>
                       <th
-                        class="w-fit border-purple-500 px-2 hover:cursor-pointer"
+                        class="w-fit border-indigo-500 px-2 hover:cursor-pointer"
                         onClick={() => props.setShowCreateValueForm(true)}
                       >
                         <AiOutlinePlus />
@@ -85,12 +77,12 @@ const ValueSplitButton = (props: ValueSplitButtonProps) => {
                             <MenuItem
                               as="div"
                               classList={{
-                                "text-purple-500 rounded px-2 hover:cursor-pointer hover:bg-blue-300 dark:hover:bg-gray-700 w-full":
+                                "text-indigo-500 rounded px-2 hover:cursor-pointer hover:bg-blue-300 dark:hover:bg-gray-700 w-full":
                                   true,
-                                "bg-sky-200 dark:bg-gray-700 text-purple-500":
+                                "bg-sky-200 dark:bg-gray-700 text-indigo-500":
                                   props.topicValues()[props.selectedTopic()]
                                     .name === value.name,
-                                "text-purple-400":
+                                "text-indigo-400":
                                   props.topicValues()[props.selectedTopic()]
                                     .name !== value.name,
                               }}

@@ -1,5 +1,5 @@
 import { VsReply } from "solid-icons/vs";
-import { For } from "solid-js";
+import { For, Show } from "solid-js";
 import { Rebuttal } from "./types";
 import { ScrollRelevantElementsIntoViewButton } from "../layouts/ScrollRelevantElementsIntoView";
 import NostrUserName from "../Atoms/NostrUserName";
@@ -27,18 +27,30 @@ export const RebuttalView = (props: RebuttalViewProps) => {
             {!!props.rebuttal.rebuttalContent.counterWarrants && (
               <>
                 <div class="font-bold text-orange-500">W</div>
-                <div class="flex w-full flex-row items-center justify-between space-x-2 text-orange-500">
+                <div class="w-full text-orange-500">
                   <For each={props.rebuttal.rebuttalContent.counterWarrants}>
-                    {(warrant) => {
+                    {(warrant, index) => {
                       return (
-                        <a
-                          href={warrant.link}
-                          target="_blank"
-                          rel="noreferrer"
-                          class="underline"
-                        >
-                          {warrant.name}
-                        </a>
+                        <>
+                          <a
+                            href={warrant.link}
+                            target="_blank"
+                            rel="noreferrer"
+                            class="block w-full underline"
+                          >
+                            {warrant.name}
+                            <Show
+                              when={
+                                index() <
+                                (props.rebuttal.rebuttalContent.counterWarrants
+                                  ?.length ?? 1) -
+                                  1
+                              }
+                            >
+                              <span class="text-black dark:text-white">{`  ,`}</span>
+                            </Show>
+                          </a>
+                        </>
                       );
                     }}
                   </For>
@@ -55,9 +67,13 @@ export const RebuttalView = (props: RebuttalViewProps) => {
         <button
           type="button"
           onClick={() => props.onCounterArgumentClick()}
-          aria-label="Create Warrant Rebuttal"
+          aria-label="Create Counterargument"
           classList={{
             "p-1 border rounded-full h-fit self-center": true,
+            "text-orange-500 border-orange-500":
+              !!props.rebuttal.rebuttalContent.counterWarrants,
+            "text-fuchsia-500 border-fuchsia-500":
+              !props.rebuttal.rebuttalContent.counterWarrants,
           }}
         >
           <VsReply />

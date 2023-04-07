@@ -114,7 +114,7 @@ export const Combobox = (props: ComboboxProps) => {
                     class="afCombobox flex items-center justify-between rounded p-1 focus:bg-rose-400 focus:text-black focus:outline-none dark:focus:bg-orange-500 dark:focus:text-white dark:hover:bg-orange-500 dark:hover:text-white"
                     onClick={onClick}
                   >
-                    <div class="flex flex-row space-x-2">
+                    <div class="flex flex-row justify-start space-x-2">
                       {option.link && (
                         <span onClick={(e) => e.stopPropagation()}>
                           <a href={option.link} target="_blank">
@@ -122,7 +122,7 @@ export const Combobox = (props: ComboboxProps) => {
                           </a>
                         </span>
                       )}
-                      <span>{option.name}</span>
+                      <span class="text-left">{option.name}</span>
                     </div>
                     {option.isSelected && (
                       <span>

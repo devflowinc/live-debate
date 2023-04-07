@@ -44,7 +44,7 @@ const ThemeModeController = () => {
               aria-label="Toggle theme mode"
               classList={{
                 "text-gray-500": currentTheme() === "system",
-                "text-violet-500": currentTheme() !== "system",
+                "text-indigo-500": currentTheme() !== "system",
               }}
             >
               <div class="hidden dark:block">
