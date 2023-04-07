@@ -71,69 +71,19 @@ export const Combobox = (props: ComboboxProps) => {
   return (
     <div class="afCombobox w-full">
       <Popover class="relative w-full" defaultOpen={false}>
-        <div
-          tabindex={0}
-          onFocus={() => {
-            setUsingPanel(true);
-            inputBox?.focus();
-          }}
-          class="flex w-full flex-wrap space-x-1 space-y-1 rounded border border-white bg-slate-900 px-2 py-3 text-white"
-        >
-          <For each={props.selected()}>
-            {(choice) => {
-              const onClick = () => {
-                props.onSelect(choice);
-              };
-
-              return (
-                <span class="flex space-x-2 rounded-lg bg-slate-700 px-3 py-2">
-                  <span class="w-fit whitespace-nowrap line-clamp-1">
-                    {choice.name}
-                  </span>
-                  <div>
-                    <AiOutlineClose
-                      class="inline cursor-pointer"
-                      onClick={onClick}
-                    />
-                  </div>
-                </span>
-              );
-            }}
-          </For>
-          <input
-            ref={inputBox}
-            tabindex={-1}
-            class="rounded bg-slate-900 px-2 text-white focus:outline-none focus:ring-0"
-            type="text"
-            onFocus={() => sePanelOpen(true)}
-            onBlur={() => !usingPanel() && sePanelOpen(false)}
-            value={inputValue()}
-            onInput={(e) => setInputValue(e.currentTarget.value)}
-            onKeyDown={(e) => {
-              if (e.key == "Backspace") {
-                if (inputValue() == "" && props.selected().length > 0) {
-                  const selected = props.selected();
-                  props.onSelect(selected[selected.length - 1]);
-                  setInputValue("");
-                }
-              } else if (e.key == "Escape") {
-                sePanelOpen(false);
-              } else if (e.key == "Tab") {
-                e.preventDefault(); // Prevents tabbing out of the input
-                const options = filteredOptionsWithIsSelected();
-                console.log("length ", options.length, options);
-                if (options.length == 1) {
-                  props.onSelect(options[0]);
-                  setInputValue("");
-                }
-              }
-            }}
-          />
-        </div>
+        <input
+          class="w-full rounded border border-fuchsia-300 bg-white px-2 text-black dark:border-white dark:bg-slate-900 dark:text-white"
+          type="text"
+          onFocus={() => sePanelOpen(true)}
+          onBlur={() => !usingPanel() && sePanelOpen(false)}
+          value={inputValue()}
+          onInput={(e) => setInputValue(e.currentTarget.value)}
+          placeholder={placeholder()}
+        />
         <PopoverPanel
           unmount={false}
           classList={{
-            "absolute w-full left-1/2 z-10 mt-1 -translate-x-1/2 transform p-2 bg-gray-800 rounded-lg":
+            "absolute w-full left-1/2 z-10 mt-1 -translate-x-1/2 transform p-2 bg-pink-300 dark:bg-gray-800 rounded-lg":
               true,
             hidden: !panelOpen(),
           }}
@@ -145,7 +95,7 @@ export const Combobox = (props: ComboboxProps) => {
           }}
         >
           {props.aboveOptionsElement}
-          <Menu class="flex w-full flex-col space-y-1 overflow-y-auto bg-gray-800 shadow-lg ring-1 ring-black ring-opacity-5 overflow-x-hidden">
+          <Menu class="flex w-full flex-col space-y-1 overflow-y-auto rounded bg-pink-50 shadow-lg ring-1 ring-black ring-opacity-5 overflow-x-hidden dark:bg-gray-800">
             <For each={filteredOptionsWithIsSelected()}>
               {(option) => {
                 if (option.isSelected) return;
@@ -159,10 +109,10 @@ export const Combobox = (props: ComboboxProps) => {
                 return (
                   <MenuItem
                     as="button"
-                    class="afCombobox flex items-center justify-between rounded p-1 focus:bg-orange-500 focus:text-white focus:outline-none hover:bg-orange-500 hover:text-white"
+                    class="afCombobox flex items-center justify-between rounded p-1 focus:bg-rose-400 focus:text-black focus:outline-none dark:focus:bg-orange-500 dark:focus:text-white dark:hover:bg-orange-500 dark:hover:text-white"
                     onClick={onClick}
                   >
-                    <div class="flex flex-row space-x-2">
+                    <div class="flex flex-row justify-start space-x-2">
                       {option.link && (
                         <span onClick={(e) => e.stopPropagation()}>
                           <a href={option.link} target="_blank">
@@ -170,7 +120,7 @@ export const Combobox = (props: ComboboxProps) => {
                           </a>
                         </span>
                       )}
-                      <span>{option.name}</span>
+                      <span class="text-left">{option.name}</span>
                     </div>
                   </MenuItem>
                 );

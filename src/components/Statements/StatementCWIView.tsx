@@ -1,4 +1,4 @@
-import { For } from "solid-js";
+import { For, Show } from "solid-js";
 import { Statement } from "./types";
 import { VsReply } from "solid-icons/vs";
 import { ScrollRelevantElementsIntoViewButton } from "../layouts/ScrollRelevantElementsIntoView";
@@ -15,9 +15,9 @@ export const StatementCWIView = (props: StatementCWIViewProps) => {
   return (
     <div
       classList={{
-        "flex flex-col space-y-2 rounded-md border-2 border-indigo-500/75 p-2 text-white":
+        "flex flex-col space-y-2 rounded-md border-2 border-indigo-500/75 p-2 dark:text-white":
           true,
-        "bg-neutral-900": props.highlighted,
+        "bg-sky-100 dark:bg-neutral-900": props.highlighted,
       }}
       id={`statement-${props.statement.event.id}`}
     >
@@ -30,18 +30,28 @@ export const StatementCWIView = (props: StatementCWIViewProps) => {
 
           <div class="font-bold text-orange-500">W</div>
           <div class="flex flex-row justify-between">
-            <div class="flex w-full flex-row space-x-2 text-orange-500">
+            <div class="w-full text-orange-500">
               <For each={props.statement.statementCWI.warrants}>
-                {(warrant) => {
+                {(warrant, index) => {
                   return (
-                    <a
-                      href={warrant.link}
-                      target="_blank"
-                      rel="noreferrer"
-                      class="underline"
-                    >
-                      {warrant.name}
-                    </a>
+                    <>
+                      <a
+                        href={warrant.link}
+                        target="_blank"
+                        rel="noreferrer"
+                        class="block w-full underline"
+                      >
+                        {warrant.name}
+                        <Show
+                          when={
+                            index() <
+                            props.statement.statementCWI.warrants.length - 1
+                          }
+                        >
+                          <span class="text-black dark:text-white">{`  ,`}</span>
+                        </Show>
+                      </a>
+                    </>
                   );
                 }}
               </For>

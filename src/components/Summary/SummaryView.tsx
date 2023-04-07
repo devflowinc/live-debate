@@ -11,9 +11,9 @@ export const SummaryView = (props: SummaryViewProps) => {
   return (
     <div
       classList={{
-        "flex w-full flex-col space-y-2 rounded-md border-2 border-indigo-500 p-2 text-white":
+        "flex w-full flex-col space-y-2 rounded-md border-2 border-indigo-500 p-2 text-black dark:text-white":
           true,
-        "bg-neutral-900": props.highlighted,
+        "bg-blue-100 dark:bg-neutral-900": props.highlighted,
       }}
     >
       <div class="grid grid-cols-[24px_1fr]">

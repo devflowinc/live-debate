@@ -27,7 +27,7 @@ export const Column = (props: ColumnProps) => {
       <div class="flex w-full flex-row justify-center">
         <span
           classList={{
-            "text-xl text-white": true,
+            "text-xl text-indigo-700 dark:text-white": true,
             "md:invisible": !props.visible,
           }}
         >

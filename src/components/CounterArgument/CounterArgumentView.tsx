@@ -1,7 +1,7 @@
 import { CounterArgument } from "./types";
 import { ScrollRelevantElementsIntoViewButton } from "../layouts/ScrollRelevantElementsIntoView";
 import { AiOutlineFunnelPlot } from "solid-icons/ai";
-import { For, createMemo } from "solid-js";
+import { For, createMemo, Show } from "solid-js";
 import NostrUserName from "../Atoms/NostrUserName";
 
 export interface CounterArgumentViewProps {
@@ -22,10 +22,11 @@ export const CounterArgumentView = (props: CounterArgumentViewProps) => {
   return (
     <div
       classList={{
-        "flex flex-col space-y-2 rounded-md border-2 p-2 text-white": true,
+        "flex flex-col space-y-2 rounded-md border-2 p-2 text-black dark:text-white":
+          true,
         "border-orange-500": viewMode() === "warrant",
         "border-fuchsia-500": viewMode() === "description",
-        "bg-neutral-900": props.highlighted,
+        "bg-blue-100 dark:bg-neutral-900": props.highlighted,
       }}
     >
       <div class="flex w-full flex-row items-center justify-between space-x-2">
@@ -33,22 +34,34 @@ export const CounterArgumentView = (props: CounterArgumentViewProps) => {
           {viewMode() === "warrant" && (
             <>
               <div class="font-bold text-orange-500">W</div>
-              <div class="flex w-full flex-row items-center justify-between space-x-2 text-orange-500">
+              <div class="w-full text-orange-500">
                 <For
                   each={
                     props.counterArgument.counterArgumentContent.counterWarrants
                   }
                 >
-                  {(warrant) => {
+                  {(warrant, index) => {
                     return (
-                      <a
-                        href={warrant.link}
-                        target="_blank"
-                        rel="noreferrer"
-                        class="underline"
-                      >
-                        {warrant.name}
-                      </a>
+                      <>
+                        <a
+                          href={warrant.link}
+                          target="_blank"
+                          rel="noreferrer"
+                          class="block w-full underline"
+                        >
+                          {warrant.name}
+                          <Show
+                            when={
+                              index() <
+                              (props.counterArgument.counterArgumentContent
+                                .counterWarrants?.length ?? 1) -
+                                1
+                            }
+                          >
+                            <span class="text-black dark:text-white">{`  ,`}</span>
+                          </Show>
+                        </a>
+                      </>
                     );
                   }}
                 </For>
@@ -66,7 +79,15 @@ export const CounterArgumentView = (props: CounterArgumentViewProps) => {
           type="button"
           onClick={() => props.onSummaryClick()}
           aria-label="Create Summary"
-          class="h-fit self-center rounded-full border p-1"
+          classList={{
+            "h-fit self-center rounded-full border p-1": true,
+            "text-orange-500 border-orange-500":
+              !!props.counterArgument.counterArgumentContent.counterWarrants
+                ?.length,
+            "text-fuchsia-500 border-fuchsia-500":
+              !props.counterArgument.counterArgumentContent.counterWarrants
+                ?.length,
+          }}
         >
           <AiOutlineFunnelPlot />
         </button>

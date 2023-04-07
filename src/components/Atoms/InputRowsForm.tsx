@@ -24,7 +24,7 @@ const InputRowsForm = (props: InputRowsFormProps) => {
 
   return (
     <div
-      class={`w-full rounded-lg border ${borderColor()} px-2 py-2 text-white`}
+      class={`w-full rounded border dark:${borderColor()} border-fuchsia-400 px-2 py-2 dark:text-white `}
     >
       <div class="flex flex-col space-y-4">
         <div class="flex flex-col space-y-1">
@@ -35,7 +35,7 @@ const InputRowsForm = (props: InputRowsFormProps) => {
                 {((!inputGroup.component && !inputGroup.type) ||
                   inputGroup.type == "input") && (
                   <input
-                    class="w-full rounded border border-white bg-slate-900 px-2 text-white"
+                    class="w-full rounded border border-fuchsia-300 px-2 dark:border-white dark:bg-slate-900 dark:text-white"
                     type="text"
                     onInput={(e) =>
                       inputGroup.setInputValue?.(e.currentTarget.value)
@@ -45,7 +45,7 @@ const InputRowsForm = (props: InputRowsFormProps) => {
                 )}
                 {!inputGroup.component && inputGroup.type == "textarea" && (
                   <textarea
-                    class="w-full rounded border border-white bg-slate-900 px-2 text-white"
+                    class="w-full rounded border border-fuchsia-300 px-2 text-black dark:border-white dark:bg-slate-900 dark:text-white"
                     onInput={(e) =>
                       inputGroup.setInputValue?.(e.currentTarget.value)
                     }

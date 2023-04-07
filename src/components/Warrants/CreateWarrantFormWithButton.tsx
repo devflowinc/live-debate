@@ -49,7 +49,7 @@ export const CreateWarrantFormWithButton = (
         </button>
       )}
       {formOpen() && (
-        <div class="bg-black">
+        <div class=" rounded-md bg-pink-50 dark:bg-black">
           <InputRowsForm
             createButtonText="Create Warrant"
             inputGroups={[
