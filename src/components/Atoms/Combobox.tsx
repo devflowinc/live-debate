@@ -9,7 +9,7 @@ import {
   onCleanup,
 } from "solid-js";
 import { FiExternalLink } from "solid-icons/fi";
-import { FaSolidCheck } from "solid-icons/fa";
+import { AiOutlineClose } from "solid-icons/ai";
 
 export interface comboboxItem {
   name: string;
@@ -30,6 +30,9 @@ export const Combobox = (props: ComboboxProps) => {
   const [usingPanel, setUsingPanel] = createSignal(false);
   const [inputValue, setInputValue] = createSignal("");
 
+  // eslint-disable-next-line prefer-const
+  let inputBox: HTMLInputElement | undefined = undefined;
+
   const filteredOptionsWithIsSelected = createMemo(() => {
     const selected = props.selected();
     const optionsWithSelected = props.options().map((option) => {
@@ -43,8 +46,10 @@ export const Combobox = (props: ComboboxProps) => {
     });
 
     if (!inputValue()) return optionsWithSelected;
-    return optionsWithSelected.filter((option) =>
-      option.name.toLowerCase().includes(inputValue().toLowerCase()),
+    return optionsWithSelected.filter(
+      (option) =>
+        option.name.toLowerCase().includes(inputValue().toLowerCase()) &&
+        !option.isSelected,
     );
   });
 
@@ -61,16 +66,6 @@ export const Combobox = (props: ComboboxProps) => {
     onCleanup(() => {
       document.removeEventListener("click", handler);
     });
-  });
-
-  const placeholder = createMemo(() => {
-    let placeholder = "";
-    const selected = props.selected();
-    selected.forEach((option) => {
-      placeholder != "" && (placeholder += ", ");
-      placeholder += option.name;
-    });
-    return placeholder;
   });
 
   return (
@@ -103,9 +98,12 @@ export const Combobox = (props: ComboboxProps) => {
           <Menu class="flex w-full flex-col space-y-1 overflow-y-auto rounded bg-pink-50 shadow-lg ring-1 ring-black ring-opacity-5 overflow-x-hidden dark:bg-gray-800">
             <For each={filteredOptionsWithIsSelected()}>
               {(option) => {
+                if (option.isSelected) return;
+
                 const onClick = (e: Event) => {
                   e.stopPropagation();
                   props.onSelect(option);
+                  setInputValue("");
                 };
 
                 return (
@@ -124,11 +122,6 @@ export const Combobox = (props: ComboboxProps) => {
                       )}
                       <span class="text-left">{option.name}</span>
                     </div>
-                    {option.isSelected && (
-                      <span>
-                        <FaSolidCheck class="text-xl" />
-                      </span>
-                    )}
                   </MenuItem>
                 );
               }}
