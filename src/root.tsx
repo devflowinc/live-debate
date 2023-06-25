@@ -28,8 +28,13 @@ export default function Root() {
         <Title>arguflow app</Title>
         <Meta charset="utf-8" />
         <Meta name="viewport" content="width=device-width, initial-scale=1" />
+        <script
+          defer
+          data-domain="app.arguflow.gg"
+          src="https://perhaps.arguflow.com/js/script.js"
+        />
       </Head>
-      <Body class=" bg-white overflow-x-hidden scrollbar-thin scrollbar-track-gray-900 scrollbar-thumb-gray-700">
+      <Body class="bg-white overflow-x-hidden scrollbar-thin scrollbar-track-gray-900 scrollbar-thumb-gray-700">
         <ErrorBoundary>
           <RelayStoreContext>
             <Routes>
